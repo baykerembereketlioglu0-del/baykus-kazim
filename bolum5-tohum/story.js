@@ -9,6 +9,8 @@ const EPISODE = {
   title: 'Tohum',
   quote: 'Planını değil, sonucunu göster.',
   tail: 4.8,
+  music: '../muzik/floating_in_reverie_slowed.m4a', // fon müziği (Moayad Aljabal - Floating In Reverie, slowed)
+  musicVolume: 0.32, rainVolume: 0.07,
   cast: { kazim: { x: 235, y: 985, s: .6 }, demir: { x: 490, y: 990, s: .56 } },
   story: [
     { who: 'demir', mood: 'sad', shot: 'masa', phase: 'goster', flash: true, text: 'Abi, hayallerimi en yakınlarıma anlattım.' },

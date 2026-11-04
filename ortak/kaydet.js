@@ -47,15 +47,19 @@ const progress = [];
   const F0 = Math.round(from * FPS), F1 = Math.ceil(to * FPS), total = F1 - F0, per = Math.ceil(total / WORKERS);
   console.log(`Süre ${(to - from).toFixed(1)} sn, ${total} kare, ${WORKERS} işçi`);
 
-  // 1) ses: müzik + yağmur (+ varsa seslendirme)
-  const mW = path.join(BUILD, 'muzik.wav'), rW = path.join(BUILD, 'yagmur.wav'), aOut = path.join(BUILD, 'ses.m4a');
-  writeWav(mW, ...music(DUR)); writeWav(rW, ...rain(DUR));
+  // 1) ses: fon müziği (bölümde EP.music varsa o şarkı, yoksa prosedürel) + yağmur (+ seslendirme)
+  const EP = require(path.join(EP_DIR, 'story.js'));
+  const rW = path.join(BUILD, 'yagmur.wav'), aOut = path.join(BUILD, 'ses.m4a'); writeWav(rW, ...rain(DUR));
+  let mIn = path.join(BUILD, 'muzik.wav');
+  if (EP.music) mIn = path.resolve(EP_DIR, EP.music); else writeWav(mIn, ...music(DUR));
   const voice = path.join(EP_DIR, 'ses.mp3'), hasVoice = fs.existsSync(voice);
-  const fc = '[0:a]aecho=0.8:0.6:90|170:0.3|0.2,volume=' + (hasVoice ? '0.30' : '0.62') + '[m];[1:a]volume=' + (hasVoice ? '0.22' : '0.34') + '[r];' +
-    (hasVoice ? '[2:a]volume=1.0[v];[m][r][v]amix=inputs=3:normalize=0' : '[m][r]amix=inputs=2:normalize=0') +
-    `,atrim=${from}:${to},asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11[a]`;
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', mW, '-i', rW, ...(hasVoice ? ['-i', voice] : []), '-filter_complex', fc, '-map', '[a]', '-c:a', 'aac', '-b:a', '256k', '-ar', '48000', aOut]);
-  console.log(hasVoice ? 'Ses: müzik + yağmur + seslendirme' : 'Ses: müzik + yağmur (seslendirme yok)');
+  const mv = EP.musicVolume ?? (hasVoice ? 0.32 : 0.6), rv = EP.rainVolume ?? 0.07;
+  const mf = `[0:a]atrim=0:${DUR},asetpts=PTS-STARTPTS,${EP.music ? '' : 'aecho=0.8:0.6:90|170:0.3|0.2,'}afade=t=in:d=1.2,afade=t=out:st=${Math.max(0, DUR - 3.5)}:d=3.5,volume=${mv}[m0];`;
+  const fc = mf + `[1:a]volume=${rv}[r];` + (hasVoice
+    ? `[2:a]volume=1.0,asplit=2[v][vk];[m0][vk]sidechaincompress=threshold=0.04:ratio=4:attack=30:release=500[m];[m][r][v]amix=inputs=3:normalize=0`
+    : `[m0][r]amix=inputs=2:normalize=0`) + `,atrim=${from}:${to},asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11[a]`;
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', mIn, '-i', rW, ...(hasVoice ? ['-i', voice] : []), '-filter_complex', fc, '-map', '[a]', '-c:a', 'aac', '-b:a', '256k', '-ar', '48000', aOut]);
+  console.log(`Ses: ${EP.music ? path.basename(EP.music) : 'prosedürel müzik'} + yağmur${hasVoice ? ' + seslendirme' : ' (seslendirme yok)'}`);
 
   // 2) görüntü: paralel parçalar
   const timer = setInterval(() => { const d = progress.reduce((a, b) => a + (b || 0), 0); process.stdout.write(`\rKare ${d}/${total}  (${((Date.now() - t0) / 1000).toFixed(0)} sn)`); }, 2000);

@@ -31,7 +31,13 @@ const timeline = [], parts = {};
 for (const who of ['kazim', 'demir']) {
   const lines = STORY.map((l, i) => [l, i]).filter(([l]) => l.who === who); if (!lines.length) continue;
   if (!SRC[who]) { console.error(`--${who} dosyası verilmedi`); process.exit(1); }
-  const f = path.resolve(SRC[who]), D = dur(f), sil = silences(f);
+  // ses seviyesini eşitle: her karakter -16 LUFS (sabit kazanç + sınırlayıcı), sonra böl
+  const src = path.resolve(SRC[who]), meas = execFileSync('sh', ['-c', `ffmpeg -hide_banner -nostats -i "${src}" -af ebur128 -f null - 2>&1`]).toString();
+  const I = parseFloat((meas.match(/I:\s+(-?[\d.]+) LUFS/g) || ['I: -16 LUFS']).pop().match(/-?[\d.]+/)[0]), gain = -16 - I;
+  const f = path.join(OUT, `${who}_tam.wav`);
+  ff(['-y', '-i', src, '-af', `volume=${gain.toFixed(2)}dB,alimiter=limit=0.89:level=false`, '-ar', '44100', f]);
+  console.log(`${who}: ses seviyesi ${I.toFixed(1)} LUFS → -16 LUFS (${gain >= 0 ? '+' : ''}${gain.toFixed(1)} dB)`);
+  const D = dur(f), sil = silences(src); // sessizlikleri özgün dosyada ara (eşik kazançtan etkilenmesin)
   const lead = sil.length && sil[0][0] < .05 ? sil[0][1] : 0, tail = sil.length && sil[sil.length - 1][1] > D - .05 ? sil[sil.length - 1][0] : D;
   const inner = sil.filter(([a, b]) => a > lead + .05 && b < tail - .05);
   const need = lines.length - 1;
