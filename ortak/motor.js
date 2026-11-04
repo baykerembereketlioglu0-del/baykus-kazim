@@ -172,7 +172,7 @@
     const fn = SCENES[shot.name]; if (!fn) return;
     const pt = t - shot.start, pd = shot.end - shot.start;
     dst.setTransform(BASE, 0, 0, BASE, 0, 0); dst.save();
-    fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title,
+    fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title, sketch: EP.sketch,
       talk: { kazim: talkOf('kazim', t), demir: talkOf('demir', t) } });
     dst.restore(); lightsOn(dst);
   }
@@ -232,7 +232,9 @@
 
   window.seekTo = t => { render(t); return true; };
   window.EP_INFO = { duration: DUR, lines: L.map(l => ({ who: l.who, start: +l.start.toFixed(2), end: +l.end.toFixed(2), text: l.text })), shots: SHOTS.map(s => [s.name, s.phase || '', +s.start.toFixed(2)]) };
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { render(0); window.READY = true; });
+  // Yazı tiplerini önceden yükle (yoksa ilk kullanıldığı karede yedek fonta düşer; paralel kayıtta tutarsızlık olur)
+  const FONTS = ['700 66px Caveat', '600 20px Cinzel', '700 20px Cinzel', 'italic 900 50px Inter', '600 24px Inter', '700 26px Inter', '500 22px Inter', "22px 'Noto Color Emoji'"];
+  (document.fonts ? Promise.all(FONTS.map(f => document.fonts.load(f, 'AaÇçĞğİıÖöŞşÜü🙂'))).then(() => document.fonts.ready) : Promise.resolve()).then(() => { render(0); window.READY = true; });
   if (!cap) {
     let now = 0, play = true, last = null; const pp = document.getElementById('pp'), sl = document.getElementById('sl'), tm = document.getElementById('tm'); sl.max = DUR;
     pp.onclick = () => { play = !play; pp.textContent = play ? 'Duraklat' : 'Oynat'; };

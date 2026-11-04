@@ -452,7 +452,7 @@ SCENES.kapanis = S => {
       if (part.length) { penX = -fw / 2 + c.measureText(part).width; penY = y; }
     });
     const wEnd = wStart + total * perCh, sk = ss(wEnd + .1, wEnd + 1.2, lt);
-    sproutSketch(sk, 0, 60, 1.1);
+    (S.sketch === 'semsiye' && typeof umbrellaSketch === 'function' ? umbrellaSketch : sproutSketch)(sk, 0, 60, 1.1);
     // tüy kalem: yazarken harfi, çizerken filizi takip eder
     const writing = lt > wStart && lt < wEnd + 1.3;
     if (writing) {
