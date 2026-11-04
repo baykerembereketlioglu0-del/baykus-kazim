@@ -33,7 +33,9 @@ function drawStreet(t, S = {}) {
   rr(-500, 372, 1720, 26, 0, '#24170f', OL, 5); rr(-500, 398, 1720, 12, 0, '#140d09', null);
   // tabela
   rr(80, 430, 320, 56, 6, '#3d2516', OL, 5);
-  c.save(); c.font = '700 30px Cinzel,Georgia,serif'; c.textAlign = 'center'; c.letterSpacing = '6px'; c.fillStyle = '#e2b35a'; c.shadowColor = 'rgba(255,170,60,.6)'; c.shadowBlur = 12; c.fillText('KIRAATHANE', 240, 469); c.restore();
+  const sign = S.sign || 'KIRAATHANE'; c.save(); c.font = '700 30px Cinzel,Georgia,serif'; c.textAlign = 'center'; c.letterSpacing = '6px';
+  let fs = 30; while (c.measureText(sign).width > 290 && fs > 14) { fs -= 2; c.font = `700 ${fs}px Cinzel,Georgia,serif`; c.letterSpacing = (fs / 6 | 0) + 'px'; }
+  c.fillStyle = '#e2b35a'; c.shadowColor = 'rgba(255,170,60,.6)'; c.shadowBlur = 12; c.fillText(sign, 240, 469); c.restore();
   // dükkân vitrini
   const sx = 56, sy = 560, sw = 344, sh = 300;
   rr(sx - 14, sy - 14, sw + 28, sh + 24, 4, '#2c1a10', OL, 6);

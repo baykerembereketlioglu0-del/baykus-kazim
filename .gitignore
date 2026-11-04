@@ -7,3 +7,4 @@ foxyarif-ornek/*.mp4
 build/
 ses/
 bolum*/*.mp4
+!bolum*/kaynak/*.mp3
