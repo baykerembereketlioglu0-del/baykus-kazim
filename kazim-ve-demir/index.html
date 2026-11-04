@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sürüden Korkma: Baykuş Kâzım ve Kurt Demir</title>
+<style>
+html,body{margin:0;height:100%;background:#0c0906;color:#f5ebe1;font-family:system-ui,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+canvas{height:min(82vh,960px);aspect-ratio:9/16;max-width:96vw;box-shadow:0 0 0 1px #d4a35955,0 20px 60px #000}
+#ui{display:flex;gap:10px;align-items:center;width:min(92vw,460px);font-size:13px}
+button{background:#d4a359;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+input{flex:1;accent-color:#d4a359}
+body.cap{background:#000}body.cap #ui{display:none}body.cap canvas{height:100vh;max-width:none;box-shadow:none}
+</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="pp">Duraklat</button><input id="sl" type="range" min="0" max="40" step="0.033" value="0"><span id="tm">0.0s</span></div>
+<script>
+// Hikaye: "Sürüden Korkma". who: 'kazim' (Baykuş Kâzım) | 'demir' (Kurt Demir)
+const STORY = [
+  { who: 'demir', mood: 'worry', text: 'Kâzım Usta, sürüye katılmaktan korkuyorum.' },
+  { who: 'kazim', mood: 'calm',  text: 'Neden korkuyorsun, evlat?' },
+  { who: 'demir', mood: 'sad',   text: 'Ya beni sevmezlerse? Ya fazla sessiz bulurlarsa?' },
+  { who: 'kazim', mood: 'calm',  text: 'Bana bak. Sürüden korkma.' },
+  { who: 'kazim', mood: 'warm',  text: 'Sürü, kendinden korkanların kalabalığıdır.' },
+  { who: 'demir', mood: 'worry', text: 'Peki ben ne yapacağım?' },
+  { who: 'kazim', mood: 'calm',  text: 'Önce kendi sesini duy. Sürü seni zaten bulur.' },
+  { who: 'demir', mood: 'sad',   text: 'Ya yanılırsam?' },
+  { who: 'kazim', mood: 'warm',  text: 'Yanılmak, yürüyenlerin hakkıdır. Oturanlar yanılmaz, sadece geç kalır.' },
+  { who: 'demir', mood: 'hope',  text: 'Teşekkür ederim, Kâzım Usta.' },
+  { who: 'kazim', mood: 'warm',  text: 'Git evlat. Gecenin senin sesine ihtiyacı var.' },
+];
+if (typeof module !== 'undefined') module.exports = STORY;
+</script>
+<script id="tl">window.TIMELINE=null;</script>
+<script>
+const x=document.getElementById('c').getContext('2d'),W=720,H=1280,PI=Math.PI,OL='#0a0604',GOLD='#d6a516';
+const cap=location.search.includes('capture=1');if(cap)document.body.classList.add('cap');
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ss=(a,b,v)=>{const t=cl((v-a)/(b-a),0,1);return t*t*(3-2*t)};
+const R=n=>{const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s)};
+const NAMES={kazim:'BAYKUŞ KÂZIM',demir:'KURT DEMİR'};
+
+// timeline.js (generate_voices.js üretir) yoksa kelime sayısından tahmini zamanlama
+function estimate(){let t=1.2;const lines=[];for(const l of STORY){const s=t,words=[];
+  for(const w of l.text.split(/\s+/)){const d=.16+w.length*.045+(/[.,?!]$/.test(w)?.18:0);words.push([w,t,t+d]);t+=d}
+  lines.push({who:l.who,mood:l.mood,start:s,end:t,words});t+=.45}
+  return{duration:t+3,lines}}
+const TL=window.TIMELINE||estimate(),L=TL.lines,DUR=TL.duration;window.DURATION=DUR;
+const SUBS=[];for(const l of L){const ws=l.words;let i=0;while(i<ws.length){let k=i,tx=ws[i][0];
+  if(i+1<ws.length&&(tx+' '+ws[i+1][0]).length<=16){k=i+1;tx+=' '+ws[k][0]}
+  SUBS.push({s:ws[i][1],e:ws[k][2]+.35,t:tx.toLocaleUpperCase('tr').replace(/[.,;:]+$/,'')});i=k+1}}
+SUBS.forEach((u,i)=>{if(i<SUBS.length-1)u.e=Math.max(u.s+.2,Math.min(u.e,SUBS[i+1].s))});
+
+// --- çizim yardımcıları (kalın siyah kontur, düz renk) ---
+function st(f,s,lw){if(f){x.fillStyle=f;x.fill()}if(s!==null){x.lineWidth=lw||7;x.strokeStyle=s||OL;x.stroke()}}
+function P(p,f,s,lw){x.beginPath();x.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)x.lineTo(p[i],p[i+1]);x.closePath();st(f,s,lw)}
+function E(cx,cy,rx,ry,f,s,lw,r){x.beginPath();x.ellipse(cx,cy,rx,ry,r||0,0,PI*2);st(f,s,lw)}
+function RR(a,b,w,h,r,f,s,lw){x.beginPath();x.roundRect(a,b,w,h,r);st(f,s,lw)}
+x.lineJoin='round';x.lineCap='round';
+
+function bg(){
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#140d08');g.addColorStop(.55,'#23170e');g.addColorStop(1,'#0f0905');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  for(let c=0;c<4;c++){const wx=48+c*168;RR(wx,130,118,165,0,c==2?'#8a5d2e':'#1c130b',OL,6);
+    x.beginPath();x.moveTo(wx+59,130);x.lineTo(wx+59,295);x.moveTo(wx,212);x.lineTo(wx+118,212);x.stroke()}
+  x.fillStyle='#2b1d12';x.fillRect(0,355,W,35);x.fillStyle='#3a2518';x.fillRect(0,390,W,65);
+  RR(45,475,310,420,0,'#1b120b',OL,6);RR(390,475,285,330,0,'#4a3728',OL,6);
+  x.lineWidth=3;for(let y=490;y<800;y+=16){x.beginPath();x.moveTo(390,y);x.lineTo(675,y);x.stroke()}
+  x.fillStyle='#1a110a';x.fillRect(0,895,W,125);x.fillStyle='#100a06';x.fillRect(0,1020,W,H);
+}
+function lamp(t){
+  const fl=.9+.1*R(Math.floor(t*14)),lx=545,ly=300;
+  x.strokeStyle=OL;x.lineWidth=14;x.beginPath();x.moveTo(650,1020);x.lineTo(650,420);x.quadraticCurveTo(650,285,565,282);x.stroke();
+  let g=x.createLinearGradient(0,ly,0,1020);g.addColorStop(0,`rgba(255,200,90,${.42*fl})`);g.addColorStop(1,'rgba(255,200,90,0)');
+  P([lx-34,ly+40,lx+34,ly+40,lx+280,1020,lx-330,1020],g,null);
+  g=x.createRadialGradient(lx,ly+30,5,lx,ly+30,200);g.addColorStop(0,`rgba(255,200,100,${.5*fl})`);g.addColorStop(1,'rgba(255,200,100,0)');x.fillStyle=g;x.fillRect(lx-200,ly-170,400,400);
+  P([lx-44,ly-18,lx+44,ly-18,lx+30,ly+40,lx-30,ly+40],'#ecd883',OL,6);
+}
+function rain(t){
+  x.strokeStyle='#d7c8af';x.lineWidth=1.6;
+  for(let i=0;i<90;i++){const sp=620+(i%6)*70,y=((i*149)%H+sp*t)%(H+60)-30,xx=(i*83)%(W+120)-60-y*.12;
+    x.globalAlpha=.14+(i%4)*.05;x.beginPath();x.moveTo(xx,y);x.lineTo(xx-4,y+28+i%18);x.stroke()}x.globalAlpha=1;
+}
+
+// --- Baykuş Kâzım: gelişmiş hali (tüy detayı, altın işlemeli ceket, yelek, cep saati, gölgeler) ---
+function owl(cx,cy,sc,talk,t,mood){
+  const bl=t%3.7<.13,tilt=Math.sin(t*1.3)*.03,k=mood=='warm'?.12:.32,lid=bl?1:mood=='warm'?.3:.45;
+  x.save();x.translate(cx,cy+Math.sin(t*2)*3);x.scale(sc,sc);
+  RR(-72,540,46,230,8,'#1b120c');RR(26,540,46,230,8,'#1b120c');
+  RR(-235,160,470,440,110,'#5a4130');
+  P([-112,168,112,168,76,600,-76,600],'#5a1f26',OL,6);P([-82,168,82,168,0,325],'#e3d9c6',OL,5);
+  for(let i=0;i<4;i++){x.strokeStyle='#bdb29d';x.lineWidth=3;x.beginPath();x.moveTo(-40+i*6,200+i*22);x.lineTo(0,215+i*22);x.lineTo(40-i*6,200+i*22);x.stroke()}
+  E(0,232,17,17,'#c8680e',GOLD,4);
+  for(const s of[-1,1])P([s*142,215,s*88,160,s*62,168,s*76,560,s*125,560],'#3d2a1c',GOLD,6);
+  P([172,235,218,258,228,505,176,510],'#4a3426',GOLD,6);
+  x.save();x.translate(-215,470);x.rotate(.38+Math.sin(t*1.6)*.03*(1+talk*3));
+  RR(-32,-175,64,200,30,'#4a3426',GOLD,6);E(0,-180,30,26,'#6b4f3b');
+  x.strokeStyle=GOLD;x.lineWidth=5;x.beginPath();x.arc(0,-225,24,0,PI*2);x.stroke();E(8,-120,26,26,GOLD,OL,5);E(8,-120,15,15,'#f3e2a0',null);
+  x.restore();
+  x.save();x.rotate(tilt);
+  for(const s of[-1,1])P([s*85,-140,s*200,-255,s*172,-188,s*218,-165,s*182,-90],'#6b4f3b');
+  E(0,0,205,170,'#6b4f3b');
+  x.fillStyle='rgba(30,18,10,.28)';x.beginPath();x.ellipse(0,40,200,126,0,0,PI);x.fill();
+  x.strokeStyle='#4e3829';x.lineWidth=5;for(let i=-3;i<=3;i++){x.beginPath();x.moveTo(i*30-9,-128+Math.abs(i)*6);x.lineTo(i*30,-112+Math.abs(i)*6);x.lineTo(i*30+9,-128+Math.abs(i)*6);x.stroke()}
+  for(const s of[-1,1]){const ex=s*98;E(ex,-4,92,88,'#e3d9c6');E(ex,-4,76,72,null,'#b9ae98',3);
+    E(ex,0,56,56,'#f3a31a');E(ex,0,38,38,'#e07a10',null);E(ex,3,26,28,'#120a06',null);E(ex-8,-9,7,7,'#fff',null);E(ex+10,12,4,4,'#fff',null);
+    x.save();x.beginPath();x.arc(ex,0,56,0,PI*2);x.clip();x.fillStyle='#6b4f3b';x.fillRect(ex-60,-60,120,120*lid);x.restore();
+    x.save();x.translate(ex,-60);x.rotate(-s*k);RR(-52,-9,104,19,9,'#3b2a1d',null);x.restore()}
+  E(0,102,28,12+talk*24,'#6b1f2a');P([-30,50,30,50,0,122],'#2a1c14');
+  x.restore();x.restore();
+}
+
+// --- Kurt Demir: masum hali (yuvarlak baş, büyük parlak gözler, yuvarlak kulaklar, yumuşak gülümseme) ---
+const BROW={sad:.3,worry:.22,hope:.08,calm:0,warm:0},SMILE={sad:-8,worry:0,hope:24,calm:12,warm:12};
+function wolf(cx,cy,sc,talk,t,mood){
+  const bl=t%3.1<.13,tilt=Math.sin(t*1.1)*.035,br=BROW[mood]||0,sm=SMILE[mood]??10,FUR='#98a4b6',LT='#e8eef5';
+  x.save();x.translate(cx,cy+Math.sin(t*2+1)*3);x.scale(sc,sc);
+  RR(-80,545,58,230,8,'#1b120c');RR(22,545,58,230,8,'#1b120c');
+  for(const s of[-1,1])RR(s>0?172:-232,200,60,310,30,'#55514a');
+  RR(-205,150,410,420,95,'#5b5750');
+  P([-52,150,52,150,0,305],'#e9e1d2',OL,5);
+  for(const s of[-1,1])P([s*52,150,s*140,185,s*122,390,s*30,300],'#4a4640');
+  P([-15,168,15,168,24,330,0,366,-24,330],'#a8222c',OL,5);P([-17,150,17,150,13,184,-13,184],'#7c1820',OL,4);
+  for(const s of[-1,1])for(const y of[400,455])E(s*62,y,9,9,'#161210',null);
+  for(const s of[-1,1])E(s*204+(s>0?4:-4),515,29,27,'#cfd6e0');
+  RR(-45,100,90,70,12,'#cfd6e0');
+  x.save();x.rotate(tilt);
+  for(const s of[-1,1]){E(s*105,-118,50,72,FUR,OL,7,s*.35);E(s*105,-114,26,46,'#e6b3b6',null,1,s*.35)}
+  E(0,0,172,150,FUR);
+  for(const s of[-1,1]){P([s*160,50,s*222,78,s*158,98],LT,OL,5);E(s*98,66,84,62,LT,null);E(s*100,40,28,16,'rgba(236,130,145,.45)',null)}
+  E(0,78,78,58,'#f4f7fb',OL,5);
+  for(const s of[-1,1]){const ex=s*62,ey=-12;E(ex,ey,42,46,'#fff',OL,5);
+    E(ex-s*2,ey+3,30,34,'#d9a13a',null);E(ex-s*2,ey+5,18,22,'#120a06',null);E(ex-s*2-8,ey-8,9,9,'#fff',null);E(ex-s*2+9,ey+13,4.5,4.5,'#fff',null);
+    if(bl){E(ex,ey,40,44,FUR,null);x.beginPath();x.moveTo(ex-34,ey+6);x.quadraticCurveTo(ex,ey+18,ex+34,ey+6);x.stroke()}
+    x.save();x.translate(ex,-70);x.rotate(s*br);RR(-30,-6,60,12,6,'#5d6676',null);x.restore()}
+  E(0,50,21,14,'#17110e',null);E(-6,46,5,3,'#fff',null);
+  if(talk>.05)E(0,100,19,4+talk*17,'#6b1f2a',OL,4);
+  else{x.beginPath();x.moveTo(-28,94);x.quadraticCurveTo(0,94+sm,28,94);x.lineWidth=5;x.strokeStyle=OL;x.stroke()}
+  x.restore();x.restore();
+}
+const moodOf=(who,t)=>{let m='worry';for(const l of L)if(l.who==who&&l.start<=t)m=l.mood;return m};
+
+function render(t){
+  t=cl(t,0,DUR);const j=Math.floor(t*12),jx=(R(j)-.5)*3,jy=(R(j+9)-.5)*3;
+  x.setTransform(1.5,0,0,1.5,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);
+  let ai=-1;for(let i=0;i<L.length;i++)if(L[i].start<=t)ai=i;
+  const act=ai>=0&&t<L[ai].end+.2?L[ai]:null,endT=L[L.length-1].end+.3;
+  const wide=ai<0||t<L[0].start+.9||t>=endT,who=act?act.who:null;
+  let talk=0;if(act)for(const w of act.words)if(t>=w[1]&&t<w[2])talk=.2+.8*Math.abs(Math.sin(t*18));
+  const t0=!wide?L[ai].start:t>=endT?endT:0,z=1+.05*cl((t-t0)/3,0,1);
+  x.save();x.translate(W/2+jx,H/2+jy);x.scale(z,z);x.translate(-W/2,-H/2);
+  bg();lamp(t);
+  if(wide){wolf(215,640,.55,who=='demir'?talk:0,t,t>=endT?'hope':moodOf('demir',t));owl(480,690,.46,who=='kazim'?talk:0,t,'calm')}
+  else{x.fillStyle='rgba(10,6,3,.62)';x.fillRect(0,0,W,H);
+    if(L[ai].who=='kazim')owl(360,520,1.15,talk,t,L[ai].mood);else wolf(360,500,1.3,talk,t,L[ai].mood)}
+  x.restore();rain(t);
+  x.strokeStyle='rgba(18,11,6,.1)';x.lineWidth=1.5;x.beginPath();for(let y=0;y<H;y+=5){x.moveTo(0,y);x.lineTo(W,y)}x.stroke();
+  const v=x.createRadialGradient(W/2,H/2,W*.3,W/2,H/2,H*.65);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(5,3,1,.8)');x.fillStyle=v;x.fillRect(0,0,W,H);
+  if(act){x.fillStyle='rgba(230,213,184,.85)';x.font="600 20px Cinzel,Georgia,serif";x.textAlign='center';x.letterSpacing='6px';x.fillText(NAMES[act.who],W/2,74);x.letterSpacing='0px'}
+  for(const u of SUBS)if(t>=u.s&&t<u.e){
+    let z2=60;x.font=`900 italic ${z2}px Inter,Arial,sans-serif`;while(x.measureText(u.t).width>560){z2-=2;x.font=`900 italic ${z2}px Inter,Arial,sans-serif`}
+    const k=1+.15*(1-ss(0,.1,t-u.s));x.save();x.translate(W/2,1030);x.scale(k,k);x.textAlign='center';
+    x.shadowColor='rgba(0,0,0,.9)';x.shadowBlur=12;x.shadowOffsetY=3;x.lineWidth=9;x.strokeStyle='#000';x.strokeText(u.t,0,0);x.shadowColor='transparent';x.fillStyle='#fff';x.fillText(u.t,0,0);x.restore();break}
+}
+window.seekTo=t=>{render(t);return true};
+render(0);
+if(!cap){let now=0,play=true,last=null;const pp=document.getElementById('pp'),sl=document.getElementById('sl'),tm=document.getElementById('tm');sl.max=DUR;
+  pp.onclick=()=>{play=!play;pp.textContent=play?'Duraklat':'Oynat'};sl.oninput=()=>{now=+sl.value;render(now)};
+  (function loop(ts){if(play){if(last!=null)now=(now+(ts-last)/1000)%DUR;render(now);sl.value=now;tm.textContent=now.toFixed(1)+'s'}last=ts;requestAnimationFrame(loop)})();}
+</script></body></html>

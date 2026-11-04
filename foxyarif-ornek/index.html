@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FOXYARİF Tarzı: Tilki Arif ve Genç Kedi</title>
+<style>
+html,body{margin:0;height:100%;background:#0c0906;color:#f5ebe1;font-family:system-ui,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+canvas{height:min(82vh,960px);aspect-ratio:9/16;max-width:96vw;box-shadow:0 0 0 1px #d4a35955,0 20px 60px #000}
+#ui{display:flex;gap:10px;align-items:center;width:min(92vw,460px);font-size:13px}
+button{background:#d4a359;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+input{flex:1;accent-color:#d4a359}
+body.cap{background:#000}body.cap #ui{display:none}body.cap canvas{height:100vh;max-width:none;box-shadow:none}
+</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div id="ui"><button id="pp">Duraklat</button><input id="sl" type="range" min="0" max="20" step="0.033" value="0"><span id="tm">0.0s</span></div>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+const W=720,H=1280,D=20,PI=Math.PI;
+const cap=location.search.includes('capture=1');if(cap)document.body.classList.add('cap');
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ss=(a,b,v)=>{const t=cl((v-a)/(b-a),0,1);return t*t*(3-2*t)};
+const R=n=>{const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s)};
+const SUB=[[.2,.9,"YİNE BEN..."],[.9,1.8,"YİNE YARDIMA"],[1.8,2.5,"KOŞTUM"],[2.5,3.2,"KİM ÇAĞIRDI?"],[3.2,3.9,"HERKES!"],[3.9,4.9,"DÜŞEN BANA,"],[4.9,5.8,"CANI SIKILAN BANA"],[5.8,6.6,"PEKİ SEN"],[6.6,7.4,"DÜŞTÜĞÜNDE"],[7.4,8.2,"KİM TUTTU?"],[8.2,9.1,"MEŞGULDÜLER..."],[9.1,10,"SORUN DA BU"],[10,10.7,"EVLAT"],[10.7,11.6,"SEN HEP"],[11.6,12.4,"ORADASIN"],[12.4,13.3,"BU LAMBAYA BAK"],[13.3,14.3,"BÜTÜN GECE YANAR"],[14.3,15.1,"KİMSE BAKMAZ"],[15.1,16,"AMA BİR GECE"],[16,16.7,"SÖNSEYDİ"],[16.7,17.5,"BÜTÜN SOKAK"],[17.5,18.2,"ONU KONUŞURDU"],[18.2,18.8,"ARA SIRA SÖN"],[18.8,19.3,"SESSİZCE EVRİL"],[19.3,20,"TİLKİ SEN OLANA DEK"]];
+
+function poly(p,f,s){x.beginPath();x.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)x.lineTo(p[i],p[i+1]);x.closePath();if(f){x.fillStyle=f;x.fill()}if(s){x.strokeStyle=s;x.stroke()}}
+function ell(cx,cy,rx,ry,f){x.beginPath();x.ellipse(cx,cy,rx,ry,0,0,PI*2);x.fillStyle=f;x.fill()}
+
+function bg(lit,sil){
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#140d08');g.addColorStop(.55,'#23170e');g.addColorStop(1,'#0f0905');
+  x.fillStyle=g;x.fillRect(0,0,W,H);x.strokeStyle='#0c0704';x.lineWidth=6;
+  for(let c=0;c<4;c++){const wx=48+c*168,wy=130,on=(c==2&&lit)||(sil&&c!=0);
+    x.fillStyle=on?'#78532b':'#1c130b';x.fillRect(wx,wy,118,165);x.strokeRect(wx,wy,118,165);
+    x.beginPath();x.moveTo(wx+59,wy);x.lineTo(wx+59,wy+165);x.moveTo(wx,wy+82);x.lineTo(wx+118,wy+82);x.stroke();
+    if(sil&&on){x.fillStyle='#120b07';x.beginPath();x.arc(wx+59,wy+78,18,0,7);x.fill();x.beginPath();x.ellipse(wx+59,wy+135,34,38,0,PI,0);x.fill()}}
+  x.fillStyle='#2b1d12';x.fillRect(0,355,W,35);x.fillStyle='#3a2518';x.fillRect(0,390,W,65);
+  x.fillStyle='#1b120b';x.fillRect(45,475,310,380);x.strokeRect(45,475,310,380);
+  x.fillStyle='#4a3728';x.fillRect(390,475,285,290);x.strokeRect(390,475,285,290);
+  x.lineWidth=3;for(let y=490;y<760;y+=16){x.beginPath();x.moveTo(390,y);x.lineTo(675,y);x.stroke()}
+  x.fillStyle='#1a110a';x.fillRect(0,855,W,155);x.fillStyle='#100a06';x.fillRect(0,1010,W,H);
+}
+function lamp(px,top,lit,s){
+  x.save();x.translate(px,top);x.scale(s,s);
+  if(lit){let g=x.createRadialGradient(0,30,10,0,30,300);g.addColorStop(0,'rgba(255,190,90,.6)');g.addColorStop(1,'rgba(255,190,90,0)');x.fillStyle=g;x.fillRect(-300,-270,600,600);
+    g=x.createLinearGradient(0,50,0,900);g.addColorStop(0,'rgba(255,200,120,.22)');g.addColorStop(1,'rgba(255,200,120,0)');poly([-30,50,30,50,230,900,-230,900],g)}
+  x.fillStyle='#0d0805';x.fillRect(-9,40,18,1000);x.fillRect(-36,960,72,60);poly([-34,40,34,40,22,-20,-22,-20]);x.fill();
+  ell(0,42,lit?20:16,10,lit?'#ffe2a0':'#2a1c10');x.restore();
+}
+function rain(t,a){
+  x.strokeStyle='#d7c8af';x.lineWidth=1.6;
+  for(let i=0;i<90;i++){const sp=620+(i%6)*70,y=((i*149)%H+sp*t)%(H+60)-30,xx=(i*83)%(W+120)-60-y*.12;
+    x.globalAlpha=a*(.14+(i%4)*.05);x.beginPath();x.moveTo(xx,y);x.lineTo(xx-4,y+28+i%18);x.stroke()}
+  x.globalAlpha=1;
+}
+function cat(cx,cy,s,talk,t){
+  const bl=t%3.4<.12?.1:1;x.save();x.translate(cx,cy+Math.sin(t*2)*4);x.scale(s,s);
+  x.beginPath();x.ellipse(0,330,260,200,0,PI,0);x.rect(-260,330,520,260);x.fillStyle='#4f6b3a';x.fill();
+  x.save();x.clip();x.strokeStyle='#3a5129';x.lineWidth=3;for(let y=150;y<600;y+=14){x.beginPath();x.moveTo(-270,y);x.lineTo(270,y);x.stroke()}x.restore();
+  ell(0,140,78,34,'#3a5129');
+  poly([-105,-70,-125,-175,-35,-110],'#8f897b');poly([105,-70,125,-175,35,-110],'#8f897b');
+  poly([-95,-90,-108,-148,-52,-108],'#b98a80');poly([95,-90,108,-148,52,-108],'#b98a80');
+  ell(0,0,125,110,'#8f897b');x.strokeStyle='#5f594f';x.lineWidth=7;
+  for(const dx of[-24,0,24]){x.beginPath();x.moveTo(dx,-108);x.lineTo(dx*.8,-70);x.stroke()}
+  ell(0,48,50,36,'#d9d0bd');poly([-9,28,9,28,0,40],'#b86f6a');
+  for(const sx of[-1,1]){ell(sx*50,-8,24,24*bl,'#f4efe2');ell(sx*50+9,-4,9,9*bl,'#1a110a');
+    x.strokeStyle='#1a110a';x.lineWidth=6;x.beginPath();x.arc(sx*50,-8,35,0,7);x.stroke();
+    x.lineWidth=2;for(const k of[-8,0,8]){x.beginPath();x.moveTo(sx*40,50+k);x.lineTo(sx*125,45+k*2);x.stroke()}}
+  x.lineWidth=6;x.beginPath();x.moveTo(-15,-8);x.lineTo(15,-8);x.stroke();
+  ell(0,74,14,3+talk*14,'#2a120d');x.restore();
+}
+function fox(cx,cy,s,talk,t){
+  const lid=t%3.1<.14?1:.5;x.save();x.translate(cx,cy+Math.sin(t*2)*4);x.scale(s,s);
+  poly([-300,430,-240,170,-90,130,90,130,240,170,300,430],'#5a3a22');
+  poly([-70,128,70,128,0,270],'#efe6d6');poly([-14,150,14,150,22,330,0,362,-22,330],'#7a1f2b');
+  x.strokeStyle='#c9808a';x.lineWidth=4;for(let y=185;y<330;y+=26){x.beginPath();x.moveTo(-16,y+10);x.lineTo(16,y-6);x.stroke()}
+  x.strokeStyle='#2e1b0d';x.lineWidth=6;x.beginPath();x.moveTo(-90,130);x.lineTo(-30,300);x.moveTo(90,130);x.lineTo(30,300);x.stroke();
+  for(const sx of[-1,1]){poly([sx*112,-70,sx*140,-225,sx*30,-120],'#cf7a2c');poly([sx*118,-112,sx*140,-225,sx*72,-150],'#2a160a');poly([sx*98,-95,sx*118,-175,sx*55,-118],'#e9b98a')}
+  ell(0,0,135,112,'#cf7a2c');
+  poly([-132,15,-45,42,-30,98,-100,96],'#f1e6d2');poly([132,15,45,42,30,98,100,96],'#f1e6d2');
+  ell(0,62,68,44,'#f1e6d2');ell(0,28,17,11,'#120b07');
+  for(const sx of[-1,1]){const ex=sx*52,ey=-18;
+    ell(ex,ey,29,17,'#f2a93b');ell(ex,ey,6,14,'#1a0d05');
+    x.save();x.beginPath();x.ellipse(ex,ey,29,17,0,0,7);x.clip();x.fillStyle='#7a4318';x.fillRect(ex-30,ey-18,60,36*lid);x.restore();
+    x.strokeStyle='#2a160a';x.lineWidth=7;x.beginPath();x.moveTo(ex-sx*34,ey-34-sx*6);x.lineTo(ex+sx*30,ey-24+sx*6);x.stroke()}
+  x.strokeStyle='#2a160a';x.lineWidth=5;x.beginPath();x.moveTo(-30,82);x.quadraticCurveTo(0,86,30,80);x.stroke();
+  if(talk>.05)ell(0,88,16,talk*13,'#2a120d');x.restore();
+}
+function eyes(t,a){
+  const bl=(t>18.3&&t<18.45)?.1:1;x.save();x.globalAlpha=a;x.shadowColor='#f59e0b';x.shadowBlur=40;
+  for(const sx of[-1,1]){ell(360+sx*75,560,38,15*bl,'#f6b24a');ell(360+sx*75,560,5,13*bl,'#1a0d05')}x.restore();
+}
+function subs(t){
+  for(const[a,b,s]of SUB)if(t>=a&&t<b){
+    let z=64;x.font=`900 italic ${z}px Inter,system-ui,sans-serif`;
+    while(x.measureText(s).width>540){z-=2;x.font=`900 italic ${z}px Inter,system-ui,sans-serif`}
+    const k=1+.22*(1-ss(0,.12,t-a));x.save();x.translate(W/2,1030);x.scale(k,k);x.textAlign='center';
+    x.lineJoin='round';x.lineWidth=14;x.strokeStyle='#0a0603';x.strokeText(s,0,0);x.fillStyle='#f5d08a';x.fillText(s,0,0);x.restore();return a}
+  return -1;
+}
+function render(t){
+  t=cl(t,0,D);const j=Math.floor(t*12),jx=(R(j)-.5)*3,jy=(R(j+9)-.5)*3;
+  x.setTransform(1.5,0,0,1.5,0,0);x.fillStyle='#000';x.fillRect(0,0,W,H);
+  const sh=t<5?0:t<10?1:t<15.5?2:3,t0=[0,5,10,15.5][sh],p=(t-t0)/[5,5,5.5,4.5][sh];
+  const lit=t<13.5||(t<14.2&&R(Math.floor(t*20))>.5),sil=t>14.4;
+  let talk=0;for(const[a,b]of SUB)if(t>=a&&t<b)talk=.15+.85*Math.abs(Math.sin(t*16));
+  x.save();const z=1+.07*p;x.translate(W/2+jx,H/2+jy);x.scale(z,z);x.translate(-W/2,-H/2);
+  if(sh==0){const c=ss(1.3,1.8,t);
+    x.globalAlpha=1-c;bg(true,false);lamp(600,330,true,.6);cat(190,930,.5,0,t);
+    x.globalAlpha=c;bg(true,false);x.fillStyle='rgba(12,8,4,.55)';x.fillRect(0,0,W,H);cat(360,640,1.6,talk,t);x.globalAlpha=1}
+  else if(sh==1){bg(true,false);x.fillStyle='rgba(12,8,4,.6)';x.fillRect(0,0,W,H);
+    fox(450,580,1.55,talk,t);
+    poly([-60,1280,-40,900,40,760,110,900,110,1280],'#0e0905');ell(120,1230,300,340,'#0e0905')}
+  else if(sh==2){bg(lit,sil);x.fillStyle=`rgba(8,5,2,${lit?.45:.7})`;x.fillRect(0,0,W,H);lamp(440,260,lit,1.1)}
+  else{x.fillStyle='#060403';x.fillRect(0,0,W,H);eyes(t,ss(15.6,16.4,t));
+    x.save();x.globalAlpha=ss(17,18.5,t);x.fillStyle='#f5d08a';x.shadowColor='#d97706';x.shadowBlur=30;
+    x.font="700 62px Cinzel,Georgia,serif";x.textAlign='center';x.fillText('F O X Y A R İ F',W/2,760);x.restore()}
+  x.restore();
+  rain(t,sh==3?.25:1);
+  x.strokeStyle='rgba(18,11,6,.1)';x.lineWidth=1.5;x.beginPath();for(let y=0;y<H;y+=5){x.moveTo(0,y);x.lineTo(W,y)}x.stroke();
+  const v=x.createRadialGradient(W/2,H/2,W*.28,W/2,H/2,H*.65);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(.75,'rgba(10,6,3,.5)');v.addColorStop(1,'rgba(5,3,1,.92)');x.fillStyle=v;x.fillRect(0,0,W,H);
+  x.fillStyle='rgba(230,213,184,.85)';x.font="700 20px Cinzel,Georgia,serif";x.textAlign='center';x.fillText('F O X Y A R İ F',W/2,74);
+  subs(t);
+  for(const c of[5,10,15.5]){const d=Math.abs(t-c);if(d<.12){x.fillStyle=`rgba(0,0,0,${(1-d/.12)*.85})`;x.fillRect(0,0,W,H)}}
+}
+// Playwright kancası: kare-kare deterministik çizim
+window.seekTo=t=>{render(t);return true};
+render(0);
+if(!cap){
+  let now=0,play=true,last=null;const pp=document.getElementById('pp'),sl=document.getElementById('sl'),tm=document.getElementById('tm');
+  pp.onclick=()=>{play=!play;pp.textContent=play?'Duraklat':'Oynat'};
+  sl.oninput=()=>{now=+sl.value;render(now)};
+  (function loop(ts){if(play){if(last!=null)now=(now+(ts-last)/1000)%D;render(now);sl.value=now;tm.textContent=now.toFixed(1)+'s'}last=ts;requestAnimationFrame(loop)})();
+}
+</script></body></html>
