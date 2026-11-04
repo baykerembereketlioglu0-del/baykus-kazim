@@ -46,16 +46,24 @@ for (const who of ['kazim', 'demir']) {
   // Paragraf arası ile cümle içi duraklama benzer uzunlukta olabildiği için yalnızca "en uzun sessizlik" yetmez.
   const chars = lines.map(([l]) => l.text.replace(/[^\p{L}\p{N}]/gu, '').length + 4), tc = chars.reduce((x, y) => x + y, 0);
   const span = tail - lead, exp = chars.map(n => n / tc * span), C = inner.length;
-  const segCost = (a0, b0, j) => { const d = Math.max(.05, b0 - a0); return Math.log(d / exp[j]) ** 2; };
-  const bonus = g => -.6 * Math.min(g, 1.2); // uzun sessizlikte kesmeyi biraz tercih et
+  // Satır içi duraklama sayısı noktalamadan tahmin edilir ("Abi, yine yazdı. Üç gündür…" → 2)
+  const inPause = lines.map(([l]) => (l.text.replace(/[.,;:!?…]+\s*$/, '').match(/[.,;:!?…]+(?=\s)/g) || []).length);
+  // konuşulan süre (parça içi duraklamalar hariç) harf sayısıyla orantılı olmalı
+  const pre = [0]; inner.forEach(([x0, x1]) => pre.push(pre[pre.length - 1] + (x1 - x0)));
+  const voicedTotal = span - pre[C], expV = chars.map(n => n / tc * voicedTotal);
+  const segCost = (a0, b0, j, nIn, qi = -1, ci = C) => {
+    const pausesIn = pre[ci] - pre[qi + 1], v = Math.max(.05, (b0 - a0) - pausesIn), dn = nIn - inPause[j];
+    return Math.log(v / expV[j]) ** 2 + (dn > 0 ? .8 * dn * dn : .15 * dn * dn); // fazla duraklama ağır, atlanan virgül hafif ceza
+  };
+  const bonus = g => -.4 * Math.min(g, 1.2);
   const dp = Array.from({ length: need }, () => new Array(C).fill(Infinity)), from = Array.from({ length: need }, () => new Array(C).fill(-1));
-  for (let c = 0; c < C; c++) dp[0][c] = segCost(lead, inner[c][0], 0) + bonus(inner[c][1] - inner[c][0]);
+  for (let c = 0; c < C; c++) dp[0][c] = segCost(lead, inner[c][0], 0, c, -1, c) + bonus(inner[c][1] - inner[c][0]);
   for (let j = 1; j < need; j++) for (let c = j; c < C; c++) for (let q = j - 1; q < c; q++) {
-    const v = dp[j - 1][q] + segCost(inner[q][1], inner[c][0], j) + bonus(inner[c][1] - inner[c][0]);
+    const v = dp[j - 1][q] + segCost(inner[q][1], inner[c][0], j, c - q - 1, q, c) + bonus(inner[c][1] - inner[c][0]);
     if (v < dp[j][c]) { dp[j][c] = v; from[j][c] = q; }
   }
   let best = -1, bv = Infinity;
-  for (let c = need - 1; c < C; c++) { const v = (need ? dp[need - 1][c] : 0) + segCost(inner[c][1], tail, need); if (v < bv) { bv = v; best = c; } }
+  for (let c = need - 1; c < C; c++) { const v = (need ? dp[need - 1][c] : 0) + segCost(inner[c][1], tail, need, C - c - 1, c, C); if (v < bv) { bv = v; best = c; } }
   const idxs = []; for (let j = need - 1, c = best; j >= 0; c = from[j][c], j--) idxs.unshift(c);
   const cuts = need ? idxs.map(c => inner[c]) : [];
   const segs = []; let a = lead;
