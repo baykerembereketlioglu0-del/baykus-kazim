@@ -1,0 +1,11 @@
+{
+  "name": "baykus-kazim",
+  "private": true,
+  "description": "Baykuş Kâzım animasyonları: JavaScript canvas çizim + Playwright ile MP4 kayıt",
+  "scripts": {
+    "bolum5": "node ortak/kaydet.js bolum5-fenerin-yagi --out videolar/bolum5_fenerin_yagi.mp4"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}

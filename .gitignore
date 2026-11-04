@@ -4,3 +4,6 @@ audio/
 frames/
 kazim-ve-demir/*.mp4
 foxyarif-ornek/*.mp4
+build/
+ses/
+bolum*/*.mp4
