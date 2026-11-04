@@ -60,26 +60,41 @@ function drawLantern(x, y, light, t, sc = 1) {
 
 // ---------------- BAYKUŞ KÂZIM ----------------
 const OWL = { SL: [-156, -612], SR: [156, -612], l1: 168, l2: 156, head: -852 };
-const OWL_C = { jacket: '#6a4931', jacketD: '#46301f', vest: '#6d1d25', shirt: '#efe6d4', tie: '#8a1d24', gold: '#d9a441', head: '#7c583a', disc: '#ddcaa6', hand: '#2a201b', trouser: '#2b2019' };
+const OWL_C = { jacket: '#6a4931', jacketD: '#46301f', vest: '#6d1d25', shirt: '#efe6d4', tie: '#8a1d24', gold: '#d9a441', head: '#7c583a', disc: '#ddcaa6', hand: '#8a6446', handD: '#5e412b', trouser: '#2b2019' };
 
+// Baykuş eli: tüy-parmaklı el. Yerel +y önkol yönünde (bilekten dışarı).
+function owlFinger(x0, y0, ang, len, w, curl = 0) {
+  c.save(); c.translate(x0, y0); c.rotate(ang + curl * .4);
+  const L = len;
+  c.beginPath(); c.moveTo(-w / 2, 0); c.lineTo(-w * .44, L - w * .45); c.quadraticCurveTo(-w * .1, L + w * .55, w * .44, L - w * .45); c.lineTo(w / 2, 0); c.closePath();
+  c.fillStyle = lg(0, 0, 0, L + w * .4, [[0, OWL_C.hand], [.7, OWL_C.hand], [1, OWL_C.handD]]); c.fill();
+  c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
+  c.save(); c.clip(); c.fillStyle = 'rgba(60,36,18,.35)'; c.fillRect(-w, L - w * .2, w * 2, w); c.restore();   // tüy ucu tonu
+  curve([-w * .18, L * .5, -w * .18, L * .5 + 6], 'rgba(255,225,180,.35)', 3);                                // parlama
+  c.restore();
+}
+function owlPalm(w = 50, h = 44) {
+  blob([-w / 2, 4, 0, -4, w / 2, 4, w / 2 + 3, h * .62, w * .28, h, -w * .28, h, -w / 2 - 3, h * .62], lg(0, 0, 0, h, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 5);
+}
 function owlHand(x, y, ang, type, sc = 1) {
   c.save(); c.translate(x, y); c.rotate(ang - PI / 2); c.scale(sc, sc);
-  const H = OWL_C.hand, F = '#2c1f17';
   if (type === 'point') {
-    capsule([-8, 22, -8, 84], 17, H, 5);                    // işaret parmağı
-    ell(0, 24, 27, 26, H, OL, 5);
-    curve([12, 14, 22, 28, 14, 42], F, 4); curve([-6, 40, 10, 44, 20, 36], F, 4);
-    capsule([20, 10, 30, 30], 13, H, 4);                    // başparmak
+    owlFinger(-10, 30, .02, 58, 21);                                         // işaret parmağı
+    owlPalm(52, 46);
+    for (const k of [2, 15]) ell(k, 44, 11, 11, lg(0, 34, 0, 54, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 4); // kıvrık parmaklar
+    owlFinger(24, 18, -1.15, 28, 18);                                        // başparmak
   } else if (type === 'palm') {
-    for (const [a, l] of [[-.55, 46], [-.18, 54], [.18, 54], [.55, 46]]) {
-      const ex = Math.sin(a) * l, ey = 22 + Math.cos(a) * l; capsule([Math.sin(a) * 14, 22, ex, ey], 15, H, 5);
-    }
-    ell(0, 24, 30, 27, H, OL, 5); capsule([-26, 14, -40, 4], 13, H, 4);
+    for (const [a, l] of [[-.5, 40], [-.17, 46], [.17, 46], [.5, 40]]) owlFinger(Math.sin(a) * 14, 34, -a, l, 20);
+    owlPalm(54, 44);
+    owlFinger(-24, 16, 1.05, 30, 19);
   } else if (type === 'fist') {
-    ell(0, 20, 26, 24, H, OL, 5); for (const k of [-10, 0, 10]) curve([k - 4, 32, k, 40, k + 4, 32], F, 3);
+    owlPalm(52, 44);
+    for (let k = -1.5; k <= 1.5; k++) ell(k * 13, 42, 10, 10, lg(0, 34, 0, 52, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 4);
+    owlFinger(22, 14, -1.4, 28, 18);
   } else { // relax
-    for (const k of [-12, 0, 12]) capsule([k, 26, k * 1.2, 52], 14, H, 5);
-    ell(0, 22, 26, 25, H, OL, 5);
+    for (const [k, l] of [[-15, 34], [-4, 40], [7, 40], [17, 32]]) owlFinger(k, 34, 0, l, 18, .2);
+    owlPalm(52, 44);
+    owlFinger(-24, 14, .95, 28, 18, -.2);
   }
   c.restore();
 }
@@ -93,7 +108,7 @@ function owlArm(side, tgt, p) {
   c.lineWidth = 18; c.strokeStyle = OWL_C.jacketD; c.stroke(); c.restore();        // kol gölgesi
   capsule([cx, cy, j.wx, j.wy], 46, OWL_C.shirt, 5);                                // gömlek manşeti
   ell(cx, cy, 6, 6, OWL_C.gold, OL, 2);                                            // kol düğmesi
-  owlHand(j.wx, j.wy, fa, tgt.hand);
+  owlHand(j.wx, j.wy, fa, tgt.hand, 1.18);
   return j;
 }
 

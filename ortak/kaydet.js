@@ -54,10 +54,12 @@ const progress = [];
   if (EP.music) mIn = path.resolve(EP_DIR, EP.music); else writeWav(mIn, ...music(DUR));
   const voice = path.join(EP_DIR, 'ses.mp3'), hasVoice = fs.existsSync(voice);
   const mv = EP.musicVolume ?? (hasVoice ? 0.32 : 0.6), rv = EP.rainVolume ?? 0.07;
-  const mf = `[0:a]atrim=0:${DUR},asetpts=PTS-STARTPTS,${EP.music ? '' : 'aecho=0.8:0.6:90|170:0.3|0.2,'}afade=t=in:d=1.2,afade=t=out:st=${Math.max(0, DUR - 3.5)}:d=3.5,volume=${mv}[m0];`;
+  const mf = `[0:a]atrim=0:${DUR},asetpts=PTS-STARTPTS,${EP.music ? '' : 'aecho=0.8:0.6:90|170:0.3|0.2,'}afade=t=in:d=1.2,volume=${mv}[m0];`;
   const fc = mf + `[1:a]volume=${rv}[r];` + (hasVoice
-    ? `[2:a]volume=1.0,asplit=2[v][vk];[m0][vk]sidechaincompress=threshold=0.04:ratio=4:attack=30:release=500[m];[m][r][v]amix=inputs=3:normalize=0`
-    : `[m0][r]amix=inputs=2:normalize=0`) + `,atrim=${from}:${to},asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11[a]`;
+    ? `[2:a]volume=1.0,apad=whole_dur=${DUR},asplit=2[v][vk];[m0][vk]sidechaincompress=threshold=0.04:ratio=4:attack=30:release=500[m];[m][r][v]amix=inputs=3:normalize=0`
+    : `[m0][r]amix=inputs=2:normalize=0`) + `,atrim=${from}:${to},asetpts=PTS-STARTPTS,loudnorm=I=-14:TP=-1.5:LRA=11` +
+    // kapanış: ses seviyesi ayarından SONRA yumuşak kararma (yoksa loudnorm sönümü geri yükseltir, şarkı kesilmiş gibi olur)
+    (to >= DUR - .01 ? `,afade=t=out:st=${Math.max(0, to - from - 6)}:d=6:curve=qsin` : '') + '[a]';
   execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', mIn, '-i', rW, ...(hasVoice ? ['-i', voice] : []), '-filter_complex', fc, '-map', '[a]', '-c:a', 'aac', '-b:a', '256k', '-ar', '48000', aOut]);
   console.log(`Ses: ${EP.music ? path.basename(EP.music) : 'prosedürel müzik'} + yağmur${hasVoice ? ' + seslendirme' : ' (seslendirme yok)'}`);
 
