@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tohum Kapak</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Caveat:wght@700&family=Inter:ital,wght@0,600;1,900&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block;height:100vh;margin:auto}</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="story.js"></script>
+<script src="../ortak/cizim.js"></script><script src="../ortak/karakterler.js"></script><script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ekip.js"></script><script src="../ortak/ara-sahneler.js"></script>
+<script>
+// Reels kapağı 1080x1920. Profil ızgarası ortadaki 3:4 alanı gösterir (mantıksal y≈160–1120): önemli her şey orada.
+const cv = document.getElementById('c'), X = cv.getContext('2d'), B = 1.5, T = 2.3;
+const mk = () => { const e = document.createElement('canvas'); e.width = 1080; e.height = 1920; const g = e.getContext('2d'); g.lineJoin = 'round'; g.lineCap = 'round'; return [e, g]; };
+function lights(g) { g.setTransform(1, 0, 0, 1, 0, 0); for (const l of LIGHTS) { g.save(); g.globalCompositeOperation = 'lighter'; g.fillStyle = rg(l.x, l.y, 0, l.r, [[0, l.col], [1, 'rgba(0,0,0,0)']]); g.fillRect(l.x - l.r, l.y - l.r, l.r * 2, l.r * 2); g.restore(); } LIGHTS = []; }
+function draw() {
+  c = X; X.lineJoin = 'round'; X.lineCap = 'round'; initTextures(); LIGHTS = [];
+  // arka plan: yağmurlu sokak
+  X.setTransform(B, 0, 0, B, 0, 0); X.save(); X.translate(360, 640); X.scale(1.12, 1.12); X.translate(-360, -560); drawStreet(T, { sign: 'KIRAATHANE' }); X.restore();
+  lights(X);
+  X.setTransform(B, 0, 0, B, 0, 0); X.fillStyle = 'rgba(6,3,2,.5)'; X.fillRect(0, 0, 720, 1280);
+  // gülen ekip: arkada, karanlıkta, hafif bulanık
+  const [g1, gc] = mk(); c = gc; gc.setTransform(B, 0, 0, B, 0, 0);
+  [['kedi', 735, .48, 975, .4], ['ayi', 620, .52, 995, 1], ['tilki', 480, .5, 975, .8]].forEach(([k, x, s, y, l], i) => {
+    gc.save(); gc.translate(x, y); gc.scale(s, s); gangBody(k, { t: T, laugh: l, tilt: -.12 + i * .02, lookX: .1, L: k === 'tilki' ? { x: -300, y: -640, hand: 'point' } : undefined }); gc.restore(); });
+  c = X; X.setTransform(1, 0, 0, 1, 0, 0); X.save(); X.filter = 'brightness(.42) saturate(.6) blur(3px)'; X.drawImage(g1, 0, 0); X.restore();
+  X.setTransform(B, 0, 0, B, 0, 0); X.fillStyle = lg(0, 600, 0, 1000, [[0, 'rgba(8,4,2,.0)'], [1, 'rgba(8,4,2,.35)']]); X.fillRect(0, 600, 720, 400);
+  LIGHTS = [];
+  // Demir: parlayan defteri tutuyor
+  const pd = Object.assign({}, MOODS.demir.hope, { t: T, talk: 0, lookX: -.3, lookY: .55, blink: 0, tilt: -.05, L: { x: -95, y: -480, hand: 'relax' }, R: { x: 95, y: -480, hand: 'relax' } });
+  X.save(); X.translate(568, 1222); X.scale(.62, .62); drawWolf(pd); X.restore();
+  notebook(568, 1222 - .62 * 480 + 20, .6, 1, 1.3);
+  // defterden filizlenen ışık
+  const sx = 568 + 58, sy = 1222 - .62 * 480 + 18;
+  X.save(); X.translate(sx, sy); X.scale(1.3, 1.3); curve([0, 0, -5, -28, 0, -58], '#7fb245', 8); ell(-22, -62, 24, 12, '#9fd060', OL, 3, -.5); ell(22, -65, 24, 12, '#9fd060', OL, 3, .5); X.restore();
+  addLight(sx, sy - 40, 160, 'rgba(190,255,140,.45)');
+  // Kâzım: fener havada, parmak kalkık, izleyiciye bakıyor
+  const pk = Object.assign({}, MOODS.kazim.stern, { t: T, talk: 0, lookX: .12, lookY: -.05, blink: 0, tilt: .03, nod: 0,
+    L: { x: -240, y: -700, hand: 'fist' }, R: { x: 232, y: -820, hand: 'point' }, lantern: 1 });
+  X.save(); X.translate(250, 1240); X.scale(.72, .72); drawOwl(pk); X.restore();
+  lights(X);
+  // önde yağmur + renk + vinyet
+  X.setTransform(B, 0, 0, B, 0, 0); c = X; drawRain(T, 720, 1280, 0, .7); drawRain(T + .4, 720, 1280, 1, .8);
+  X.save(); X.globalCompositeOperation = 'soft-light'; X.fillStyle = 'rgba(255,150,60,.28)'; X.fillRect(0, 0, 720, 1280); X.restore();
+  X.fillStyle = rg(360, 640, 220, 820, [[0, 'rgba(0,0,0,0)'], [.65, 'rgba(6,3,1,.45)'], [1, 'rgba(3,2,1,.92)']]); X.fillRect(0, 0, 720, 1280);
+  X.fillStyle = lg(0, 0, 0, 380, [[0, 'rgba(4,2,1,.92)'], [1, 'rgba(4,2,1,0)']]); X.fillRect(0, 0, 720, 380);
+  X.fillStyle = lg(0, 880, 0, 1280, [[0, 'rgba(4,2,1,0)'], [.45, 'rgba(4,2,1,.8)'], [1, 'rgba(4,2,1,.95)']]); X.fillRect(0, 880, 720, 400);
+  // başlık
+  const sp = (txt, y, font, col, ls, glowC, blur = 30) => { X.save(); X.font = font; X.textAlign = 'center'; X.letterSpacing = ls + 'px'; X.fillStyle = col; if (glowC) { X.shadowColor = glowC; X.shadowBlur = blur; } X.fillText(txt, 360 + ls / 2, y); X.restore(); };
+  sp('BAYKUŞ KAZIM', 192, '600 22px Cinzel,Georgia,serif', 'rgba(236,214,176,.9)', 9);
+  sp('TOHUM', 318, '900 118px Cinzel,Georgia,serif', '#f6d48a', 14, 'rgba(255,160,50,.85)', 40);
+  sp('TOHUM', 318, '900 118px Cinzel,Georgia,serif', '#f6d48a', 14);
+  X.fillStyle = 'rgba(217,178,106,.8)'; X.fillRect(250, 346, 220, 2); ell(360, 347, 5, 5, '#f6d48a', null);
+  sp('BÖLÜM 5', 384, '600 20px Cinzel,Georgia,serif', 'rgba(236,214,176,.8)', 8);
+  // kanca cümlesi (altyazı stilinde)
+  const hook = (words, y, size) => {
+    X.save(); X.font = `italic 900 ${size}px Inter,Arial,sans-serif`; X.textBaseline = 'middle';
+    const spW = X.measureText(' ').width, ws = words.map(([w]) => X.measureText(w).width), tot = ws.reduce((a, b) => a + b, 0) + spW * (ws.length - 1);
+    let xx = 360 - tot / 2;
+    words.forEach(([w, gold], i) => { X.lineWidth = 12; X.strokeStyle = '#000'; X.shadowColor = 'rgba(0,0,0,.9)'; X.shadowBlur = 16; X.shadowOffsetY = 4; X.strokeText(w, xx, y);
+      X.shadowColor = 'transparent'; X.fillStyle = gold ? '#f4c358' : '#fff'; X.fillText(w, xx, y); xx += ws[i] + spW; });
+    X.restore();
+  };
+  hook([['HAYALLERİNİ'], ['HERKESE', 1]], 1012, 58);
+  hook([['ANLATMA!']], 1080, 70);
+  // film greni
+  X.setTransform(1, 0, 0, 1, 0, 0); X.save(); X.globalCompositeOperation = 'overlay'; X.globalAlpha = .06; X.fillStyle = X.createPattern(TEX.grain[1], 'repeat'); X.fillRect(0, 0, 1080, 1920); X.restore();
+  window.READY = true;
+}
+document.fonts.ready.then(draw);
+</script></body></html>
