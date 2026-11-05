@@ -189,30 +189,38 @@ SCENES.ters = S => {
 
 // ---------- ŞAFAĞA YÜRÜYÜŞ ----------
 function drawWolfBack(p) { // arkadan Demir: sırtında "DEMİR" yazılı kolej ceketi
-  const t = p.t, walk = p.walk || 0;
+  const t = p.t, walk = p.walk || 0, run = cl(walk - .8, 0, 1);
   ell(0, 0, 175, 20, 'rgba(0,0,0,.4)', null);
-  const run = cl(walk - .8, 0, 1);
+  // bacaklar: biri yere basar (düz), diğeri geriye kalkar (kısalır, ayakkabı tabanı görünür)
   for (const s of [-1, 1]) {
-    const ph = t * 7 + (s > 0 ? PI : 0), lift = Math.max(0, Math.sin(ph)) * 70 * run, sw = Math.sin(ph) * 10 * walk;
-    const fx = s * 54 + sw * .3, fy = -44 - lift;
-    poly([s * 18, -292, s * 92, -292, fx + 34, fy, fx - 34, fy], WOLF_C.jeans, OL, 6);         // pantolon (kalkınca kısalır)
-    rr(fx - 36, fy - 26, 72, 22, 5, '#3f5784', OL, 4);                                          // paça
-    if (lift > 18) { rr(fx - 34, fy - 6, 68, 44, 14, '#d9772b', OL, 5); rr(fx - 30, fy + 18, 60, 18, 8, '#f1ede4', OL, 4); } // geriye kalkan ayak: taban görünür
-    else { blob([fx - 36, fy - 8, fx + 36, fy - 8, fx + 42, fy + 34, fx - 42, fy + 34], '#d9772b', OL, 6); rr(fx - 44, fy + 26, 88, 14, 6, '#f1ede4', OL, 4); }
+    const ph = t * 7 + (s > 0 ? PI : 0), up = Math.max(0, Math.sin(ph)), lift = up * 62 * run + up * 10 * walk * (1 - run);
+    const hx = s * 52, fx = s * 50, fy = -40 - lift;
+    poly([hx - 44, -292, hx + 44, -292, fx + 38, fy - 18, fx - 38, fy - 18], WOLF_C.jeans, OL, 6);              // pantolon
+    line(hx, -280, fx, fy - 30, 'rgba(0,0,0,.25)', 3);                                                         // dikiş
+    rr(fx - 40, fy - 34, 80, 22, 6, '#3f5784', OL, 4);                                                         // paça
+    if (lift > 20) { // havadaki ayak: topuk ve taban
+      rr(fx - 36, fy - 14, 72, 40, 14, '#d9772b', OL, 5); rr(fx - 34, fy + 14, 68, 20, 9, '#f1ede4', OL, 4); line(fx - 20, fy + 24, fx + 20, fy + 24, 'rgba(0,0,0,.25)', 3);
+    } else {        // yere basan ayak: ayakkabının arkası
+      blob([fx - 38, fy - 14, fx + 38, fy - 14, fx + 44, fy + 28, fx - 44, fy + 28], '#d9772b', OL, 6); rr(fx - 46, fy + 22, 92, 16, 7, '#f1ede4', OL, 4);
+    }
   }
-
   const J = [-56, -592, -128, -566, -150, -520, -140, -400, -128, -300, -134, -262, 0, -258, 134, -262, 128, -300, 140, -400, 150, -520, 128, -566, 56, -592];
   c.beginPath(); smoothPath(J); c.fillStyle = lg(-150, 0, 150, 0, [[0, '#5a1520'], [.3, WOLF_C.jacket], [.7, WOLF_C.jacket], [1, '#5a1520']]); c.fill(); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
+  c.save(); c.beginPath(); smoothPath(J); c.clip(); c.fillStyle = '#ece4d3'; c.fillRect(-160, -296, 320, 40); c.fillStyle = WOLF_C.jacket; c.fillRect(-160, -286, 320, 6); c.fillRect(-160, -274, 320, 6); c.restore();
+  c.beginPath(); smoothPath(J); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   c.save(); c.font = '900 50px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.strokeText('DEMİR', 0, -440); c.fillStyle = '#e8bf5c'; c.fillText('DEMİR', 0, -440); c.restore();
-  c.save(); c.translate(100, -290); c.rotate(Math.sin(t * 3) * .1); blob([0, -10, 80, 10, 135, 90, 125, 190, 95, 236, 92, 160, 60, 90, -10, 40], lg(0, 0, 120, 230, [[0, WOLF_C.furD], [1, '#eef0f2']]), OL, 6); c.restore();
-  // kollar ceketin önünde (arkadan görünüş): yürürken/koşarken sallanır
+  // kuyruk: sırtın ortasından aşağı sarkar, iki yana sallanır
+  c.save(); c.translate(0, -272); c.rotate(Math.sin(t * 7) * (.12 + .18 * run));
+  blob([-34, -4, 34, -4, 58, 70, 52, 160, 22, 222, 0, 236, -22, 222, -52, 160, -58, 70], lg(0, 0, 0, 236, [[0, WOLF_C.furD], [.7, WOLF_C.fur], [1, '#eef0f2']]), OL, 6, .8);
+  curve([0, 20, -6, 110, 0, 200], 'rgba(60,66,76,.4)', 3); c.restore();
+  // kollar: gövdenin iki yanında, dirsek hafif bükük; koşarken öne-arkaya sallanır (arkadan bakınca eller yukarı-aşağı oynar)
   for (const s of [-1, 1]) {
-    const ph = t * 7 + (s > 0 ? 0 : PI), sw = Math.sin(ph) * (walk > .8 ? 1 : .4) * walk;
-    const tx = s * (162 - Math.max(0, sw) * 20), ty = -320 - sw * 90 * (walk > .8 ? 1 : .3), j = ik(s * 126, -548, tx, ty, 150, 140, s);
-    capsule([s * 126, -548, j.ex, j.ey, j.wx, j.wy], 58, WOLF_C.sleeve, 6);
-    const a2 = Math.atan2(j.wy - j.ey, j.wx - j.ex), cf = [lerp(j.ex, j.wx, .8), lerp(j.ey, j.wy, .8)];
-    capsule([cf[0], cf[1], j.wx, j.wy], 50, '#6a1822', 5);
-    ell(j.wx + Math.cos(a2) * 18, j.wy + Math.sin(a2) * 18, 25, 24, WOLF_C.paw, OL, 5);
+    const ph = t * 7 + (s > 0 ? 0 : PI), sw = Math.sin(ph) * (run > 0 ? 1 : .35) * Math.min(1, walk);
+    const ex = s * 172, ey = -420 - sw * 18, hx = s * (160 - Math.max(0, sw) * 12), hy = -312 - sw * 70 * (run > 0 ? 1 : .4);
+    capsule([s * 126, -548, ex, ey, hx, hy], 58, WOLF_C.sleeve, 6);
+    const a2 = Math.atan2(hy - ey, hx - ex);
+    capsule([lerp(ex, hx, .78), lerp(ey, hy, .78), hx, hy], 50, '#6a1822', 5);
+    ell(hx + Math.cos(a2) * 20, hy + Math.sin(a2) * 20, 25, 24, WOLF_C.paw, OL, 5);
   }
   c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   c.save(); c.translate(0, -728); c.rotate(p.tilt || 0);

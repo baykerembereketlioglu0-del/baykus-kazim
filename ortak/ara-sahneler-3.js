@@ -84,7 +84,6 @@ function evMasa(t, o = {}) { // masa + örtü + tabaklar + çaydanlık + bardakl
   c.save(); c.translate(548, 840); c.scale(.85, .85); rr(-30, -64, 60, 60, 16, '#c9c2b5', OL, 4); rr(-22, -100, 44, 40, 12, '#d9d2c4', OL, 4); ell(0, -104, 8, 6, '#3a2a1e', OL, 2); curve([30, -30, 54, -50, 60, -70], OL, 6); curve([30, -30, 54, -50, 60, -70], '#c9c2b5', 3);
   if (hot > .05) { c.save(); c.globalAlpha = hot * .5; curve([60, -74, 54 + Math.sin(t * 2) * 8, -110, 64 + Math.sin(t * 2.5) * 10, -150], 'rgba(240,240,240,.8)', 4); c.restore(); } c.restore();
   teaGlass(328, 856, .8, 1, hot, t); teaGlass(392, 856, .8, o.secondFull ?? 1, hot, t);
-  rr(150, 826, 50, 18, 8, '#c98a3a', OL, 3); // ekmek
 }
 
 // ---------- 0) SİNEMATİK AÇILIŞ: yağmurlu gecede baba evi ----------
@@ -211,10 +210,10 @@ SCENES.bos = S => {
   c.save(); c.translate(-190, 60); evMasa(t, { food: false, hot: 0, secondFull: 0 }); c.restore();
   // masada kasket + çalan telefon
   c.save(); c.translate(70, 900); blob([-60, 10, -50, -30, 0, -44, 50, -30, 60, 10, 0, 2], '#5a4636', OL, 4); c.restore();
-  c.save(); c.translate(250 + ring, 905); rr(-50, -18, 100, 30, 8, '#1c1e22', OL, 4); c.restore();
-  if (Math.sin(t * 4) > 0) { c.save(); c.globalAlpha = .7; for (const s of [-1, 1]) for (let i = 0; i < 3; i++) curve([250 + s * (70 + i * 16), 880, 250 + s * (78 + i * 16), 895, 250 + s * (70 + i * 16), 910], 'rgba(200,220,255,.7)', 3); c.restore(); }
-  c.save(); c.globalAlpha = ss(.1, .3, k); rr(120, 760, 260, 70, 16, 'rgba(20,24,30,.92)', 'rgba(255,255,255,.2)', 2); c.fillStyle = '#eef2f5'; c.font = '700 22px Inter,Arial'; c.fillText('Oğlum Demir', 140, 790); c.font = '500 18px Inter,Arial'; c.fillStyle = '#9aa6b2'; c.fillText('arıyor…', 140, 814); c.restore();
-  addLight(250, 900, 160, 'rgba(160,200,255,.35)');
+  const phx = 170 + ring, phy = 948; c.save(); c.translate(phx, phy); c.rotate(-.06); rr(-46, -14, 92, 26, 8, '#1c1e22', OL, 4); rr(-40, -10, 80, 16, 5, '#3a5a7a', null); c.restore();
+  if (Math.sin(t * 4) > 0) { c.save(); c.globalAlpha = .7; for (const s of [-1, 1]) for (let i = 0; i < 3; i++) curve([phx + s * (62 + i * 16), phy - 16, phx + s * (70 + i * 16), phy, phx + s * (62 + i * 16), phy + 16], 'rgba(200,220,255,.7)', 3); c.restore(); }
+  c.save(); c.globalAlpha = ss(.1, .3, k); rr(60, 800, 260, 70, 16, 'rgba(20,24,30,.92)', 'rgba(255,255,255,.2)', 2); c.fillStyle = '#eef2f5'; c.font = '700 22px Inter,Arial'; c.fillText('Oğlum Demir', 80, 830); c.font = '500 18px Inter,Arial'; c.fillStyle = '#9aa6b2'; c.fillText('arıyor…', 80, 854); c.restore();
+  addLight(phx, phy, 150, 'rgba(160,200,255,.35)');
   dustMotes(t, 40, 80, 300, 600, 700, .45, '200,210,230');
 };
 
