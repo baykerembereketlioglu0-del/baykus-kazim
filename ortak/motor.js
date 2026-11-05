@@ -7,6 +7,7 @@
   const mk = () => { const e = document.createElement('canvas'); e.width = CW; e.height = CH; const g = e.getContext('2d'); g.lineJoin = 'round'; g.lineCap = 'round'; return [e, g]; };
   const [layer, lc] = mk(), [bufA, ca] = mk(), [bufB, cb] = mk();
   const cap = location.search.includes('capture=1'); if (cap) document.body.classList.add('cap');
+  const CLEAN = location.search.includes('clean=1'); // kapak için: altyazı ve filigran yok
   const INTRO = EP.intro ?? .5, TAIL = EP.tail ?? 3.8, TR = .4;
   c = main; initTextures(); main.lineJoin = 'round'; main.lineCap = 'round';
 
@@ -223,7 +224,7 @@
       for (let i = 0; i < 3; i++) { const sx = hash(Math.floor(t * 12) + i * 7) * W; main.beginPath(); main.moveTo(sx, 0); main.lineTo(sx + (hash(i + Math.floor(t * 12)) - .5) * 20, H); main.stroke(); }
       main.restore(); main.fillStyle = `rgba(255,240,210,${.03 * hash(Math.floor(t * 24) + 3)})`; main.fillRect(0, 0, W, H);
     }
-    if (!ending) { subtitle(t); spaced('BAYKUŞ KAZIM', W / 2, 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
+    if (!ending && !CLEAN) { subtitle(t); spaced('BAYKUŞ KAZIM', W / 2, 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
     if (t < .8) { main.fillStyle = `rgba(0,0,0,${1 - ss(0, .8, t)})`; main.fillRect(0, 0, W, H); }
     main.fillStyle = `rgba(0,0,0,${ss(DUR - .6, DUR, t)})`; main.fillRect(0, 0, W, H);
     main.setTransform(1, 0, 0, 1, 0, 0); main.save(); main.globalCompositeOperation = 'overlay'; main.globalAlpha = shot.flash ? .12 : .07;

@@ -1,15 +1,15 @@
 // İllüstrasyondan (ör. Gemini ile üretilmiş görsel) Baykuş Kazım kapağı yapar: 1080x1920, üstte altın "BAYKUŞ KAZIM",
 // altta kalın yoğun yazı tipiyle kanca cümlesi (beyaz + altın satır).
 // Kullanım: node ortak/kapak-yap.js <görsel> <çıktı.jpg> "1. SATIR (beyaz)" "2. SATIR (altın)" [--odak 0.5]
-//   --odak: görsel 9:16'ya kırpılırken yatay odak (0 sol, 1 sağ). Satırları boş bırakmak için "" ver.
+//   --odak: görsel 9:16'ya kırpılırken yatay odak (0 sol, 1 sağ). --y: ilk satırın taban çizgisi (px, varsayılan 1620). Satırları boş bırakmak için "" ver.
 const { chromium } = require('playwright'), path = require('path'), fs = require('fs');
 const a = process.argv.slice(2), opt = (k, d) => { const i = a.indexOf('--' + k); if (i < 0) return d; const v = a[i + 1]; a.splice(i, 2); return v; };
-const focus = +opt('odak', .5), [img, out, l1 = '', l2 = ''] = a;
+const focus = +opt('odak', .5), ybase = +opt('y', 1620), [img, out, l1 = '', l2 = ''] = a;
 const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Oswald:wght@600;700&display=block" rel="stylesheet"></head>
 <body style="margin:0;background:#000"><canvas id="c" width="1080" height="1920"></canvas><img id="i" src="data:${/\.png$/i.test(img) ? 'image/png' : 'image/jpeg'};base64,${fs.readFileSync(path.resolve(img)).toString('base64')}" style="display:none">
 <script>
-const L1 = ${JSON.stringify(l1.toLocaleUpperCase('tr'))}, L2 = ${JSON.stringify(l2.toLocaleUpperCase('tr'))}, F = ${focus};
+const L1 = ${JSON.stringify(l1.toLocaleUpperCase('tr'))}, L2 = ${JSON.stringify(l2.toLocaleUpperCase('tr'))}, F = ${focus}, YB = ${ybase};
 async function go() {
   await document.fonts.load('700 100px Oswald'); await document.fonts.load('700 60px Cinzel');
   const im = document.getElementById('i'); await im.decode();
@@ -27,7 +27,7 @@ async function go() {
     x.save(); x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.lineJoin = 'round';
     x.shadowColor = 'rgba(0,0,0,.9)'; x.shadowBlur = 26; x.shadowOffsetY = 8; x.lineWidth = 10; x.strokeStyle = 'rgba(0,0,0,.85)'; x.strokeText(t, W / 2, y);
     x.shadowColor = 'transparent'; x.fillStyle = col; x.fillText(t, W / 2, y); x.restore(); return fs; };
-  const f1 = line(L1, 1620, '#ffffff', 960); line(L2, 1620 + (f1 || 130) * 1.08, (()=>{ const gg = x.createLinearGradient(0, 1640, 0, 1790); gg.addColorStop(0, '#f2c766'); gg.addColorStop(1, '#c8902f'); return gg; })(), 960);
+  const f1 = line(L1, YB, '#ffffff', 960); line(L2, YB + (f1 || 130) * 1.08, (()=>{ const gg = x.createLinearGradient(0, 1640, 0, 1790); gg.addColorStop(0, '#f2c766'); gg.addColorStop(1, '#c8902f'); return gg; })(), 960);
   window.READY = true;
 }
 go();
