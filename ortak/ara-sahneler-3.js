@@ -73,18 +73,18 @@ function evIci(t, o = {}) {
 }
 function evMasa(t, o = {}) { // masa + örtü + tabaklar + çaydanlık + bardaklar
   const hot = o.hot ?? 1;
-  ell(360, 868, 270, 40, '#f1ebdf', OL, 5);
+  ell(360, 856, 272, 56, '#f1ebdf', OL, 5);
   c.beginPath(); c.moveTo(90, 868); c.quadraticCurveTo(80, 960, 100, 1040); for (let i = 0; i <= 12; i++) { const x = 100 + i * 43.3; c.quadraticCurveTo(x - 20, 1060, x, 1040); } c.quadraticCurveTo(640, 960, 630, 868); c.closePath();
   c.fillStyle = lg(0, 868, 0, 1050, [[0, '#f1ebdf'], [1, '#cfc6b4']]); c.fill(); c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
   c.save(); c.globalAlpha = .35; for (let i = 0; i < 12; i++) ell(110 + i * 43, 1030, 10, 10, null, '#9a8c74', 2); c.restore();
-  for (const px of [250, 470]) { ell(px, 862, 66, 16, '#fbf8f2', OL, 4); ell(px, 860, 42, 9, null, 'rgba(0,0,0,.15)', 2); }
-  if (o.covered) { const d = o.covered; c.save(); c.translate(470, 856 - (1 - d) * 120); blob([-58, 4, -50, -40, 0, -62, 50, -40, 58, 4], lg(0, -62, 0, 4, [[0, '#e8e2d6'], [1, '#b9b2a4']]), OL, 4); ell(0, -64, 8, 6, '#9a917f', OL, 2); c.restore(); }
-  else if (o.food !== false) for (const px of [250, 470]) { ell(px, 854, 30, 9, '#c96a2a', null); ell(px - 8, 850, 8, 4, '#3a7a2a', null); }
+  for (const px of [245, 465]) { ell(px, 848, 58, 14, '#fbf8f2', OL, 4); ell(px, 846, 36, 8, null, 'rgba(0,0,0,.15)', 2); }
+  if (o.covered) { const d = o.covered; c.save(); c.translate(465, 842 - (1 - d) * 120); c.scale(.9, .9); blob([-58, 4, -50, -40, 0, -62, 50, -40, 58, 4], lg(0, -62, 0, 4, [[0, '#e8e2d6'], [1, '#b9b2a4']]), OL, 4); ell(0, -64, 8, 6, '#9a917f', OL, 2); c.restore(); }
+  else if (o.food !== false) for (const px of [245, 465]) { ell(px, 841, 26, 8, '#c96a2a', null); ell(px - 7, 837, 7, 4, '#3a7a2a', null); }
   // çaydanlık
-  c.save(); c.translate(575, 858); rr(-30, -64, 60, 60, 16, '#c9c2b5', OL, 4); rr(-22, -100, 44, 40, 12, '#d9d2c4', OL, 4); ell(0, -104, 8, 6, '#3a2a1e', OL, 2); curve([30, -30, 54, -50, 60, -70], OL, 6); curve([30, -30, 54, -50, 60, -70], '#c9c2b5', 3);
+  c.save(); c.translate(548, 840); c.scale(.85, .85); rr(-30, -64, 60, 60, 16, '#c9c2b5', OL, 4); rr(-22, -100, 44, 40, 12, '#d9d2c4', OL, 4); ell(0, -104, 8, 6, '#3a2a1e', OL, 2); curve([30, -30, 54, -50, 60, -70], OL, 6); curve([30, -30, 54, -50, 60, -70], '#c9c2b5', 3);
   if (hot > .05) { c.save(); c.globalAlpha = hot * .5; curve([60, -74, 54 + Math.sin(t * 2) * 8, -110, 64 + Math.sin(t * 2.5) * 10, -150], 'rgba(240,240,240,.8)', 4); c.restore(); } c.restore();
-  teaGlass(330, 880, .9, 1, hot, t); teaGlass(395, 880, .9, o.secondFull ?? 1, hot, t);
-  rr(180, 830, 60, 20, 8, '#c98a3a', OL, 3); // ekmek
+  teaGlass(328, 856, .8, 1, hot, t); teaGlass(392, 856, .8, o.secondFull ?? 1, hot, t);
+  rr(150, 826, 50, 18, 8, '#c98a3a', OL, 3); // ekmek
 }
 
 // ---------- 0) SİNEMATİK AÇILIŞ: yağmurlu gecede baba evi ----------
@@ -226,7 +226,7 @@ SCENES.kosu = S => {
   for (const s of [-1, 1]) for (let i = 0; i < 6; i++) { const d = i / 6, x = 360 + s * lerp(420, 60, d), w = lerp(260, 40, d), h = lerp(700, 120, d); rr(s < 0 ? x - w : x, 860 - h, w, h, 2, `rgb(${lerp(18, 40, d) | 0},${lerp(14, 30, d) | 0},${lerp(14, 30, d) | 0})`, null);
     for (let j = 0; j < 4; j++) if (hash(i * 7 + j + (s > 0 ? 50 : 0)) > .55) rr((s < 0 ? x - w : x) + w * .2, 860 - h + h * (.15 + j * .2), w * .25, h * .08, 2, 'rgba(255,190,100,.45)', null); }
   // sonda baba evi: sıcak pencere
-  rr(330, 790, 60, 70, 2, '#3a2a20', OL, 3); poly([322, 792, 360, 768, 398, 792], '#4a1e18', OL, 3); rr(346, 806, 28, 24, 1, '#ffc46a', null); addLight(360, 818, 140 + k * 60, 'rgba(255,170,80,.6)');
+  rr(330, 790, 60, 70, 2, '#3a2a20', OL, 3); poly([322, 792, 360, 768, 398, 792], '#4a1e18', OL, 3); rr(346, 806, 28, 24, 1, '#ffc46a', null);
   c.beginPath(); c.moveTo(-300, 1600); c.lineTo(330, 860); c.lineTo(390, 860); c.lineTo(1020, 1600); c.closePath(); c.fillStyle = lg(0, 860, 0, 1300, [[0, '#2a2420'], [1, '#14100c']]); c.fill();
   c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = lg(0, 860, 0, 1300, [[0, 'rgba(255,170,90,.3)'], [1, 'rgba(255,170,90,0)']]); c.beginPath(); c.moveTo(340, 860); c.lineTo(380, 860); c.lineTo(500, 1300); c.lineTo(220, 1300); c.closePath(); c.fill(); c.restore();
   const d = ease(k), sc = lerp(.62, .2, d), y = lerp(1260, 920, d);
@@ -255,26 +255,29 @@ SCENES.kavusma = S => {
     c.fillStyle = '#16100c'; c.fillRect(-300, 910, 1320, 700);
     c.save(); c.translate(250, 1460); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: 0 }); c.restore();
     drawRain(t, 720, 1280, 1, .7);
-  } else { // sarılma: yan yana; baba kolunu Demir'in omzuna atar, Demir başını babasına yaslar
+  } else { // sarılma (yan yana): babanın kolu Demir'in boynunun ARKASINDAN geçer, eli uzak omzunda görünür;
+           // Demir'in kolu babanın sırtının arkasında, patisi babanın uzak belinde görünür
     cam(380, 760, 1.32 + .08 * ease(k));
     c.fillStyle = '#16100c'; c.fillRect(-300, -300, 1320, 1900);
     c.fillStyle = lg(0, 300, 0, 1000, [[0, '#ffd89a'], [1, '#e8a04a']]); c.fillRect(180, 240, 400, 800);
     addLight(380, 560, 640, 'rgba(255,190,100,.6)');
-    const fx = 450, fy = 1190, fs = .66, dx = 300, dy = 1200, ds = .62, sway = Math.sin(t * 1.4) * .02;
-    const pf = Object.assign({}, MOODS.mehmetali.happy, { t, talk: S.talk.mehmetali, lookX: -.5, lookY: .3, blink: 0, tilt: -.17 + sway, hideL: true,
-      R: { x: 120, y: -330, hand: 'relax' } });
-    c.save(); c.translate(fx, fy); c.scale(fs, fs); drawMehmetAli(pf); c.restore();
-    c.save(); c.globalAlpha = ss(.15, .35, k); const tx = fx + 74 * fs, ty = fy - 688 * fs; blob([tx, ty, tx + 6, ty + 20, tx, ty + 34, tx - 6, ty + 20], '#9fd2ff', OL, 2); c.restore(); // gözyaşı
-    const pd = Object.assign({}, MOODS.demir.happy, { t, talk: 0, lid: .85, lookX: .3, blink: 0, tilt: .2 + sway, hideR: true,
+    const fx = 455, fy = 1190, fs = .66, dx = 300, dy = 1200, ds = .62, sway = Math.sin(t * 1.4) * .015;
+    const pf = Object.assign({}, MOODS.mehmetali.happy, { t, talk: S.talk.mehmetali, lookX: -.5, lookY: .3, blink: 0, tilt: -.15 + sway, hideL: true,
+      R: { x: 140, y: -272, hand: 'relax' } });
+    // babanın üst kolu: omzundan Demir'in arkasına doğru (Demir'den ÖNCE çizilir, Demir'in arkasında kalır)
+    c.save(); c.translate(fx, fy); c.scale(fs, fs); capsule([-124, -540, -330, -520], 62, MA_C.cardigan, 6); drawMehmetAli(pf); c.restore();
+    const tx = fx + 74 * fs, ty = fy - 688 * fs;
+    c.save(); c.globalAlpha = ss(.15, .35, k); blob([tx, ty, tx + 6, ty + 20, tx, ty + 34, tx - 6, ty + 20], '#9fd2ff', OL, 2); c.restore(); // gözyaşı
+    const pd = Object.assign({}, MOODS.demir.happy, { t, talk: 0, lid: .85, lookX: .3, blink: 0, tilt: .18 + sway, hideR: true,
       L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
-    c.save(); c.translate(dx, dy); c.scale(ds, ds); drawWolf(pd); c.restore();
-    // Demir'in sağ patisi babanın belinde (kol babanın arkasında)
-    ell(fx + 132 * fs, fy - 380 * fs, 26, 24, WOLF_C.paw, OL, 4);
-    // babanın sol kolu Demir'in omuzlarının üstünden uzak omzuna
-    const sx = fx - 124 * fs, sy = fy - 540 * fs, hx = dx - 118 * ds, hy = dy - 560 * ds;
-    c.beginPath(); c.moveTo(sx, sy + 14); c.quadraticCurveTo((sx + hx) / 2, sy + 70, hx + 10, hy + 18); c.lineWidth = 52; c.strokeStyle = OL; c.stroke(); c.lineWidth = 42; c.strokeStyle = MA_C.cardigan; c.stroke();
-    c.save(); c.translate(hx + 10, hy + 18); c.rotate(.4); rr(-18, -26, 16, 52, 6, MA_C.cardiganD, OL, 4); c.restore();
-    ell(hx - 10, hy + 26, 30, 26, MA_C.paw, OL, 4); for (const kx of [-12, 0, 12]) curve([hx - 10 + kx - 3, hy + 38, hx - 10 + kx, hy + 48, hx - 10 + kx + 3, hy + 38], 'rgba(60,64,70,.6)', 2.5);
+    c.save(); c.translate(dx, dy); c.scale(ds, ds); drawWolf(pd);
+    // babanın eli Demir'in uzak (sol) omzunda: hırka manşeti boynun arkasından çıkıyor
+    c.save(); c.translate(-150, -590); c.rotate(.5); rr(-26, -12, 52, 26, 8, MA_C.cardiganD, OL, 5); c.restore();
+    ell(-162, -560, 42, 36, MA_C.paw, OL, 5);
+    for (let f = 0; f < 4; f++) { c.save(); c.translate(-188 + f * 15, -536); c.rotate(.15); rr(-8, -6, 16, 30, 8, MA_C.paw, OL, 4); c.restore(); }
+    c.restore();
+    // Demir'in patisi babanın uzak belinde
+    c.save(); c.translate(fx + 140 * fs, fy - 360 * fs); c.rotate(-.3); ell(0, 0, 18, 16, WOLF_C.paw, OL, 4); for (let f = 0; f < 3; f++) rr(-14 + f * 9, 6, 9, 16, 4, WOLF_C.paw, OL, 3); c.restore();
     dustMotes(t, 30, 150, 300, 450, 700, .5);
   }
 };

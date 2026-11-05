@@ -88,9 +88,9 @@ function owlHand(x, y, ang, type, sc = 1) {
   const H = OWL_C.hand, HD = OWL_C.handD, palm = () => rr(-24, 0, 48, 42, 14, lg(0, 0, 0, 42, [[0, H], [1, HD]]), OL, 5);
   const knuckles = n => { for (let i = 0; i < n; i++) rr(-22 + i * (44 / n), 30, 44 / n + 2, 20, 8, lg(0, 30, 0, 50, [[0, H], [1, HD]]), OL, 4); };
   if (type === 'point') {          // işaret parmağı dik, diğerleri kıvrık, başparmak üstlerinde
-    oFing(-15, 26, 0, 62, 16);
-    palm(); for (let i = 0; i < 3; i++) rr(-6 + i * 11, 32, 13, 18, 6, lg(0, 32, 0, 50, [[0, H], [1, HD]]), OL, 4);
-    c.save(); c.translate(22, 12); c.rotate(.95); rr(-7, 0, 14, 30, 7, H, OL, 4); c.restore();
+    oFing(11, 26, 0, 64, 17);                                                  // işaret parmağı: başparmak tarafında
+    palm(); for (let i = 0; i < 3; i++) rr(-23 + i * 10.5, 32, 12, 18, 6, lg(0, 32, 0, 50, [[0, H], [1, HD]]), OL, 4); // orta, yüzük, serçe kıvrık
+    c.save(); c.translate(24, 16); c.rotate(1.3); rr(-7, 0, 14, 34, 7, H, OL, 4); c.restore();           // başparmak kıvrık parmakların üstünde
   } else if (type === 'palm') {    // açık el, parmaklar hafif yelpaze
     for (const [xx, a, l] of [[-17, .22, 36], [-6, .07, 42], [6, -.07, 42], [17, -.22, 34]]) oFing(xx, 34, a, l, 14);
     palm();

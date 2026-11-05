@@ -1,7 +1,7 @@
-// Bölüm 7: "Sonra" — sevdiklerine "sonra" deme. Yeni karakter: Mehmet Ali (Demir'in babası).
+// Bölüm 5: "Sonra" — sevdiklerine "sonra" deme. Yeni karakter: Mehmet Ali (Demir'in babası).
 // who: 'kazim' | 'demir' | 'mehmetali'. Sahneler: ortak/ara-sahneler*.js
 const EPISODE = {
-  number: 7,
+  number: 5,
   title: 'Sonra',
   quote: 'Sevdiklerine sonra deme. Sonra, bazen hiç gelmez.',
   sketch: 'cay',
