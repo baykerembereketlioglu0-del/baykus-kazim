@@ -65,7 +65,10 @@ for (const who of WHO) {
   let best = -1, bv = Infinity;
   for (let c = need - 1; c < C; c++) { const v = (need ? dp[need - 1][c] : 0) + segCost(inner[c][1], tail, need, C - c - 1, c, C); if (v < bv) { bv = v; best = c; } }
   const idxs = []; for (let j = need - 1, c = best; j >= 0; c = from[j][c], j--) idxs.unshift(c);
-  const cuts = need ? idxs.map(c => inner[c]) : [];
+  let cuts = need ? idxs.map(c => inner[c]) : [];
+  // Elle düzeltme: story.js'te EPISODE.cuts = { demir: [3.7, 7.15, 9.2] } (kaynak dosyadaki kesim anları, sn)
+  const manual = EP.cuts && EP.cuts[who];
+  if (manual) { cuts = manual.map(m => inner.find(([x0, x1]) => m >= x0 - .05 && m <= x1 + .05) || [m - .05, m + .05]); console.log(`${who}: elle kesim ${manual.join(', ')}`); }
   const segs = []; let a = lead;
   for (const [s, e] of cuts) { segs.push([a, s]); a = e; } segs.push([a, tail]);
   console.log(`${who}: ${path.basename(f)} → ${segs.length} parça (en kısa ara ${(Math.min(...cuts.map(([s, e]) => e - s)) || 0).toFixed(2)} sn)`);
@@ -76,7 +79,7 @@ for (const who of WHO) {
     const x = pcm(f, s0, e0), win = SR / RATE, env = [];
     for (let k = 0; k + win <= x.length; k += win) { let q = 0; for (let m = 0; m < win; m++) q += x[k + m] * x[k + m]; env.push(Math.sqrt(q / win)); }
     parts[i] = { wav, len: e0 - s0, env, x };
-    console.log(`  ${String(i + 1).padStart(2)}. ${(e0 - s0).toFixed(2)} sn  ${l.text}`);
+    console.log(`  ${String(i + 1).padStart(2)}. ${(e0 - s0).toFixed(2)} sn [${s0.toFixed(2)}–${e0.toFixed(2)}]  ${l.text}`);
   });
 }
 // zarfları karakter bazında normalleştir

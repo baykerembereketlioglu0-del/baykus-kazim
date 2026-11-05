@@ -7,6 +7,7 @@ const EPISODE = {
   sketch: 'cay',
   intro: 7.0, openShot: 'ev',          // sessiz sinematik açılış: yağmurlu gecede baba evi
   tail: 7,
+  cuts: { demir: [3.7, 7.15, 9.2] }, // Yakup kaydında 'Abi,' sonrası duraklama otomatik bölmeyi şaşırttı (enerji grafiğiyle doğrulandı)
   music: '../muzik/floating_in_reverie_slowed.m4a',
   musicVolume: 0.32, rainVolume: 0.07,
   cast: { kazim: { x: 235, y: 985, s: .6 }, demir: { x: 490, y: 990, s: .56 } },
