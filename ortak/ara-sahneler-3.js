@@ -3,6 +3,21 @@ const BASEX = 1.5; // 1080/720: ekran sabit çizimler (sinema bantları) için
 function letterbox(a = 1, h = 150) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = `rgba(0,0,0,${a})`; c.fillRect(0, 0, 720, h); c.fillRect(0, 1280 - h, 720, h); c.restore(); }
 function typeText(txt, k, x, y, font, col) { const n = Math.floor(txt.length * cl(k, 0, 1)); c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.font = font; c.fillStyle = col; c.letterSpacing = '4px'; c.fillText(txt.slice(0, n), x, y); c.restore(); }
 
+// Telefonu yanağa tutan kol (karakterin yerel koordinatında, kafadan SONRA çizilir). k: 0 kulakta, 1 masada
+function phoneArm(k, col, sh = [126, -545], cheek = [176, -690]) {
+  const wx = lerp(cheek[0], 120, k), wy = lerp(cheek[1], -330, k), j = ik(sh[0], sh[1], wx, wy + 40, 150, 140, 1);
+  capsule([sh[0], sh[1], j.ex, j.ey, j.wx, j.wy], 60, col.sleeve, 6);
+  const a = Math.atan2(j.wy - j.ey, j.wx - j.ex);
+  c.save(); c.translate(j.wx, j.wy); c.rotate(a); rr(-8, -31, 16, 62, 6, col.cuff, OL, 4); c.restore();
+  c.save(); c.translate(wx + 4, wy - 36); c.rotate(lerp(-.18, 1.3, k));
+  rr(-24, -52, 48, 104, 12, '#16181c', OL, 5); rr(-18, -44, 36, 84, 7, k > .5 ? '#20262e' : '#2c3e52', null);
+  c.restore();
+  ell(wx, wy, 32, 30, col.paw, OL, 5);                                                   // avuç telefonu kavrıyor
+  for (let i = 0; i < 3; i++) { c.save(); c.translate(wx - 18 + i * 4, wy - 22 - i * 14); c.rotate(-.3); rr(-14, -8, 30, 15, 7, col.paw, OL, 3.5); c.restore(); } // telefonun önündeki parmaklar
+  c.save(); c.translate(wx + 22, wy - 14); c.rotate(.6); rr(-7, -16, 14, 30, 7, col.paw, OL, 3.5); c.restore(); // başparmak
+}
+const ARM_DEMIR = { sleeve: WOLF_C.sleeve, cuff: '#6a1822', paw: WOLF_C.paw };
+const ARM_MA = () => ({ sleeve: MA_C.cardigan, cuff: MA_C.cardiganD, paw: MA_C.paw });
 // ---------- baba evinin içi ----------
 function teaGlass(x, y, s = 1, full = 1, steam = 0, t = 0) {
   c.save(); c.translate(x, y); c.scale(s, s);
@@ -26,11 +41,17 @@ function familyPhoto(x, y) {
   for (const [px, py, r] of [[x - 18, y + 4, 22], [x + 22, y + 14, 14]]) { ell(px, py, r, r * .9, '#9aa3ad', OL, 2); for (const s of [-1, 1]) poly([px + s * r * .5, py - r * .6, px + s * r * .8, py - r * 1.5, px + s * r, py - r * .3], '#9aa3ad', OL, 2); ell(px, py + r * .3, r * .5, r * .35, '#f2f0eb', null); }
   rr(x - 52, y + 22, 104, 18, 0, 'rgba(120,80,40,.25)', null);
 }
-function armchair(x, y, front = false) {
-  if (!front) { blob([x - 150, y - 60, x - 140, y - 330, x, y - 360, x + 140, y - 330, x + 150, y - 60], lg(0, y - 360, 0, y, [[0, '#7a2a24'], [1, '#4a1814']]), OL, 6, .7);
-    for (let i = -2; i <= 2; i++) ell(x + i * 50, y - 260, 6, 6, '#3a100c', null); }
-  else { rr(x - 170, y - 120, 60, 170, 24, '#6a2420', OL, 6); rr(x + 110, y - 120, 60, 170, 24, '#6a2420', OL, 6); rr(x - 150, y - 40, 300, 110, 20, '#5a1c18', OL, 6);
-    for (const s of [-1, 1]) rr(x + s * 120 - 10, y + 70, 20, 40, 4, '#2a1a10', OL, 3); }
+function armchair(x, y, front = false) { // y: oturak hizası
+  if (!front) {
+    blob([x - 160, y - 30, x - 150, y - 330, x, y - 370, x + 150, y - 330, x + 160, y - 30], lg(0, y - 370, 0, y, [[0, '#7a2a24'], [1, '#4a1814']]), OL, 6, .7);
+    for (let i = -2; i <= 2; i++) ell(x + i * 50, y - 260, 6, 6, '#3a100c', null);
+    rr(x - 165, y - 30, 330, 60, 18, '#6a2420', OL, 6);                         // oturak minderi
+    rr(x - 165, y + 20, 330, 90, 10, '#4a1814', OL, 6);                          // ön etek
+    for (const s of [-1, 1]) rr(x + s * 140 - 10, y + 104, 20, 36, 4, '#2a1a10', OL, 3);
+  } else for (const s of [-1, 1]) {                                              // kolçaklar
+    rr(x + s * 165 - 34, y - 140, 68, 170, 28, lg(0, y - 140, 0, y + 30, [[0, '#7a2a24'], [1, '#5a1c18']]), OL, 6);
+    ell(x + s * 165, y - 136, 36, 16, '#8a3a30', OL, 4);
+  }
 }
 function evIci(t, o = {}) {
   const min = o.min ?? 1200, lamp = o.lamp ?? 1;
@@ -127,10 +148,8 @@ SCENES.cagri = S => {
   c.save(); cam(360, lerp(960, 760, 1 - split), lerp(1.2, 1.15, 1 - split)); evIci(t, { min: 1205 + (kap ? k * 10 : 0) });
   const down = kap ? ss(.05, .35, k) : 0, cover = kap ? ss(.45, .85, k) : 0;
   const pm = Object.assign({}, MOODS.mehmetali[kap ? 'sad' : 'warm'], { t, talk: S.talk.mehmetali, seated: true, lookX: kap ? .2 : -.3, lookY: kap ? .6 : 0, blink: (t % 3.6 < .14) ? 1 : 0, tilt: kap ? .06 : -.04,
-    L: { x: lerp(-110, 40, cover), y: lerp(-330, -390, cover), hand: 'relax' }, R: { x: lerp(150, 120, down), y: lerp(-720, -330, down), hand: 'relax' } });
-  c.save(); c.translate(360, 1150); c.scale(.62, .62); drawMehmetAli(pm);
-  c.save(); c.translate(lerp(150, 120, down), lerp(-720, -330, down)); c.rotate(lerp(-.3, 1.4, down)); rr(-22, -46, 44, 92, 10, '#1c1e22', OL, 4); rr(-16, -38, 32, 70, 6, kap ? '#20262e' : '#3a5a7a', null); c.restore();
-  c.restore();
+    L: { x: lerp(-110, 40, cover), y: lerp(-330, -390, cover), hand: 'relax' }, R: { x: 140, y: -272, hand: 'relax' }, hideR: true });
+  c.save(); c.translate(360, 1150); c.scale(.62, .62); drawMehmetAli(pm); phoneArm(down, ARM_MA(), [124, -540], [172, -676]); c.restore();
   evMasa(t, { covered: kap ? cover : 0, food: true, hot: kap ? 1 - k * .5 : 1 });
   c.restore(); c.restore();
   // alt: Demir ofiste
@@ -138,8 +157,8 @@ SCENES.cagri = S => {
     c.save(); c.beginPath(); c.moveTo(-50, lerp(1400, 700, split) + 6); c.lineTo(770, lerp(1400, 560, split) + 6); c.lineTo(770, 1400); c.lineTo(-50, 1400); c.closePath(); c.clip();
     c.save(); cam(360, 496, 1.2); ofis(t);
     const pd = Object.assign({}, MOODS.demir.worry, { t, talk: S.talk.demir, lookX: .5, lookY: .45, blink: (t % 3 < .14) ? 1 : 0, tilt: .05,
-      L: { x: -40, y: -400, hand: 'relax' }, R: { x: 185, y: -700, hand: 'relax' } });
-    c.save(); c.translate(360, 1150); c.scale(.6, .6); drawWolf(pd); c.save(); c.translate(185, -700); c.rotate(-.3); rr(-22, -46, 44, 92, 10, '#1c1e22', OL, 4); c.restore(); c.restore();
+      L: { x: -40, y: -400, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' }, hideR: true });
+    c.save(); c.translate(360, 1150); c.scale(.6, .6); drawWolf(pd); phoneArm(0, ARM_DEMIR, [126, -548], [180, -700]); c.restore();
     ofisMasa(t); c.restore(); c.restore();
     c.save(); c.globalCompositeOperation = 'lighter'; line(-50, lerp(1400, 700, split) + 3, 770, lerp(1400, 560, split) + 3, 'rgba(255,200,120,.6)', 4); c.restore();
   }
@@ -151,11 +170,11 @@ SCENES.bekleyis = S => {
   const t = S.t, k = S.k, min = lerp(1200, 1420, ss(.05, .95, k)), sleep = ss(.55, .9, k);
   cam(lerp(400, 470, k), 800, lerp(1.05, 1.25, ease(k)));
   evIci(t, { min, lamp: 1 - k * .35 });
-  armchair(500, 1080);
-  const p = Object.assign({}, MOODS.mehmetali.calm, { t, talk: 0, seated: true, sleep, lookX: .8, lookY: -.1, blink: 0, tilt: -.04,
+  armchair(500, 1040);
+  const p = Object.assign({}, MOODS.mehmetali.calm, { t, talk: 0, sit: true, sleep, lookX: .8, lookY: -.1, blink: 0, tilt: -.04,
     L: { x: -60, y: -380, hand: 'relax' }, R: { x: 100, y: -330, hand: 'relax' }, tespih: true });
-  c.save(); c.translate(500, 1210); c.scale(.6, .6); drawMehmetAli(p); c.restore();
-  armchair(500, 1080, true);
+  c.save(); c.translate(500, 1145); c.scale(.6, .6); drawMehmetAli(p); c.restore();
+  armchair(500, 1040, true);
   c.save(); c.translate(-190, 60); evMasa(t, { covered: 1, hot: 0, secondFull: 1 }); c.restore();
   dustMotes(t, 25, 100, 300, 600, 600, .3);
 };
@@ -186,9 +205,9 @@ SCENES.bos = S => {
   const t = S.t, k = S.k, ring = Math.sin(t * 40) * 3 * (Math.sin(t * 4) > 0 ? 1 : 0);
   cam(lerp(420, 380, k), 820, lerp(1.1, 1.3, ease(k)));
   evIci(t, { min: 1380, lamp: .25 });
-  armchair(500, 1080);
-  blob([400, 860, 470, 800, 560, 820, 600, 900, 520, 940, 430, 930], '#6e5a3a', OL, 5); // koltukta bırakılmış hırka
-  armchair(500, 1080, true);
+  armchair(500, 1040);
+  blob([400, 1000, 450, 850, 540, 830, 600, 900, 580, 1010, 470, 1030], lg(0, 830, 0, 1030, [[0, '#7a6440'], [1, '#5a4a30']]), OL, 5); // koltukta bırakılmış hırka
+  armchair(500, 1040, true);
   c.save(); c.translate(-190, 60); evMasa(t, { food: false, hot: 0, secondFull: 0 }); c.restore();
   // masada kasket + çalan telefon
   c.save(); c.translate(70, 900); blob([-60, 10, -50, -30, 0, -44, 50, -30, 60, 10, 0, 2], '#5a4636', OL, 4); c.restore();
@@ -236,23 +255,26 @@ SCENES.kavusma = S => {
     c.fillStyle = '#16100c'; c.fillRect(-300, 910, 1320, 700);
     c.save(); c.translate(250, 1460); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: 0 }); c.restore();
     drawRain(t, 720, 1280, 1, .7);
-  } else { // sarılma: baba arkada, Demir önde (arkadan); babanın kolları Demir'in omuzlarının üstünden sırtına
-    cam(400, 760, 1.25 + .1 * ease(k));
+  } else { // sarılma: yan yana; baba kolunu Demir'in omzuna atar, Demir başını babasına yaslar
+    cam(380, 760, 1.32 + .08 * ease(k));
     c.fillStyle = '#16100c'; c.fillRect(-300, -300, 1320, 1900);
-    c.fillStyle = lg(0, 300, 0, 1000, [[0, '#ffd89a'], [1, '#e8a04a']]); c.fillRect(200, 260, 380, 760);
-    addLight(400, 560, 620, 'rgba(255,190,100,.6)');
-    const p = Object.assign({}, MOODS.mehmetali.happy, { t, talk: S.talk.mehmetali, lookX: -.25, lookY: .25, blink: 0, tilt: -.16, noArms: true,
-      L: { x: -120, y: -420, hand: 'relax' }, R: { x: 120, y: -420, hand: 'relax' } });
-    const fx = 490, fy = 1150, fs = .64;
-    c.save(); c.translate(fx, fy); c.scale(fs, fs); drawMehmetAli(p); c.restore();
-    c.save(); c.globalAlpha = .9 * ss(.2, .4, k); blob([fx + 60 * fs, fy - 700 * fs, fx + 66 * fs, fy - 680 * fs, fx + 60 * fs, fy - 662 * fs, fx + 54 * fs, fy - 680 * fs], '#9fd2ff', OL, 2); c.restore(); // gözyaşı
-    c.save(); c.translate(330, 1330); c.scale(.66, .66); drawWolfBack({ t, walk: 0, tilt: .1 }); c.restore();
-    const arm = (pts, paw) => { c.beginPath(); c.moveTo(pts[0], pts[1]); c.quadraticCurveTo(pts[2], pts[3], pts[4], pts[5]);
-      c.lineWidth = 52; c.strokeStyle = OL; c.stroke(); c.lineWidth = 42; c.strokeStyle = MA_C.cardigan; c.stroke(); ell(paw[0], paw[1], 28, 24, MA_C.paw, OL, 4);
-      for (const kx of [-10, 0, 10]) curve([paw[0] + kx - 3, paw[1] + 10, paw[0] + kx, paw[1] + 18, paw[0] + kx + 3, paw[1] + 10], 'rgba(60,64,70,.6)', 2.5); };
-    const sq = Math.sin(t * 1.5) * 4;
-    arm([fx + 70, fy - 350, 470, 900, 400 + sq, 1000], [400 + sq, 1004]);        // sağ kol: omzun üstünden sırta
-    arm([200, 940, 210, 1010, 270 - sq, 1010], [272 - sq, 1012]);                // sol kol: yandan sarılıyor
+    c.fillStyle = lg(0, 300, 0, 1000, [[0, '#ffd89a'], [1, '#e8a04a']]); c.fillRect(180, 240, 400, 800);
+    addLight(380, 560, 640, 'rgba(255,190,100,.6)');
+    const fx = 450, fy = 1190, fs = .66, dx = 300, dy = 1200, ds = .62, sway = Math.sin(t * 1.4) * .02;
+    const pf = Object.assign({}, MOODS.mehmetali.happy, { t, talk: S.talk.mehmetali, lookX: -.5, lookY: .3, blink: 0, tilt: -.17 + sway, hideL: true,
+      R: { x: 120, y: -330, hand: 'relax' } });
+    c.save(); c.translate(fx, fy); c.scale(fs, fs); drawMehmetAli(pf); c.restore();
+    c.save(); c.globalAlpha = ss(.15, .35, k); const tx = fx + 74 * fs, ty = fy - 688 * fs; blob([tx, ty, tx + 6, ty + 20, tx, ty + 34, tx - 6, ty + 20], '#9fd2ff', OL, 2); c.restore(); // gözyaşı
+    const pd = Object.assign({}, MOODS.demir.happy, { t, talk: 0, lid: .85, lookX: .3, blink: 0, tilt: .2 + sway, hideR: true,
+      L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    c.save(); c.translate(dx, dy); c.scale(ds, ds); drawWolf(pd); c.restore();
+    // Demir'in sağ patisi babanın belinde (kol babanın arkasında)
+    ell(fx + 132 * fs, fy - 380 * fs, 26, 24, WOLF_C.paw, OL, 4);
+    // babanın sol kolu Demir'in omuzlarının üstünden uzak omzuna
+    const sx = fx - 124 * fs, sy = fy - 540 * fs, hx = dx - 118 * ds, hy = dy - 560 * ds;
+    c.beginPath(); c.moveTo(sx, sy + 14); c.quadraticCurveTo((sx + hx) / 2, sy + 70, hx + 10, hy + 18); c.lineWidth = 52; c.strokeStyle = OL; c.stroke(); c.lineWidth = 42; c.strokeStyle = MA_C.cardigan; c.stroke();
+    c.save(); c.translate(hx + 10, hy + 18); c.rotate(.4); rr(-18, -26, 16, 52, 6, MA_C.cardiganD, OL, 4); c.restore();
+    ell(hx - 10, hy + 26, 30, 26, MA_C.paw, OL, 4); for (const kx of [-12, 0, 12]) curve([hx - 10 + kx - 3, hy + 38, hx - 10 + kx, hy + 48, hx - 10 + kx + 3, hy + 38], 'rgba(60,64,70,.6)', 2.5);
     dustMotes(t, 30, 150, 300, 450, 700, .5);
   }
 };

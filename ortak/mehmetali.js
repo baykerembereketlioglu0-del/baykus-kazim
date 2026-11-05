@@ -18,7 +18,16 @@ function maArm(side, tgt) {
 }
 function drawMehmetAli(p) {
   const t = p.t, br = Math.sin(t * 1.8 + 2), sl = p.sleep || 0;
-  if (!p.seated) {
+  if (p.sit) { // koltukta oturuş: kısa (önden kısalmış) uyluk, diz, dik baldır, ayakkabı; gövde 120 aşağı
+    ell(0, 0, 170, 18, 'rgba(0,0,0,.45)', null);
+    for (const s of [-1, 1]) {
+      poly([s * 30, -48, s * 92, -48, s * 96, -160, s * 26, -160], MA_C.pants, OL, 6);
+      blob([s * 16, -200, s * 104, -206, s * 112, -150, s * 60, -126, s * 12, -150], lg(0, -206, 0, -126, [[0, '#5a4838'], [1, MA_C.pants]]), OL, 6);
+      blob([s * 24, -54, s * 96, -56, s * 120, -24, s * 116, -2, s * 24, -2], '#3a2a1e', OL, 6);
+    }
+    c.save(); c.translate(0, 120);
+  }
+  if (!p.seated && !p.sit) {
     ell(0, 0, 175, 20, 'rgba(0,0,0,.45)', null);
     for (const s of [-1, 1]) {
       poly([s * 22, -292, s * 92, -292, s * 86, -48, s * 30, -48], MA_C.pants, OL, 6); line(s * 58, -280, s * 58, -60, 'rgba(0,0,0,.3)', 3);
@@ -37,7 +46,7 @@ function drawMehmetAli(p) {
   for (const s of [-1, 1]) { poly([s * 48, -592, s * 6, -566, s * 34, -540], MA_C.shirt, OL, 4); poly([s * 52, -588, s * 96, -540, s * 60, -300, s * 40, -258, s * 44, -560], MA_C.cardiganD, OL, 4); }
   for (const y of [-500, -440, -380, -320]) ell(-52, y, 7, 7, '#d9c7a4', OL, 2);
   c.restore();
-  const jl = p.noArms ? null : maArm(-1, p.L || { x: -140, y: -272 }), jr = p.noArms ? { wx: 140, wy: -272 } : maArm(1, p.R || { x: 140, y: -272 });
+  const jl = (p.noArms || p.hideL) ? null : maArm(-1, p.L || { x: -140, y: -272 }), jr = (p.noArms || p.hideR) ? { wx: 140, wy: -272 } : maArm(1, p.R || { x: 140, y: -272 });
   if (p.tespih) { // tespih: sağ elden sarkan boncuklar
     for (let i = 0; i < 11; i++) { const a = i / 10, sw = Math.sin(t * 2) * 6; ell(jr.wx - 8 + Math.sin(a * PI) * 18 + sw * a, jr.wy + 30 + a * 70, 6, 6, '#7a2a1e', OL, 2); }
     rr(jr.wx - 6 + Math.sin(t * 2) * 6, jr.wy + 104, 10, 22, 3, '#d9a441', OL, 2);
@@ -85,4 +94,5 @@ function drawMehmetAli(p) {
   for (const s of [-1, 1]) ell(s * 118, 68, 22, 11, 'rgba(230,140,150,.28)', null);
   if (sl > .5) { c.save(); c.globalAlpha = (sl - .5) * 2; c.font = 'italic 900 40px Inter,Arial'; c.fillStyle = '#e9dcc5'; c.fillText('z', 150, -160 - Math.sin(t * 2) * 10); c.font = 'italic 900 28px Inter,Arial'; c.fillText('z', 190, -210 - Math.sin(t * 2 + 1) * 10); c.restore(); }
   c.restore();
+  if (p.sit) c.restore();
 }

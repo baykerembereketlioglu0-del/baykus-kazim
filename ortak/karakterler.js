@@ -280,7 +280,7 @@ function drawWolf(p) {
     for (let k = 0; k < 5; k++) { const fx = lerp(pts[6], pts[4], k / 4); line(fx, ln - 2 + (k % 2) * 3, fx, ln + 14, '#c47a1a', 4); }
   }
   c.restore();
-  wolfArm(-1, p.L); wolfArm(1, p.R);
+  if (!p.hideL) wolfArm(-1, p.L); if (!p.hideR) wolfArm(1, p.R);
   // KAFA
   c.save(); c.translate(0, WOLF.head + br * 2 + (p.nod || 0) * 14); c.rotate(p.tilt || 0);
   const tw = hash(Math.floor(t / 2.7)) > .7 ? Math.sin(cl((t % 2.7) / .3, 0, 1) * PI) * .12 : 0; // kulak seğirmesi

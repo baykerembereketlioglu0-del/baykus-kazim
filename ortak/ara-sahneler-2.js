@@ -191,18 +191,38 @@ SCENES.ters = S => {
 function drawWolfBack(p) { // arkadan Demir: sırtında "DEMİR" yazılı kolej ceketi
   const t = p.t, walk = p.walk || 0;
   ell(0, 0, 175, 20, 'rgba(0,0,0,.4)', null);
-  for (const s of [-1, 1]) { const sw = Math.sin(t * 7 + (s > 0 ? PI : 0)) * 16 * walk; poly([s * 20, -292, s * 90, -292, s * 84 + sw, -50, s * 28 + sw, -50], WOLF_C.jeans, OL, 6); blob([s * 20 + sw, -56, s * 92 + sw, -58, s * 100 + sw, -10, s * 20 + sw, -4], '#d9772b', OL, 6); }
-  capsule([-126, -548, -150, -300], 58, WOLF_C.sleeve, 6); capsule([126, -548, 150 + Math.sin(t * 7) * 10 * walk, -300], 58, WOLF_C.sleeve, 6);
+  const run = cl(walk - .8, 0, 1);
+  for (const s of [-1, 1]) {
+    const ph = t * 7 + (s > 0 ? PI : 0), sw = Math.sin(ph) * 16 * walk, lift = Math.max(0, Math.sin(ph)) * 90 * run;
+    const fy = -50 - lift, kx = s * 56 + sw * .5;
+    poly([s * 20, -292, s * 90, -292, kx + 34 + sw * .5, fy, kx - 30 + sw * .5, fy], WOLF_C.jeans, OL, 6);
+    if (lift > 25) { ell(kx + sw * .5, fy + 10, 44, 22, '#f1ede4', OL, 5); ell(kx + sw * .5, fy + 10, 30, 12, '#d9772b', null); } // havadaki ayağın tabanı
+    else blob([s * 20 + sw, -56 - lift, s * 92 + sw, -58 - lift, s * 100 + sw, -10 - lift, s * 20 + sw, -4 - lift], '#d9772b', OL, 6);
+  }
   const J = [-56, -592, -128, -566, -150, -520, -140, -400, -128, -300, -134, -262, 0, -258, 134, -262, 128, -300, 140, -400, 150, -520, 128, -566, 56, -592];
   c.beginPath(); smoothPath(J); c.fillStyle = lg(-150, 0, 150, 0, [[0, '#5a1520'], [.3, WOLF_C.jacket], [.7, WOLF_C.jacket], [1, '#5a1520']]); c.fill(); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   c.save(); c.font = '900 50px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.strokeText('DEMİR', 0, -440); c.fillStyle = '#e8bf5c'; c.fillText('DEMİR', 0, -440); c.restore();
   c.save(); c.translate(100, -290); c.rotate(Math.sin(t * 3) * .1); blob([0, -10, 80, 10, 135, 90, 125, 190, 95, 236, 92, 160, 60, 90, -10, 40], lg(0, 0, 120, 230, [[0, WOLF_C.furD], [1, '#eef0f2']]), OL, 6); c.restore();
+  // kollar ceketin önünde (arkadan görünüş): yürürken/koşarken sallanır
+  for (const s of [-1, 1]) {
+    const ph = t * 7 + (s > 0 ? 0 : PI), sw = Math.sin(ph) * (walk > .8 ? 1 : .4) * walk;
+    const tx = s * (162 - Math.max(0, sw) * 20), ty = -320 - sw * 90 * (walk > .8 ? 1 : .3), j = ik(s * 126, -548, tx, ty, 150, 140, s);
+    capsule([s * 126, -548, j.ex, j.ey, j.wx, j.wy], 58, WOLF_C.sleeve, 6);
+    const a2 = Math.atan2(j.wy - j.ey, j.wx - j.ex), cf = [lerp(j.ex, j.wx, .8), lerp(j.ey, j.wy, .8)];
+    capsule([cf[0], cf[1], j.wx, j.wy], 50, '#6a1822', 5);
+    ell(j.wx + Math.cos(a2) * 18, j.wy + Math.sin(a2) * 18, 25, 24, WOLF_C.paw, OL, 5);
+  }
   c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   c.save(); c.translate(0, -728); c.rotate(p.tilt || 0);
   for (const s of [-1, 1]) blob([s * 46, -112, s * 112, -246, s * 168, -326, s * 206, -180, s * 196, -52], WOLF_C.furD, OL, 6, .7);
   c.beginPath(); smoothPath([0, -168, 112, -152, 176, -92, 196, 0, 210, 70, 150, 124, 0, 160, -150, 124, -210, 70, -196, 0, -176, -92, -112, -152], true, .85);
   c.fillStyle = rg(0, -60, 20, 240, [[0, '#a8b1bb'], [1, WOLF_C.furD]]); c.fill(); texFill('fur', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   for (const s of [-1, 1]) line(s * 196, -40, s * 150, -30, '#1f1c1a', 6); // gözlük sapları
+  // ense: koyu tüy şeridi, perçem ve tüy çizgileri
+  blob([-30, -160, 30, -160, 40, -40, 0, 150, -40, -40], 'rgba(90,98,110,.55)', null);
+  for (let i = 0; i < 9; i++) { const xx = -150 + i * 37, yy = 40 + Math.sin(i * 1.7) * 20; curve([xx, yy, xx + 6, yy + 30, xx + 2, yy + 60], 'rgba(70,78,90,.45)', 3); }
+  blob([-60, 120, -30, 150, 0, 130, 30, 152, 60, 120, 40, 175, 0, 168, -40, 175], '#c9ced5', OL, 4); // ense perçemi
+  for (const s of [-1, 1]) curve([s * 110, -150, s * 140, -230, s * 160, -280], 'rgba(60,66,76,.6)', 4); // kulak arkası
   c.restore();
 }
 SCENES.yuruyus = S => {
