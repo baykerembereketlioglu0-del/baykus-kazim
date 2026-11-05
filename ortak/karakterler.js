@@ -76,39 +76,46 @@ function owlFinger(x0, y0, ang, len, w, curl = 0) {
 function owlPalm(w = 50, h = 44) {
   blob([-w / 2, 4, 0, -4, w / 2, 4, w / 2 + 3, h * .62, w * .28, h, -w * .28, h, -w / 2 - 3, h * .62], lg(0, 0, 0, h, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 5);
 }
+// Parmak: tabandan (x,y) çıkan yuvarlak uçlu dikdörtgen; ang: +y'den sapma
+function oFing(x, y, ang, len, w) {
+  c.save(); c.translate(x, y); c.rotate(-ang);
+  rr(-w / 2, -2, w, len, w / 2, lg(0, 0, 0, len, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 4.5);
+  curve([-w * .18, len * .45, -w * .18, len * .7], 'rgba(255,228,190,.35)', 2.5);
+  c.restore();
+}
 function owlHand(x, y, ang, type, sc = 1) {
   c.save(); c.translate(x, y); c.rotate(ang - PI / 2); c.scale(sc, sc);
-  if (type === 'point') {
-    owlFinger(-10, 30, .02, 58, 21);                                         // işaret parmağı
-    owlPalm(52, 46);
-    for (const k of [2, 15]) ell(k, 44, 11, 11, lg(0, 34, 0, 54, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 4); // kıvrık parmaklar
-    owlFinger(24, 18, -1.15, 28, 18);                                        // başparmak
-  } else if (type === 'palm') {
-    for (const [a, l] of [[-.5, 40], [-.17, 46], [.17, 46], [.5, 40]]) owlFinger(Math.sin(a) * 14, 34, -a, l, 20);
-    owlPalm(54, 44);
-    owlFinger(-24, 16, 1.05, 30, 19);
-  } else if (type === 'fist') {
-    owlPalm(52, 44);
-    for (let k = -1.5; k <= 1.5; k++) ell(k * 13, 42, 10, 10, lg(0, 34, 0, 52, [[0, OWL_C.hand], [1, OWL_C.handD]]), OL, 4);
-    owlFinger(22, 14, -1.4, 28, 18);
-  } else { // relax
-    for (const [k, l] of [[-15, 34], [-4, 40], [7, 40], [17, 32]]) owlFinger(k, 34, 0, l, 18, .2);
-    owlPalm(52, 44);
-    owlFinger(-24, 14, .95, 28, 18, -.2);
+  const H = OWL_C.hand, HD = OWL_C.handD, palm = () => rr(-24, 0, 48, 42, 14, lg(0, 0, 0, 42, [[0, H], [1, HD]]), OL, 5);
+  const knuckles = n => { for (let i = 0; i < n; i++) rr(-22 + i * (44 / n), 30, 44 / n + 2, 20, 8, lg(0, 30, 0, 50, [[0, H], [1, HD]]), OL, 4); };
+  if (type === 'point') {          // işaret parmağı dik, diğerleri kıvrık, başparmak üstlerinde
+    oFing(-15, 26, 0, 62, 16);
+    palm(); for (let i = 0; i < 3; i++) rr(-6 + i * 11, 32, 13, 18, 6, lg(0, 32, 0, 50, [[0, H], [1, HD]]), OL, 4);
+    c.save(); c.translate(22, 12); c.rotate(.95); rr(-7, 0, 14, 30, 7, H, OL, 4); c.restore();
+  } else if (type === 'palm') {    // açık el, parmaklar hafif yelpaze
+    for (const [xx, a, l] of [[-17, .22, 36], [-6, .07, 42], [6, -.07, 42], [17, -.22, 34]]) oFing(xx, 34, a, l, 14);
+    palm();
+    c.save(); c.translate(-22, 12); c.rotate(-.9); rr(-7, 0, 14, 30, 7, H, OL, 4); c.restore();
+  } else if (type === 'fist') {    // yumruk: dört boğum + başparmak
+    palm(); knuckles(4);
+    c.save(); c.translate(22, 10); c.rotate(1.1); rr(-7, 0, 14, 30, 7, H, OL, 4); c.restore();
+  } else {                         // rahat: parmaklar aşağı, hafif içe kıvrık
+    for (const [xx, a, l] of [[-16, .05, 30], [-5, 0, 35], [6, 0, 35], [17, -.05, 28]]) oFing(xx, 34, a, l, 13);
+    palm();
+    c.save(); c.translate(-22, 12); c.rotate(-.6); rr(-7, 0, 14, 28, 7, H, OL, 4); c.restore();
   }
   c.restore();
 }
 
 function owlArm(side, tgt, p) {
   const S = side < 0 ? OWL.SL : OWL.SR, j = ik(S[0], S[1], tgt.x, tgt.y, OWL.l1, OWL.l2, side);
-  const fa = Math.atan2(j.wy - j.ey, j.wx - j.ex);
-  const cx = j.wx - Math.cos(fa) * 16, cy = j.wy - Math.sin(fa) * 16;
+  const fa = Math.atan2(j.wy - j.ey, j.wx - j.ex), ux = Math.cos(fa), uy = Math.sin(fa);
+  const cx = j.wx - ux * 14, cy = j.wy - uy * 14;
   capsule([S[0], S[1], j.ex, j.ey, cx, cy], 64, OWL_C.jacket, 6);
   c.save(); c.globalAlpha = .35; c.beginPath(); c.moveTo(S[0] + side * 14, S[1]); c.lineTo(j.ex + side * 14, j.ey); c.lineTo(cx + side * 10, cy);
   c.lineWidth = 18; c.strokeStyle = OWL_C.jacketD; c.stroke(); c.restore();        // kol gölgesi
-  capsule([cx, cy, j.wx, j.wy], 46, OWL_C.shirt, 5);                                // gömlek manşeti
-  ell(cx, cy, 6, 6, OWL_C.gold, OL, 2);                                            // kol düğmesi
-  owlHand(j.wx, j.wy, fa, tgt.hand, 1.18);
+  // gömlek manşeti: kolun ucunda ince şerit (yuvarlak değil)
+  c.save(); c.translate(cx, cy); c.rotate(fa); rr(-4, -27, 16, 54, 5, OWL_C.shirt, OL, 4); c.restore();
+  owlHand(j.wx + ux * 2, j.wy + uy * 2, fa, tgt.hand, tgt.hand === 'point' ? 1.35 : 1.15);
   return j;
 }
 

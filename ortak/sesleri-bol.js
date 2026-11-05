@@ -8,7 +8,7 @@ const { execFileSync } = require('child_process');
 const args = process.argv.slice(2), opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
 const EP_DIR = path.resolve(args[0]);
 const EP = require(path.join(EP_DIR, 'story.js')), STORY = EP.story;
-const SRC = { kazim: opt('kazim'), demir: opt('demir') };
+const WHO = [...new Set(STORY.map(l => l.who))], SRC = Object.fromEntries(WHO.map(w => [w, opt(w)]));
 const TH = opt('esik', '-38'), GAP = +opt('bosluk', .45), RATE = 50, SR = 16000;
 const OUT = path.join(EP_DIR, 'ses'); fs.mkdirSync(OUT, { recursive: true });
 
@@ -28,7 +28,7 @@ function pcm(f, a, b) { // mono 16 kHz float örnekleri
 }
 
 const timeline = [], parts = {};
-for (const who of ['kazim', 'demir']) {
+for (const who of WHO) {
   const lines = STORY.map((l, i) => [l, i]).filter(([l]) => l.who === who); if (!lines.length) continue;
   if (!SRC[who]) { console.error(`--${who} dosyası verilmedi`); process.exit(1); }
   // ses seviyesini eşitle: her karakter -16 LUFS (sabit kazanç + sınırlayıcı), sonra böl
@@ -80,7 +80,7 @@ for (const who of ['kazim', 'demir']) {
   });
 }
 // zarfları karakter bazında normalleştir
-for (const who of ['kazim', 'demir']) {
+for (const who of WHO) {
   const all = Object.entries(parts).filter(([i]) => STORY[i].who === who).flatMap(([, p]) => p.env).sort((a, b) => a - b);
   const ref = all[Math.floor(all.length * .95)] || 1;
   for (const [i, p] of Object.entries(parts)) if (STORY[i].who === who) p.env = p.env.map((v, k, arr) => { const sm = (v + (arr[k - 1] ?? v) + (arr[k + 1] ?? v)) / 3; return +Math.min(1, Math.max(0, (sm / ref - .08) / .92)).toFixed(3); });

@@ -30,10 +30,11 @@
   L.forEach((l, i) => {
     const list = Array.isArray(l.shot) ? l.shot : [[l.shot || 'close-' + l.who, 0, l.phase]];
     list.forEach(([name, f, phase], j) => {
-      const s = i === 0 && j === 0 ? 0 : l.start + (l.end - l.start) * (f || 0);
+      const s = i === 0 && j === 0 && !EP.openShot ? 0 : l.start + (l.end - l.start) * (f || 0);
       SHOTS.push({ name, phase: phase ?? l.phase, start: s, line: l, flash: l.flash });
     });
   });
+  if (EP.openShot) SHOTS.unshift({ name: EP.openShot, phase: EP.openPhase, start: 0, line: L[0], flash: EP.openFlash });
   SHOTS.forEach((s, i) => { s.end = SHOTS[i + 1] ? SHOTS[i + 1].start : DUR; });
   SHOTS.forEach((s, i) => { // aynı sahne art arda: tek sahne gibi akar
     const p = SHOTS[i - 1]; s.sceneStart = p && p.name === s.name ? p.sceneStart : s.start;
@@ -173,7 +174,7 @@
     const pt = t - shot.start, pd = shot.end - shot.start;
     dst.setTransform(BASE, 0, 0, BASE, 0, 0); dst.save();
     fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title, sketch: EP.sketch,
-      talk: { kazim: talkOf('kazim', t), demir: talkOf('demir', t) } });
+      talk: new Proxy({}, { get: (_, w) => talkOf(String(w), t) }) });
     dst.restore(); lightsOn(dst);
   }
 
@@ -197,9 +198,9 @@
   function spaced(txt, x, y, font, col, sp, a = 1) {
     c.save(); c.globalAlpha = a; c.font = font; c.textAlign = 'center'; c.letterSpacing = sp + 'px'; c.fillStyle = col; c.fillText(txt, x + sp / 2, y); c.restore();
   }
-  const FLASH = 'sepia(.62) saturate(.75) contrast(1.06) brightness(.95)';
+  const FLASH = 'sepia(.62) saturate(.75) contrast(1.06) brightness(.95)', COLD = 'saturate(.25) brightness(.8) contrast(1.08) hue-rotate(185deg) sepia(.15)';
   function blit(buf, shot, a) {
-    main.save(); main.setTransform(1, 0, 0, 1, 0, 0); main.globalAlpha = a; if (shot.flash) main.filter = FLASH; main.drawImage(buf, 0, 0); main.restore();
+    main.save(); main.setTransform(1, 0, 0, 1, 0, 0); main.globalAlpha = a; if (shot.flash) main.filter = shot.flash === 'cold' ? COLD : FLASH; main.drawImage(buf, 0, 0); main.restore();
   }
 
   // ---------- kare ----------
@@ -217,13 +218,13 @@
     main.save(); main.globalCompositeOperation = 'soft-light'; main.fillStyle = 'rgba(255,150,60,.22)'; main.fillRect(0, 0, W, H); main.restore();
     main.fillStyle = rg(W / 2, H * .46, W * .32, H * .72, [[0, 'rgba(0,0,0,0)'], [.7, 'rgba(6,3,1,.42)'], [1, 'rgba(3,2,1,.9)']]); main.fillRect(0, 0, W, H);
     if (!ending) { main.fillStyle = lg(0, 900, 0, H, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); main.fillRect(0, 900, W, H - 900); }
-    if (shot.flash) { // eski film: çizik + titreme
+    if (shot.flash === true) { // eski film: çizik + titreme
       main.save(); main.globalAlpha = .25 + .1 * hash(Math.floor(t * 24)); main.strokeStyle = '#f3e6c8'; main.lineWidth = 1.2;
       for (let i = 0; i < 3; i++) { const sx = hash(Math.floor(t * 12) + i * 7) * W; main.beginPath(); main.moveTo(sx, 0); main.lineTo(sx + (hash(i + Math.floor(t * 12)) - .5) * 20, H); main.stroke(); }
       main.restore(); main.fillStyle = `rgba(255,240,210,${.03 * hash(Math.floor(t * 24) + 3)})`; main.fillRect(0, 0, W, H);
     }
     if (!ending) { subtitle(t); spaced('BAYKUŞ KAZIM', W / 2, 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
-    if (t < INTRO) { main.fillStyle = `rgba(0,0,0,${1 - ss(0, INTRO, t)})`; main.fillRect(0, 0, W, H); }
+    if (t < .8) { main.fillStyle = `rgba(0,0,0,${1 - ss(0, .8, t)})`; main.fillRect(0, 0, W, H); }
     main.fillStyle = `rgba(0,0,0,${ss(DUR - .6, DUR, t)})`; main.fillRect(0, 0, W, H);
     main.setTransform(1, 0, 0, 1, 0, 0); main.save(); main.globalCompositeOperation = 'overlay'; main.globalAlpha = shot.flash ? .12 : .07;
     const gi = Math.floor(t * 24), gp = main.createPattern(TEX.grain[gi % 4], 'repeat'); gp.setTransform(new DOMMatrix().translate(hash(gi) * 256, hash(gi + 1) * 256));
