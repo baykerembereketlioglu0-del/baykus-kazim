@@ -73,13 +73,13 @@ function evIci(t, o = {}) {
 }
 function evMasa(t, o = {}) { // masa + örtü + tabaklar + çaydanlık + bardaklar
   const hot = o.hot ?? 1;
-  ell(360, 856, 272, 56, '#f1ebdf', OL, 5);
-  c.beginPath(); c.moveTo(90, 868); c.quadraticCurveTo(80, 960, 100, 1040); for (let i = 0; i <= 12; i++) { const x = 100 + i * 43.3; c.quadraticCurveTo(x - 20, 1060, x, 1040); } c.quadraticCurveTo(640, 960, 630, 868); c.closePath();
-  c.fillStyle = lg(0, 868, 0, 1050, [[0, '#f1ebdf'], [1, '#cfc6b4']]); c.fill(); c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
+  c.beginPath(); c.moveTo(88, 856); c.quadraticCurveTo(80, 960, 100, 1040); for (let i = 0; i <= 12; i++) { const x = 100 + i * 43.3; c.quadraticCurveTo(x - 20, 1060, x, 1040); } c.quadraticCurveTo(640, 960, 632, 856); c.closePath();
+  c.fillStyle = lg(0, 856, 0, 1050, [[0, '#e6dfd0'], [1, '#c4bba8']]); c.fill(); c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
+  ell(360, 856, 272, 56, lg(0, 800, 0, 912, [[0, '#f6f1e6'], [1, '#ece5d6']]), OL, 5);
   c.save(); c.globalAlpha = .35; for (let i = 0; i < 12; i++) ell(110 + i * 43, 1030, 10, 10, null, '#9a8c74', 2); c.restore();
   for (const px of [245, 465]) { ell(px, 848, 58, 14, '#fbf8f2', OL, 4); ell(px, 846, 36, 8, null, 'rgba(0,0,0,.15)', 2); }
+  if (o.food !== false) for (const px of [245, 465]) { if (px === 465 && o.covered >= .99) continue; ell(px, 841, 26, 8, '#c96a2a', null); ell(px - 7, 837, 7, 4, '#3a7a2a', null); } // yemek: kapak tam kapanana dek görünür
   if (o.covered) { const d = o.covered; c.save(); c.translate(465, 842 - (1 - d) * 120); c.scale(.9, .9); blob([-58, 4, -50, -40, 0, -62, 50, -40, 58, 4], lg(0, -62, 0, 4, [[0, '#e8e2d6'], [1, '#b9b2a4']]), OL, 4); ell(0, -64, 8, 6, '#9a917f', OL, 2); c.restore(); }
-  else if (o.food !== false) for (const px of [245, 465]) { ell(px, 841, 26, 8, '#c96a2a', null); ell(px - 7, 837, 7, 4, '#3a7a2a', null); }
   // çaydanlık
   c.save(); c.translate(548, 840); c.scale(.85, .85); rr(-30, -64, 60, 60, 16, '#c9c2b5', OL, 4); rr(-22, -100, 44, 40, 12, '#d9d2c4', OL, 4); ell(0, -104, 8, 6, '#3a2a1e', OL, 2); curve([30, -30, 54, -50, 60, -70], OL, 6); curve([30, -30, 54, -50, 60, -70], '#c9c2b5', 3);
   if (hot > .05) { c.save(); c.globalAlpha = hot * .5; curve([60, -74, 54 + Math.sin(t * 2) * 8, -110, 64 + Math.sin(t * 2.5) * 10, -150], 'rgba(240,240,240,.8)', 4); c.restore(); } c.restore();
@@ -207,10 +207,10 @@ SCENES.bos = S => {
   armchair(500, 1040);
   blob([400, 1000, 450, 850, 540, 830, 600, 900, 580, 1010, 470, 1030], lg(0, 830, 0, 1030, [[0, '#7a6440'], [1, '#5a4a30']]), OL, 5); // koltukta bırakılmış hırka
   armchair(500, 1040, true);
-  c.save(); c.translate(-190, 60); evMasa(t, { food: false, hot: 0, secondFull: 0 }); c.restore();
+  c.save(); c.translate(-190, 60); evMasa(t, { covered: 1, food: true, hot: 0, secondFull: 0 }); c.restore();
   // masada kasket + çalan telefon
   c.save(); c.translate(70, 900); blob([-60, 10, -50, -30, 0, -44, 50, -30, 60, 10, 0, 2], '#5a4636', OL, 4); c.restore();
-  const phx = 170 + ring, phy = 948; c.save(); c.translate(phx, phy); c.rotate(-.06); rr(-46, -14, 92, 26, 8, '#1c1e22', OL, 4); rr(-40, -10, 80, 16, 5, '#3a5a7a', null); c.restore();
+  const phx = 170 + ring, phy = 942; c.save(); c.translate(phx, phy); c.rotate(-.06); rr(-46, -14, 92, 26, 8, '#1c1e22', OL, 4); rr(-40, -10, 80, 16, 5, '#3a5a7a', null); c.restore();
   if (Math.sin(t * 4) > 0) { c.save(); c.globalAlpha = .7; for (const s of [-1, 1]) for (let i = 0; i < 3; i++) curve([phx + s * (62 + i * 16), phy - 16, phx + s * (70 + i * 16), phy, phx + s * (62 + i * 16), phy + 16], 'rgba(200,220,255,.7)', 3); c.restore(); }
   c.save(); c.globalAlpha = ss(.1, .3, k); rr(60, 800, 260, 70, 16, 'rgba(20,24,30,.92)', 'rgba(255,255,255,.2)', 2); c.fillStyle = '#eef2f5'; c.font = '700 22px Inter,Arial'; c.fillText('Oğlum Demir', 80, 830); c.font = '500 18px Inter,Arial'; c.fillStyle = '#9aa6b2'; c.fillText('arıyor…', 80, 854); c.restore();
   addLight(phx, phy, 150, 'rgba(160,200,255,.35)');
@@ -275,8 +275,6 @@ SCENES.kavusma = S => {
     ell(-162, -560, 42, 36, MA_C.paw, OL, 5);
     for (let f = 0; f < 4; f++) { c.save(); c.translate(-188 + f * 15, -536); c.rotate(.15); rr(-8, -6, 16, 30, 8, MA_C.paw, OL, 4); c.restore(); }
     c.restore();
-    // Demir'in patisi babanın uzak belinde
-    c.save(); c.translate(fx + 140 * fs, fy - 360 * fs); c.rotate(-.3); ell(0, 0, 18, 16, WOLF_C.paw, OL, 4); for (let f = 0; f < 3; f++) rr(-14 + f * 9, 6, 9, 16, 4, WOLF_C.paw, OL, 3); c.restore();
     dustMotes(t, 30, 150, 300, 450, 700, .5);
   }
 };
