@@ -159,12 +159,15 @@
     const P = { kazim: pose('kazim', t), demir: pose('demir', t) };
     const cam = camFor(shot.name, t, shot.sceneStart, P);
     const camM = new DOMMatrix().scale(BASE).translate(W / 2, H / 2).scale(cam.z).translate(-cam.cx, -cam.cy);
-    dst.setTransform(camM); drawStreet(t, { lamp: 1, sign: EP.sign });
-    dst.setTransform(BASE, 0, 0, BASE, 0, 0); drawRain(t, W, H, 0, .8);
+    // mekân: satırdaki place → bölümdeki place → yağmurlu sokak (ortak/mekanlar.js)
+    const pname = (shot.line && shot.line.place) || EP.place || 'sokak', PL = typeof PLACES !== 'undefined' ? PLACES[pname] : null;
+    const rainy = !PL || PL.rain;
+    dst.setTransform(camM); if (PL) PL.bg(t); else drawStreet(t, { lamp: 1, sign: EP.sign });
+    if (rainy) { dst.setTransform(BASE, 0, 0, BASE, 0, 0); drawRain(t, W, H, 0, .8); }
     for (const who of ['demir', 'kazim']) drawChar(dst, who, P[who], camM);
-    dst.setTransform(camM); drawSplashes(t);
+    dst.setTransform(camM); if (PL && PL.fg) PL.fg(t); if (!PL) drawSplashes(t);
     lightsOn(dst);
-    dst.setTransform(BASE, 0, 0, BASE, 0, 0); drawRain(t, W, H, 1, shot.name === 'two' || shot.name === 'wide' ? 1 : .7);
+    if (rainy) { dst.setTransform(BASE, 0, 0, BASE, 0, 0); drawRain(t, W, H, 1, shot.name === 'two' || shot.name === 'wide' ? 1 : .7); }
   }
   function drawShot(dst, shot, t) {
     c = dst; LIGHTS = [];
