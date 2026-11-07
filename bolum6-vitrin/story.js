@@ -7,6 +7,7 @@ const EPISODE = {
   sketch: 'kare',
   intro: 6.5, openShot: 'yatak',      // sessiz sinematik açılış: gece 03:12, telefon ışığında Demir
   tail: 7,
+  cuts: { kazim: [4.1, 9.3, 13.5, 16.8, 21.4, 28.7, 30.8, 36.0] }, // enerji grafiğiyle doğrulandı
   place: 'iskele',
   music: '../muzik/floating_in_reverie_slowed.m4a',
   musicVolume: 0.32, rainVolume: 0.0,
@@ -23,7 +24,7 @@ const EPISODE = {
     { who: 'kazim', mood: 'stern', shot: 'kare_sofra', text: 'O sofrada herkes gülüyor. Ama kimse birbirinin gözüne bakmıyor.', pause: 1.4 },
     { who: 'demir', mood: 'surprised', shot: 'close-demir', text: 'Yani, kimse göründüğü kadar mutlu değil mi?' },
     { who: 'kazim', mood: 'warm', shot: 'anlar', text: 'Mutluluk, paylaşılan karede değil evlat. Paylaşılmayan anlardadır.', pause: 1.4 },
-    { who: 'kazim', mood: 'warm', place: 'cati', shot: [['cebe', 0], ['two', .5]], text: 'Başkasının vitrinine bakmayı bırak. Kendi hayatını yaşamaya başla.', pause: 1.2 },
+    { who: 'kazim', mood: 'warm', place: 'cati', shot: [['cebe', 0], ['two', .7]], text: 'Başkasının vitrinine bakmayı bırak.', pause: 2.4 }, // kayıtta 'Kendi hayatını yaşamaya başla.' yok
     { who: 'kazim', mood: 'warm', place: 'cati', shot: 'wide', gesture: 'shoulder', text: 'Unutma. Kimsenin vitrini, senin hayatından daha gerçek değildir.', pause: 1.6 },
     { who: 'kazim', mood: 'warm', shot: 'kapanis', noSub: true, text: 'İzle, öğren ve sessizce yüksel. Geceyi gören sen olana dek.' },
   ],

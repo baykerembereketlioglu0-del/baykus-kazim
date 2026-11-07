@@ -42,8 +42,8 @@ function carScene(t, o = {}) {
   rr(-240, 470, 160, 300, 4, 'rgba(180,210,230,.7)', OL, 4); rr(-60, 470, 240, 200, 4, 'rgba(180,210,230,.7)', OL, 4);
   rr(380, 260, 600, 600, 4, '#5a4a44', OL, 6); for (let i = 0; i < 6; i++) rr(420 + (i % 3) * 120, 320 + Math.floor(i / 3) * 160, 80, 110, 3, 'rgba(255,220,160,.6)', OL, 3);
   c.fillStyle = '#4a4a50'; c.fillRect(-500, 860, 1720, 700); for (let x = -500; x < 1220; x += 160) rr(x, 1080, 90, 10, 2, '#e8e2d2', null);
-  // kırmızı spor araba
-  c.save(); c.translate(390, 1010);
+  // kırmızı spor araba (büyük)
+  c.save(); c.translate(420, 1050); c.scale(1.4, 1.4);
   blob([-300, 40, -290, -20, -180, -50, -90, -120, 80, -124, 170, -60, 300, -40, 312, 30, 290, 50, -280, 54], lg(0, -124, 0, 54, [[0, '#ff4a3a'], [1, '#a8140c']]), OL, 6);
   blob([-70, -110, 70, -112, 140, -60, -150, -56], 'rgba(150,200,230,.85)', OL, 4); line(0, -112, 0, -56, OL, 4);
   for (const x of [-180, 190]) { ell(x, 50, 56, 56, '#1a1a1c', OL, 5); ell(x, 50, 30, 30, '#c9cdd4', OL, 3); }
@@ -155,7 +155,7 @@ SCENES.kare_tatil = S => {
 SCENES.kare_araba = S => {
   const a = revealShot(S, carScene, [60, 640, 640, 470], '18.402');
   if (a > 0) { const left = Math.max(0, 3600 - Math.floor(S.pt * 37)), mm = String(Math.floor(left / 60)).padStart(2, '0'), ss2 = String(left % 60).padStart(2, '0');
-    c.save(); c.globalAlpha = a; rr(30, 470, 300, 70, 10, '#121418', OL, 4); c.font = '700 40px "Courier New",monospace'; c.fillStyle = '#ff5a4a'; c.fillText(`00:${mm}:${ss2}`, 50, 520); c.restore(); }
+    c.save(); c.globalAlpha = a; rr(390, 250, 300, 70, 10, '#121418', OL, 4); c.font = '700 40px "Courier New",monospace'; c.fillStyle = '#ff5a4a'; c.fillText(`00:${mm}:${ss2}`, 410, 300); c.restore(); }
 };
 SCENES.kare_sofra = S => {
   const a = revealShot(S, dinnerScene, [20, 500, 680, 520], '31.255');
