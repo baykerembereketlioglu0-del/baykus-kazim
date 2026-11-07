@@ -24,7 +24,7 @@ const EPISODE = {
     { who: 'kazim', mood: 'stern', shot: 'kare_sofra', text: 'O sofrada herkes gülüyor. Ama kimse birbirinin gözüne bakmıyor.', pause: 1.4 },
     { who: 'demir', mood: 'surprised', shot: 'close-demir', gesture: 'chest', text: 'Yani, kimse göründüğü kadar mutlu değil mi?' },
     { who: 'kazim', mood: 'warm', shot: 'anlar', text: 'Mutluluk, paylaşılan karede değil evlat. Paylaşılmayan anlardadır.', pause: 1.4 },
-    { who: 'kazim', mood: 'warm', place: 'cati', shot: [['cebe', 0], ['two', .7]], text: 'Başkasının vitrinine bakmayı bırak.', pause: 2.4 }, // kayıtta 'Kendi hayatını yaşamaya başla.' yok
+    { who: 'kazim', mood: 'warm', place: 'cati', gesture: 'rest', shot: [['cebe', 0], ['two', .7]], text: 'Başkasının vitrinine bakmayı bırak.', pause: 2.4 }, // kayıtta 'Kendi hayatını yaşamaya başla.' yok
     { who: 'kazim', mood: 'warm', place: 'cati', shot: 'wide', gesture: 'rest', text: 'Unutma. Kimsenin vitrini, senin hayatından daha gerçek değildir.', pause: 1.6 },
     { who: 'kazim', mood: 'warm', shot: 'kapanis', noSub: true, text: 'İzle, öğren ve sessizce yüksel. Geceyi gören sen olana dek.' },
   ],
