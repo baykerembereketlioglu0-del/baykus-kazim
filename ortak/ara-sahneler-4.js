@@ -88,16 +88,33 @@ function yatakOdasi(t, glow = 1) {
   // yatak başlığı
   rr(170, 640, 520, 300, 30, '#3a2a24', OL, 6); rr(200, 830, 160, 90, 30, '#d8d4e6', OL, 4); rr(400, 830, 160, 90, 30, '#c8c4d8', OL, 4);
 }
+// Kaydırma ritmi: her 1.7 sn'de bir parmak ekranda yukarı sürter (akış aşağı kayar). Döner: { n: tamamlanan, p: 0..1 sürtme, lift: parmak havada mı }
+function swipeAt(lt, per = 1.7, dur = .5) { const n = Math.floor(lt / per), ph = (lt % per) / per * per; const p = cl(ph / dur, 0, 1); return { n, p: ease(p), active: ph < dur, ph }; }
+function pawFinger(x, y, ang, col = WOLF_C.paw, sc = 1) { // işaret parmağı uzatılmış pati (parmak ucu x,y'de)
+  c.save(); c.translate(x, y); c.rotate(ang); c.scale(sc, sc);
+  rr(-11, 0, 22, 70, 11, col, OL, 4.5);                                  // işaret parmağı
+  ell(4, 92, 40, 34, col, OL, 5);                                       // avuç
+  for (let f = 0; f < 3; f++) rr(10 + f * 11 - 8, 66, 12, 22, 6, col, OL, 3.5); // kıvrık parmaklar
+  rr(-38, 78, 30, 14, 7, col, OL, 3.5);                                 // başparmak
+  c.restore();
+}
+
 SCENES.yatak = S => {
   const t = S.t, k = S.k, lt = S.lt, wide = S.phase === 'oda';
   cam(wide ? 360 : lerp(400, 420, k), wide ? lerp(760, 720, k) : lerp(780, 740, k), wide ? lerp(1.0, 1.08, k) : lerp(1.15, 1.45, ease(cl(lt / 6, 0, 1))));
   yatakOdasi(t);
+  const sw = swipeAt(lt), fy = wide ? 0 : (sw.active ? lerp(30, -40, sw.p) : lerp(-40, 30, cl((sw.ph - .5) / .3, 0, 1)));
+  // sol pati telefonu alttan kavrar, sağ pati parmağıyla ekranı yukarı sürter (telefonun arkası bize dönük)
   const p = Object.assign({}, MOODS.demir[wide ? 'sad' : 'worry'], { t, talk: S.talk.demir, lookX: 0, lookY: .55, blink: (t % 3.4 < .14) ? 1 : 0, tilt: wide ? -.08 : -.04,
-    L: { x: -30, y: -470, hand: 'relax' }, R: { x: 30, y: -470, hand: 'relax' } });
-  c.save(); c.translate(430, 1260); c.scale(.62, .62); drawWolf(p); c.restore();
-  const scroll = Math.sin(t * 3) > .6 ? 1 : .85;
-  phoneInHands(430, 1260 - .62 * 480, .62, scroll);
-  addLight(430, 1260 - .62 * 700, 180, 'rgba(120,170,255,.35)');
+    L: { x: -20, y: -400, hand: 'relax' }, R: { x: 46, y: -560 + fy, hand: 'relax' } });
+  const X0 = 430, Y0 = 1260, SC = .62;
+  c.save(); c.translate(X0, Y0); c.scale(SC, SC); drawWolf(p);
+  // telefon (arkası): sağ patinin alt yarısını örter
+  rr(-44, -560, 88, 160, 14, '#16181c', OL, 6); ell(-20, -536, 10, 10, '#2a2c30', OL, 2); rr(-8, -500, 16, 30, 6, 'rgba(255,255,255,.08)', null);
+  // sol patinin telefonun arkasını saran parmakları
+  for (let f = 0; f < 4; f++) rr(-50 + f * 14, -452 - f * 6, 14, 26, 7, WOLF_C.paw, OL, 3.5);
+  c.restore();
+  addLight(X0, Y0 - SC * 640, 220, `rgba(120,170,255,${.5 + .1 * Math.sin(t * 6)})`);
   // yorgan
   blob([140, 1000, 300, 960, 460, 980, 620, 960, 760, 1000, 760, 1500, 140, 1500], lg(0, 960, 0, 1300, [[0, '#2a3a6a'], [1, '#1a2448']]), OL, 6);
   for (let i = 0; i < 4; i++) curve([200 + i * 130, 1010, 230 + i * 130, 1100, 210 + i * 130, 1200], 'rgba(0,0,0,.25)', 4);
@@ -105,29 +122,39 @@ SCENES.yatak = S => {
   if (!wide && lt < 7) { letterbox(1, 150); typeText('GECE 03:12', ss(.6, 2.2, lt), 40, 1222, '600 22px Cinzel,Georgia,serif', 'rgba(200,215,240,.85)'); }
 };
 
-// ---------- 1) AKIŞ: başkalarının vitrini ----------
+// ---------- 1) AKIŞ: başkalarının vitrini (sol pati tutar, sağ pati kaydırır) ----------
 SCENES.akis = S => {
   const t = S.t, k = S.k, lt = S.lt;
-  cam(360, 640, 1.04 + .03 * k);
+  cam(360, 640, 1.04 + .02 * k);
   c.fillStyle = '#05070c'; c.fillRect(-300, -300, 1320, 1900);
-  const posts = [['tilki.tatilde', '🏝️ Hayat bu!', beachScene, '24.871'], ['kedi.drive', '🏎️ Yeni bebeğim', carScene, '18.402'], ['ayi.gurme', '🍷 Her akşam ayrı lezzet', dinnerScene, '31.255']];
-  const pos = cl(lt / 3.4, 0, posts.length - .6);  // akış yavaşça kayar
+  // kadraj: her sahnenin karakterleri gösteren bölgesi (dünya y başlangıcı)
+  const posts = [['tilki.tatilde', '🏝️ Hayat bu!', beachScene, '24.871', 420], ['kedi.drive', '🏎️ Yeni bebeğim', carScene, '18.402', 400], ['ayi.gurme', '🍷 Her akşam ayrı lezzet', dinnerScene, '31.255', 470]];
+  const sw = swipeAt(Math.max(0, lt - 1.4)), steps = .5, pos = lt < 1.4 ? 0 : cl((sw.n + sw.p) * steps, 0, posts.length - 1); // önce ilk gönderi görünsün
+  // sol pati: avucu telefonun arkasında, başparmak sol kenarda
+  capsule([-60, 1420, 120, 1000], 120, WOLF_C.sleeve, 7); capsule([110, 1040, 128, 990], 124, '#6a1822', 6);
+  ell(170, 900, 70, 82, WOLF_C.paw, OL, 6);
   phoneFrame(360, 610, 420, 820, (w, h) => {
-    c.fillStyle = UI.head; c.fillRect(0, 0, w, 100); c.fillStyle = '#fff'; c.font = '800 30px Inter,Arial'; c.fillText('Akış', 24, 66);
-    c.font = `28px ${EMOJI}`; c.fillText('🤍  💬', w - 120, 66);
     const ph = 600;
-    posts.forEach(([name, cap, scene, likes], i) => {
-      const y0 = 110 + i * ph - pos * ph; if (y0 > h || y0 + ph < 0) return;
+    posts.forEach(([name, cap, scene, likes, oy], i) => {
+      const y0 = 110 + i * ph - pos * ph; if (y0 > h || y0 + ph < 100) return;
       ell(36, y0 + 30, 20, 20, ['#d9742b', '#525663', '#7d5434'][i], null); c.fillStyle = '#fff'; c.font = '700 20px Inter,Arial'; c.fillText(name, 66, y0 + 37);
-      c.save(); c.beginPath(); c.rect(0, y0 + 60, w, 400); c.clip(); c.translate(0, y0 + 60); c.scale(w / 720, 400 / 720); c.translate(0, -560); scene(t, { smile: 1 }); c.restore();
-      LIGHTS = LIGHTS.filter(l => false);
-      const lk = Math.floor(+likes.replace('.', '') * (0.6 + .4 * ss(i * 1, i * 1 + 1.2, pos + .4)));
+      c.save(); c.beginPath(); c.rect(0, y0 + 60, w, 400); c.clip(); c.translate(0, y0 + 60); c.scale(w / 720, w / 720); c.translate(0, -oy); scene(t, { smile: 1 }); c.restore();
+      LIGHTS = [];
+      const lk = Math.floor(+likes.replace('.', '') * (0.6 + .4 * ss(i - .6, i + .2, pos)));
       c.fillStyle = '#ff4d6d'; c.font = `700 30px Inter,Arial,${EMOJI}`; c.fillText('♥', 20, y0 + 500); c.fillStyle = '#fff'; c.font = '700 22px Inter,Arial'; c.fillText(lk.toLocaleString('tr') + ' beğeni', 56, y0 + 498);
       c.fillStyle = UI.dim; c.font = `500 20px Inter,Arial,${EMOJI}`; c.fillText(cap, 20, y0 + 532);
-      if (Math.abs(pos - i) < .3) { const hp = (lt * 1.2) % 1; c.save(); c.globalAlpha = (1 - hp) * .9; c.font = `${80 + hp * 40}px ${EMOJI}`; c.textAlign = 'center'; c.fillText('❤️', w / 2, y0 + 280); c.restore(); }
     });
+    c.fillStyle = UI.head; c.fillRect(0, 0, w, 100); c.fillStyle = '#fff'; c.font = '800 30px Inter,Arial'; c.fillText('Akış', 24, 66);   // başlık en üstte
+    c.font = `28px ${EMOJI}`; c.fillText('🤍  💬', w - 120, 66);
   });
-  holdingPaw(600, 900, 'demir');
+  // sol başparmak telefonun önünde (kenarda)
+  c.save(); c.translate(160, 820); c.rotate(-.35); rr(-14, -46, 28, 64, 14, WOLF_C.paw, OL, 4.5); c.restore();
+  // sağ pati: işaret parmağı ekranda yukarı sürter, sonra kalkıp aşağı döner
+  const up = sw.active ? sw.p : 1 - ease(cl((sw.ph - .5) / .35, 0, 1));
+  const fx = 420 + Math.sin(sw.n * 1.7) * 20, fyy = lerp(860, 560, up), lift = sw.active ? 0 : 1;
+  capsule([760, 1420, fx + 110, fyy + 230], 120, WOLF_C.sleeve, 7); capsule([fx + 96, fyy + 196, fx + 86, fyy + 172], 124, '#6a1822', 6);
+  c.save(); c.globalAlpha = 1; pawFinger(fx + lift * 10, fyy + lift * 18, -.32, WOLF_C.paw, 1.25); c.restore();
+  if (sw.active) { c.save(); c.globalAlpha = .35 * (1 - sw.p * .5); ell(fx, fyy, 22, 22, 'rgba(255,255,255,.6)', null); c.restore(); } // dokunma izi
 };
 
 // ---------- 2) KAREDEN ÇIKINCA: fotoğraftaki an → flaş → geri çekilen kamera → gerçek ----------

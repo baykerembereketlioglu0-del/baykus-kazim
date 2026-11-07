@@ -22,7 +22,7 @@ const EPISODE = {
     { who: 'kazim', mood: 'calm', shot: 'kare_tatil', text: 'O tatil fotoğrafı, bir yıl ödenecek taksitlerle çekildi.', pause: 1.2 },
     { who: 'kazim', mood: 'calm', shot: 'kare_araba', text: 'O araba, sadece bir saatliğine kiralandı.', pause: 1.2 },
     { who: 'kazim', mood: 'stern', shot: 'kare_sofra', text: 'O sofrada herkes gülüyor. Ama kimse birbirinin gözüne bakmıyor.', pause: 1.4 },
-    { who: 'demir', mood: 'surprised', shot: 'close-demir', text: 'Yani, kimse göründüğü kadar mutlu değil mi?' },
+    { who: 'demir', mood: 'surprised', shot: 'close-demir', gesture: 'chest', text: 'Yani, kimse göründüğü kadar mutlu değil mi?' },
     { who: 'kazim', mood: 'warm', shot: 'anlar', text: 'Mutluluk, paylaşılan karede değil evlat. Paylaşılmayan anlardadır.', pause: 1.4 },
     { who: 'kazim', mood: 'warm', place: 'cati', shot: [['cebe', 0], ['two', .7]], text: 'Başkasının vitrinine bakmayı bırak.', pause: 2.4 }, // kayıtta 'Kendi hayatını yaşamaya başla.' yok
     { who: 'kazim', mood: 'warm', place: 'cati', shot: 'wide', gesture: 'shoulder', text: 'Unutma. Kimsenin vitrini, senin hayatından daha gerçek değildir.', pause: 1.6 },
