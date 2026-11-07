@@ -55,14 +55,14 @@ function glow(x, y, r, col, a = 1) { // ışık hâlesi (toplamalı)
 }
 // İki kemikli IK: omuz (sx,sy) → bilek hedefi (tx,ty). side: -1 sol kol, +1 sağ kol.
 // İki çözümden dirseği dışarıda/aşağıda olanı seçer (kol yüzün önünden geçmez).
-function ik(sx, sy, tx, ty, l1, l2, side) {
+function ik(sx, sy, tx, ty, l1, l2, side, elbowDown = false) {
   let dx = tx - sx, dy = ty - sy, d = Math.hypot(dx, dy);
   const md = l1 + l2 - .01; if (d > md) { tx = sx + dx / d * md; ty = sy + dy / d * md; dx = tx - sx; dy = ty - sy; d = md; }
   d = Math.max(d, Math.abs(l1 - l2) + .01);
   const a = Math.acos(cl((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1)), b0 = Math.atan2(dy, dx);
   let best = null;
   for (const bend of [1, -1]) {
-    const ex = sx + Math.cos(b0 + a * bend) * l1, ey = sy + Math.sin(b0 + a * bend) * l1, sc = side * (ex - sx) + .6 * (ey - sy);
+    const ex = sx + Math.cos(b0 + a * bend) * l1, ey = sy + Math.sin(b0 + a * bend) * l1, sc = elbowDown ? ey : side * (ex - sx) + .6 * (ey - sy);
     if (!best || sc > best.sc) best = { ex, ey, wx: tx, wy: ty, sc };
   }
   return best;

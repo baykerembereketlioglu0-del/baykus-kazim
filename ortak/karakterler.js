@@ -107,7 +107,7 @@ function owlHand(x, y, ang, type, sc = 1) {
 }
 
 function owlArm(side, tgt, p) {
-  const S = side < 0 ? OWL.SL : OWL.SR, j = ik(S[0], S[1], tgt.x, tgt.y, OWL.l1, OWL.l2, side);
+  const S = side < 0 ? OWL.SL : OWL.SR, j = ik(S[0], S[1], tgt.x, tgt.y, OWL.l1, OWL.l2, side, tgt.hand === 'drape' || tgt.hand === 'palm');
   const fa = Math.atan2(j.wy - j.ey, j.wx - j.ex), ux = Math.cos(fa), uy = Math.sin(fa);
   const cx = j.wx - ux * 14, cy = j.wy - uy * 14;
   capsule([S[0], S[1], j.ex, j.ey, cx, cy], 64, OWL_C.jacket, 6);
@@ -115,7 +115,8 @@ function owlArm(side, tgt, p) {
   c.lineWidth = 18; c.strokeStyle = OWL_C.jacketD; c.stroke(); c.restore();        // kol gölgesi
   // gömlek manşeti: kolun ucunda ince şerit (yuvarlak değil)
   c.save(); c.translate(cx, cy); c.rotate(fa); rr(-4, -27, 16, 54, 5, OWL_C.shirt, OL, 4); c.restore();
-  owlHand(j.wx + ux * 2, j.wy + uy * 2, fa, tgt.hand, tgt.hand === 'point' ? 1.35 : 1.15);
+  if (tgt.hand === 'drape') owlHand(j.wx + ux * 2, j.wy + uy * 2, fa + 1.15 * side, 'relax', 1.15); // omza konan el: parmaklar öne/aşağı sarkar
+  else owlHand(j.wx + ux * 2, j.wy + uy * 2, fa, tgt.hand, tgt.hand === 'point' ? 1.35 : 1.15);
   return j;
 }
 

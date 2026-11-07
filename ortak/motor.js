@@ -67,7 +67,7 @@
   }
   const DEF_G = { kazim: { stern: 'point', warm: 'open', calm: 'rest', sad: 'rest', surprised: 'open' }, demir: { worry: 'clasp', sad: 'clasp', hope: 'chest', calm: 'rest', happy: 'open', surprised: 'open' } };
   const GEST = {
-    kazim: { rest: { x: 186, y: -300, hand: 'relax' }, point: { x: 262, y: -760, hand: 'point' }, open: { x: 285, y: -575, hand: 'palm' }, shoulder: { x: 305, y: -472, hand: 'palm' } },
+    kazim: { rest: { x: 186, y: -300, hand: 'relax' }, point: { x: 262, y: -760, hand: 'point' }, open: { x: 168, y: -515, hand: 'palm' }, shoulder: { x: 300, y: -555, hand: 'drape' } },
     demir: {
       rest: [{ x: -148, y: -272, hand: 'relax' }, { x: 148, y: -272, hand: 'relax' }],
       clasp: [{ x: -24, y: -448, hand: 'relax' }, { x: 24, y: -442, hand: 'relax' }],

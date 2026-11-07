@@ -42,8 +42,8 @@ function carScene(t, o = {}) {
   rr(-240, 470, 160, 300, 4, 'rgba(180,210,230,.7)', OL, 4); rr(-60, 470, 240, 200, 4, 'rgba(180,210,230,.7)', OL, 4);
   rr(380, 260, 600, 600, 4, '#5a4a44', OL, 6); for (let i = 0; i < 6; i++) rr(420 + (i % 3) * 120, 320 + Math.floor(i / 3) * 160, 80, 110, 3, 'rgba(255,220,160,.6)', OL, 3);
   c.fillStyle = '#4a4a50'; c.fillRect(-500, 860, 1720, 700); for (let x = -500; x < 1220; x += 160) rr(x, 1080, 90, 10, 2, '#e8e2d2', null);
-  // kırmızı spor araba (büyük)
-  c.save(); c.translate(420, 1050); c.scale(1.4, 1.4);
+  // kırmızı spor araba (büyük; kedinin arkasında)
+  c.save(); c.translate(430, 985); c.scale(1.3, 1.3);
   blob([-300, 40, -290, -20, -180, -50, -90, -120, 80, -124, 170, -60, 300, -40, 312, 30, 290, 50, -280, 54], lg(0, -124, 0, 54, [[0, '#ff4a3a'], [1, '#a8140c']]), OL, 6);
   blob([-70, -110, 70, -112, 140, -60, -150, -56], 'rgba(150,200,230,.85)', OL, 4); line(0, -112, 0, -56, OL, 4);
   for (const x of [-180, 190]) { ell(x, 50, 56, 56, '#1a1a1c', OL, 5); ell(x, 50, 30, 30, '#c9cdd4', OL, 3); }
@@ -52,9 +52,9 @@ function carScene(t, o = {}) {
   const smile = o.smile ?? 1;
   const p = { t, laugh: smile * .3, lookX: smile ? 0 : -.4, tilt: smile ? -.05 : .1, nod: smile ? 0 : .7,
     L: smile ? { x: -60, y: -470, hand: 'relax' } : { x: -150, y: -280, hand: 'relax' }, R: smile ? { x: 220, y: -420, hand: 'relax' } : { x: 150, y: -280, hand: 'relax' } };
-  c.save(); c.translate(170, 1060); c.scale(.6, .6); gangBody('kedi', p); c.restore();
+  c.save(); c.translate(190, 1210); c.scale(.62, .62); gangBody('kedi', p); c.restore();   // ayakları arabanın tekerlek hizasının altında: önde, yerde
   if (!smile) { // anahtarı geri veriyor: anahtarlıkta "1 SAAT"
-    c.save(); c.translate(250, 900); c.rotate(Math.sin(t * 3) * .2); line(0, -40, 0, 0, '#c9cdd4', 4); rr(-40, 0, 80, 44, 8, '#ffd44a', OL, 3); c.font = '900 18px Inter,Arial'; c.fillStyle = '#1a1a1a'; c.textAlign = 'center'; c.fillText('1 SAAT', 0, 29); c.restore();
+    c.save(); c.translate(282, 1040); c.rotate(Math.sin(t * 3) * .2); line(0, -40, 0, 0, '#c9cdd4', 4); rr(-40, 0, 80, 44, 8, '#ffd44a', OL, 3); c.font = '900 18px Inter,Arial'; c.fillStyle = '#1a1a1a'; c.textAlign = 'center'; c.fillText('1 SAAT', 0, 29); c.restore();
   }
 }
 function dinnerScene(t, o = {}) {
@@ -128,7 +128,7 @@ SCENES.akis = S => {
   cam(360, 640, 1.04 + .02 * k);
   c.fillStyle = '#05070c'; c.fillRect(-300, -300, 1320, 1900);
   // kadraj: her sahnenin karakterleri gösteren bölgesi (dünya y başlangıcı)
-  const posts = [['tilki.tatilde', '🏝️ Hayat bu!', beachScene, '24.871', 420], ['kedi.drive', '🏎️ Yeni bebeğim', carScene, '18.402', 400], ['ayi.gurme', '🍷 Her akşam ayrı lezzet', dinnerScene, '31.255', 470]];
+  const posts = [['tilki.tatilde', '🏝️ Hayat bu!', beachScene, '24.871', 420], ['kedi.drive', '🏎️ Yeni bebeğim', carScene, '18.402', 520], ['ayi.gurme', '🍷 Her akşam ayrı lezzet', dinnerScene, '31.255', 470]];
   const sw = swipeAt(Math.max(0, lt - 1.4)), steps = .5, pos = lt < 1.4 ? 0 : cl((sw.n + sw.p) * steps, 0, posts.length - 1); // önce ilk gönderi görünsün
   // sol pati: avucu telefonun arkasında, başparmak sol kenarda
   capsule([-60, 1420, 120, 1000], 120, WOLF_C.sleeve, 7); capsule([110, 1040, 128, 990], 124, '#6a1822', 6);
@@ -150,11 +150,13 @@ SCENES.akis = S => {
   // sol başparmak telefonun önünde (kenarda)
   c.save(); c.translate(160, 820); c.rotate(-.35); rr(-14, -46, 28, 64, 14, WOLF_C.paw, OL, 4.5); c.restore();
   // sağ pati: işaret parmağı ekranda yukarı sürter, sonra kalkıp aşağı döner
-  const up = sw.active ? sw.p : 1 - ease(cl((sw.ph - .5) / .35, 0, 1));
-  const fx = 420 + Math.sin(sw.n * 1.7) * 20, fyy = lerp(860, 560, up), lift = sw.active ? 0 : 1;
+  const maxN = (posts.length - 1) / steps, done = lt >= 1.4 && sw.n >= maxN;   // son gönderi (Ayı) geldi: parmak durur
+  const active = sw.active && !done && lt >= 1.4;
+  const up = done ? 0 : (active ? sw.p : 1 - ease(cl((sw.ph - .5) / .35, 0, 1)));
+  const fx = 420 + Math.sin(Math.min(sw.n, maxN) * 1.7) * 20, fyy = lerp(860, 560, up) + (done ? 40 : 0), lift = active ? 0 : 1;
   capsule([760, 1420, fx + 110, fyy + 230], 120, WOLF_C.sleeve, 7); capsule([fx + 96, fyy + 196, fx + 86, fyy + 172], 124, '#6a1822', 6);
   c.save(); c.globalAlpha = 1; pawFinger(fx + lift * 10, fyy + lift * 18, -.32, WOLF_C.paw, 1.25); c.restore();
-  if (sw.active) { c.save(); c.globalAlpha = .35 * (1 - sw.p * .5); ell(fx, fyy, 22, 22, 'rgba(255,255,255,.6)', null); c.restore(); } // dokunma izi
+  if (active) { c.save(); c.globalAlpha = .35 * (1 - sw.p * .5); ell(fx, fyy, 22, 22, 'rgba(255,255,255,.6)', null); c.restore(); } // dokunma izi
 };
 
 // ---------- 2) KAREDEN ÇIKINCA: fotoğraftaki an → flaş → geri çekilen kamera → gerçek ----------
@@ -180,7 +182,7 @@ SCENES.kare_tatil = S => {
     c.font = `700 24px Inter,Arial,${EMOJI}`; c.fillStyle = '#eef2f5'; c.fillText('💳 Kredi Kartı', 176, 374); c.font = '600 22px Inter,Arial'; c.fillStyle = '#ff7a6a'; c.fillText('Borç: 48.750 TL · 12 taksit', 176, 412); c.restore(); }
 };
 SCENES.kare_araba = S => {
-  const a = revealShot(S, carScene, [60, 640, 640, 470], '18.402');
+  const a = revealShot(S, carScene, [40, 480, 660, 760], '18.402');
   if (a > 0) { const left = Math.max(0, 3600 - Math.floor(S.pt * 37)), mm = String(Math.floor(left / 60)).padStart(2, '0'), ss2 = String(left % 60).padStart(2, '0');
     c.save(); c.globalAlpha = a; rr(390, 250, 300, 70, 10, '#121418', OL, 4); c.font = '700 40px "Courier New",monospace'; c.fillStyle = '#ff5a4a'; c.fillText(`00:${mm}:${ss2}`, 410, 300); c.restore(); }
 };
