@@ -85,8 +85,12 @@ function yatakOdasi(t, glow = 1) {
   // komodin + dijital saat
   rr(-40, 860, 180, 160, 6, '#2a2030', OL, 5); rr(-10, 800, 120, 60, 8, '#121216', OL, 4);
   c.save(); c.font = '700 40px "Courier New",monospace'; c.fillStyle = '#ff5a4a'; c.shadowColor = '#ff3a2a'; c.shadowBlur = 14; c.fillText('03:12', -4, 845); c.restore();
-  // yatak başlığı
-  rr(170, 640, 520, 300, 30, '#3a2a24', OL, 6); rr(200, 830, 160, 90, 30, '#d8d4e6', OL, 4); rr(400, 830, 160, 90, 30, '#c8c4d8', OL, 4);
+  // yatak: Demir'e (x 430) göre ortalı başlık, direkler, tek yastık
+  for (const x of [176, 684]) { rr(x - 16, 600, 32, 420, 8, '#2e2018', OL, 5); ell(x, 596, 22, 16, '#3a2a20', OL, 4); }
+  rr(190, 640, 480, 300, 26, lg(0, 640, 0, 940, [[0, '#4a3428'], [1, '#2e2018']]), OL, 6);
+  for (const x of [270, 350, 430, 510, 590]) rr(x - 30, 680, 60, 200, 10, 'rgba(0,0,0,.18)', 'rgba(0,0,0,.35)', 2);
+  rr(300, 820, 260, 110, 40, lg(0, 820, 0, 930, [[0, '#e4e0f0'], [1, '#bdb8d0']]), OL, 5);          // ortalanmış yastık
+  curve([330, 875, 430, 890, 530, 875], 'rgba(0,0,0,.18)', 4);
 }
 // Kaydırma ritmi: her 1.7 sn'de bir parmak ekranda yukarı sürter (akış aşağı kayar). Döner: { n: tamamlanan, p: 0..1 sürtme, lift: parmak havada mı }
 function swipeAt(lt, per = 1.7, dur = .5) { const n = Math.floor(lt / per), ph = (lt % per) / per * per; const p = cl(ph / dur, 0, 1); return { n, p: ease(p), active: ph < dur, ph }; }
@@ -116,8 +120,9 @@ SCENES.yatak = S => {
   c.restore();
   addLight(X0, Y0 - SC * 640, 220, `rgba(120,170,255,${.5 + .1 * Math.sin(t * 6)})`);
   // yorgan
-  blob([140, 1000, 300, 960, 460, 980, 620, 960, 760, 1000, 760, 1500, 140, 1500], lg(0, 960, 0, 1300, [[0, '#2a3a6a'], [1, '#1a2448']]), OL, 6);
-  for (let i = 0; i < 4; i++) curve([200 + i * 130, 1010, 230 + i * 130, 1100, 210 + i * 130, 1200], 'rgba(0,0,0,.25)', 4);
+  blob([168, 1006, 300, 968, 430, 984, 560, 968, 692, 1006, 704, 1500, 156, 1500], lg(0, 960, 0, 1300, [[0, '#2a3a6a'], [1, '#1a2448']]), OL, 6);   // yatağa ortalı yorgan
+  rr(168, 990, 524, 34, 14, '#e4e0f0', OL, 4);                                                                                                                   // nevresim kenarı
+  for (let i = 0; i < 3; i++) curve([250 + i * 140, 1040, 280 + i * 140, 1120, 260 + i * 140, 1220], 'rgba(0,0,0,.25)', 4);
   c.fillStyle = 'rgba(5,8,20,.35)'; c.fillRect(-500, -500, 1720, 2200);
   if (!wide && lt < 7) { letterbox(1, 150); typeText('GECE 03:12', ss(.6, 2.2, lt), 40, 1222, '600 22px Cinzel,Georgia,serif', 'rgba(200,215,240,.85)'); }
 };

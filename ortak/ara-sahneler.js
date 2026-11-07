@@ -406,7 +406,7 @@ function kazimStudy(t, lt, talk) {
   poly([230, 850, 490, 850, 520, 884, 200, 884], '#efe2c4', OL, 4); line(360, 850, 360, 884, 'rgba(0,0,0,.35)', 3);
   for (let k = 0; k < 3; k++) line(250, 858 + k * 8, 340 - k * 10, 858 + k * 8, 'rgba(60,40,20,.5)', 2);
   rr(130, 830, 40, 30, 4, '#1c1714', OL, 3); ell(150, 830, 16, 5, '#0a0806', null); // mürekkep hokkası
-  drawLantern(575, 688, 1, t, .95);
+  drawLantern(575, 860 - 166 * .95, 1, t, .95);   // fener masanın üstünde durur
 }
 function sproutSketch(k, x, y, s = 1) { // defter sayfasına çizilen filiz (çizgi çizgi)
   c.save(); c.translate(x, y); c.scale(s, s); c.strokeStyle = '#3a2410'; c.lineWidth = 4; c.lineCap = 'round';
@@ -484,7 +484,7 @@ SCENES.kapanis = S => {
     c.save(); c.globalAlpha = dive; c.globalCompositeOperation = 'multiply';
     const fl = .94 + .06 * noise1(t * 7);
     c.fillStyle = rg(560, 120, 60, 1150 * fl, [[0, 'rgba(255,245,225,1)'], [.55, 'rgba(200,150,100,1)'], [1, 'rgba(30,16,8,1)']]); c.fillRect(-300, -300, 1320, 1900); c.restore();
-    c.save(); c.globalAlpha = dive * .9; drawLantern(600, -40, 1, t, 1.1); c.restore();
+    c.save(); c.globalAlpha = dive * .9; line(600, -400, 600, 76, '#6a5a48', 3); for (let y = -390; y < 72; y += 20) ell(600, y, 5, 9, null, '#b09a76', 3); drawLantern(600, 76, 1, t, 1.1); c.restore(); // tavandan zincirle sarkan fener
     c.save(); c.globalAlpha = dive; dustMotes(t, 30, 60, 100, 600, 1000, .4); c.restore();
   }
 };
