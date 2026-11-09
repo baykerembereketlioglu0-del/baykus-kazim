@@ -221,6 +221,8 @@ function drawWolfBack(p) { // arkadan Demir: sırtında "DEMİR" yazılı kolej 
     const a2 = Math.atan2(hy - ey, hx - ex);
     capsule([lerp(ex, hx, .78), lerp(ey, hy, .78), hx, hy], 50, WOLF_C.cuff, 5);
     ell(hx + Math.cos(a2) * 20, hy + Math.sin(a2) * 20, 25, 24, WOLF_C.paw, OL, 5);
+    if (p.heldScarf && s < 0 && typeof redScarf === 'function') { const px = hx + Math.cos(a2) * 20, py = hy + Math.sin(a2) * 20, sw = Math.sin(t * 1.8) * 6;
+      redScarf([px, py + 10, px - 8 + sw * .4, py + 80, px + 4 + sw, py + 150, px - 6 + sw * 1.3, py + 210], 52); ell(px, py, 25, 24, WOLF_C.paw, OL, 5); }
   }
   if (!p.noScarf) { c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke(); }
   else { c.beginPath(); smoothPath([-70, -600, 0, -612, 70, -600, 60, -560, -60, -560]); c.fillStyle = WOLF_C.jacketD; c.fill(); c.lineWidth = 5; c.strokeStyle = OL; c.stroke(); } // yaka

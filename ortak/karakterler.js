@@ -283,7 +283,12 @@ function drawWolf(p) {
   }
   }
   c.restore();
-  if (!p.hideL) wolfArm(-1, p.L); if (!p.hideR) wolfArm(1, p.R);
+  const jl = p.hideL ? null : wolfArm(-1, p.L); if (!p.hideR) wolfArm(1, p.R);
+  if (p.heldScarf && jl && typeof redScarf === 'function') { // sol patiden sarkan kırmızı atkı (pati önde kalır)
+    const sw = Math.sin(t * 1.8) * 6, x = jl.wx, y = jl.wy + 18;
+    redScarf([x, y, x - 8 + sw * .4, y + 80, x + 4 + sw, y + 160, x - 6 + sw * 1.3, y + 230], 52);
+    wolfPaw(jl.wx, jl.wy, Math.atan2(jl.wy - jl.ey, jl.wx - jl.ex), 'relax');
+  }
   // KAFA
   c.save(); c.translate(0, WOLF.head + br * 2 + (p.nod || 0) * 14); c.rotate(p.tilt || 0);
   const tw = hash(Math.floor(t / 2.7)) > .7 ? Math.sin(cl((t % 2.7) / .3, 0, 1) * PI) * .12 : 0; // kulak seğirmesi

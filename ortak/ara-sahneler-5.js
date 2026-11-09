@@ -144,31 +144,34 @@ SCENES.istasyon_acilis = S => {
   typeText('GECE 23:47 · SON TREN', ss(.5, 2.3, lt), 40, 1222, '600 22px Cinzel,Georgia,serif', 'rgba(200,215,240,.85)');
 };
 
-// ---------- 0b) AYRILIK (anı): Ela trene yürür, rüzgâr atkısını uçurur; Demir havada yakalar ve saklar ----------
+// ---------- 0b) AYRILIK (anı): Ela atkısıyla trene biner; kapıda rüzgâr atkıyı uçurur, Demir yakalar; tren Ela'yla gider ----------
 SCENES.ayrilik = S => {
-  const t = S.t, k = S.k, walk = cl(k / .7, 0, 1), gone = ss(.7, .8, k), off = .22, catchK = .5, hug = ss(catchK, .72, k);
-  cam(lerp(400, 500, ss(.45, 1, k)), lerp(800, 780, k), lerp(1.15, 1.4, ease(ss(.4, 1, k))));
-  drawStation(t, { pal: 'day', min: 1015, train: () => drawTrain(-845, { cars: 3, doors: 1, day: true, lights: false }) });
-  // Ela arkadan, trenin kapısına yürür (küçülerek), sonra içeri girer
-  const ex = lerp(330, 230, walk), ey = lerp(1230, 880, walk), es = lerp(.5, .27, walk);
-  if (gone < 1) { c.save(); c.globalAlpha = 1 - gone; c.translate(ex, ey); c.scale(es, es);
-    withPalette(ELA_C, () => drawWolfBack({ t, walk: walk < 1 ? 1 : 0, tilt: Math.sin(t * 3.5) * .02, name: null, noGlasses: true, beret: '#c8302a', noScarf: k > off })); c.restore(); }
-  // Demir (önden, sağda): uçan atkıyı yakalar, göğsüne bastırır
-  const X0 = 575, Y0 = 1250, SC = .58, reach = ss(.36, catchK, k) * (1 - hug);
+  const t = S.t, k = S.k, walk = cl(k / .3, 0, 1), board = ss(.3, .36, k), off = .42, catchK = .58, hug = ss(catchK, .7, k),
+    close = ss(.62, .72, k), go = ease(cl((k - .74) / .26, 0, 1));
+  cam(lerp(400, 450, ss(.6, 1, k)), lerp(800, 780, k), lerp(1.15, 1.25, ease(ss(.6, 1, k))));
+  const tx = -845 - go * 1900;
+  drawStation(t, { pal: 'day', min: 1015, train: () => drawTrain(tx, { cars: 3, doors: 1 - close, day: true, lights: false, whoCar: 1, who: (cx, fy) => {
+    if (board <= 0) return; // trene binen Ela kapıda döner, Demir'e bakar (atkı uçana dek boynunda)
+    const pe = Object.assign({}, MOODS.demir.sad, { noScarf: k > off, t, talk: 0, lookX: .7, lookY: .2, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .05, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    c.save(); c.globalAlpha = board; c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
+  } }) });
+  // Ela arkadan, atkısı boynunda, trenin kapısına yürür
+  if (board < 1) { const ex = lerp(330, 230, walk), ey = lerp(1230, 880, walk), es = lerp(.5, .27, walk);
+    c.save(); c.globalAlpha = 1 - board; c.translate(ex, ey); c.scale(es, es);
+    withPalette(ELA_C, () => drawWolfBack({ t, walk: walk < 1 ? 1 : 0, tilt: Math.sin(t * 3.5) * .02, name: null, noGlasses: true, beret: '#c8302a' })); c.restore(); }
+  // Demir (önden, sağda): kapıdan uçan atkıyı yakalar, göğsüne bastırır
+  const X0 = 575, Y0 = 1250, SC = .58, reach = ss(.46, catchK, k) * (1 - hug);
   const L = { x: lerp(lerp(-148, -190, reach), -24, hug), y: lerp(lerp(-272, -700, reach), -470, hug), hand: 'relax' }, R = { x: lerp(148, 30, hug), y: lerp(-272, -440, hug), hand: 'relax' };
-  const p = demirPose(k < .3 ? 'sad' : (k < .6 ? 'surprised' : 'sad'), { t, talk: S.talk.demir, lookX: k < catchK ? lerp(-.8, .5, ss(.25, .45, k)) : -.2, lookY: k < catchK ? lerp(.2, -.7, ss(.25, .45, k)) : .7, tilt: lerp(-.04, .1, hug), blink: 0, L, R });
+  const p = demirPose(k < .4 ? 'sad' : (k < .62 ? 'surprised' : 'sad'), { t, talk: S.talk.demir, lookX: k < .7 ? -.8 : -.6, lookY: k < off ? .1 : (k < catchK ? -.4 : .3), tilt: lerp(-.04, .06, hug), blink: 0, L, R });
   c.save(); c.translate(X0, Y0); c.scale(SC, SC); drawWolf(p); c.restore();
   const px = X0 + L.x * SC - 6, py = Y0 + L.y * SC;
-  if (k > off && k < catchK) { // havada uçan atkı: Ela'nın boynundan Demir'in patisine yay çizerek
-    const f = (k - off) / (catchK - off), nx = lerp(330, 230, off / .7), ny = lerp(1230, 880, off / .7) - lerp(.5, .27, off / .7) * 600;
-    const fx = lerp(nx, px, ease(f)), fy = lerp(ny, py, ease(f)) - Math.sin(f * PI) * 220, sc = lerp(.42, .55, f);
-    c.save(); c.translate(fx, fy); c.scale(sc, sc); c.rotate(Math.sin(t * 3) * .3); windScarf(0, 0, PI + .5, 230, t, 26); c.restore();
-  } else if (k >= catchK) { // patiden sarkan atkı
-    const sw = Math.sin(t * 2) * 5;
-    redScarf([px, py + 6, px - 6 + sw * .4, py + 50, px + 2 + sw, py + 100, px - 4 + sw * 1.3, py + 140], 26);
-    ell(px, py + 4, 15, 14, WOLF_C.paw, OL, 3);                                          // atkıyı kavrayan pati önde
-  }
-  for (let i = 0; i < 10; i++) { const x = ((t * 160 + i * 100) % 1000) - 150, y = 300 + hash(i) * 700; if (k > .15 && k < .55) line(x, y, x + 50, y - 8, 'rgba(255,255,255,.35)', 2); } // rüzgâr
+  if (k > off && k < catchK) { // kapıdaki Ela'nın boynundan Demir'in patisine, yay çizerek
+    const f = (k - off) / (catchK - off), nx = 230, ny = 776 - .27 * 590;
+    const fx = lerp(nx, px, ease(f)), fy = lerp(ny, py, ease(f)) - Math.sin(f * PI) * 160, sc = lerp(.3, .55, f);
+    c.save(); c.translate(fx, fy); c.scale(sc, sc); c.rotate(Math.sin(t * 3) * .3); windScarf(0, 0, PI + .4, 230, t, 26); c.restore();
+  } else if (k >= catchK) { const sw = Math.sin(t * 2) * 5;
+    redScarf([px, py + 6, px - 6 + sw * .4, py + 50, px + 2 + sw, py + 100, px - 4 + sw * 1.3, py + 140], 26); ell(px, py + 4, 15, 14, WOLF_C.paw, OL, 3); }
+  if (k > .36 && k < .6) for (let i = 0; i < 10; i++) { const x = ((t * 160 + i * 100) % 1000) - 150, y = 300 + hash(i) * 700; line(x, y, x + 50, y - 8, 'rgba(255,255,255,.35)', 2); } // rüzgâr
 };
 
 // ---------- 1) BOŞ TREN: kapılar açılır, kimse yok (kalp atışı) ----------
@@ -182,7 +185,7 @@ SCENES.tren_bos = S => {
   c.restore(); }
   screenRain(t, 0, .6);
   // ön planda Demir'in sırtı (sol altta)
-  c.save(); c.translate(400, 1290); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: -.02 }); c.restore();
+  c.save(); c.translate(400, 1290); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: -.02, heldScarf: true }); c.restore();
   if (beat > .01) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = rg(360, 640, 200, 800, [[0, 'rgba(0,0,0,0)'], [1, `rgba(120,0,0,${.35 * beat})`]]); c.fillRect(0, 0, 720, 1280); c.restore(); }
   screenRain(t, 1, .7);
 };
@@ -197,7 +200,7 @@ SCENES.veda = S => {
     c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
   } }) });
   // ön planda Demir (arkadan), hafifçe öne uzanır
-  c.save(); c.translate(400 + go * 40, 1270); c.scale(.66, .66); drawWolfBack({ t, walk: go * .3, tilt: -.03 - go * .04 }); c.restore();
+  c.save(); c.translate(400 + go * 40, 1270); c.scale(.66, .66); drawWolfBack({ t, walk: go * .3, tilt: -.03 - go * .04, heldScarf: true }); c.restore();
   // rüzgârda uçuşan yapraklar
   for (let i = 0; i < 8; i++) { const x = ((t * 60 + i * 120) % 900) - 100, y = 300 + hash(i) * 500 + Math.sin(t * 2 + i) * 30; c.save(); c.translate(x, y); c.rotate(t * 2 + i); ell(0, 0, 10, 5, '#d98a3a', OL, 2); c.restore(); }
 };
@@ -247,7 +250,7 @@ SCENES.raylar = S => {
     ell(x + 120 * uu, ly, 26 * uu, 9 * uu, '#ffe8b8', null); addLight(x + 120 * uu, ly + 10 * uu, 260 * uu, 'rgba(255,195,110,.4)');
   }
   // Demir peronda (arkadan), sarı çizginin gerisinde durur
-  c.save(); c.translate(120, 1330); c.scale(.6, .6); drawWolfBack({ t, walk: 0, tilt: .03 }); c.restore();
+  c.save(); c.translate(120, 1330); c.scale(.6, .6); drawWolfBack({ t, walk: 0, tilt: .03, heldScarf: true }); c.restore();
   screenRain(t, 1, .7);
 };
 

@@ -164,6 +164,7 @@
     const rainy = !PL || PL.rain;
     dst.setTransform(camM); if (PL) PL.bg(t); else drawStreet(t, { lamp: 1, sign: EP.sign });
     if (rainy) { dst.setTransform(BASE, 0, 0, BASE, 0, 0); drawRain(t, W, H, 0, .8); }
+    if (shot.line && shot.line.demirScarf) P.demir.heldScarf = true; // bölüme özel: Demir'in elinde atkı
     for (const who of ['demir', 'kazim']) drawChar(dst, who, P[who], camM);
     dst.setTransform(camM); if (PL && PL.fg) PL.fg(t); if (!PL) drawSplashes(t);
     lightsOn(dst);
