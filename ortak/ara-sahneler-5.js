@@ -212,12 +212,15 @@ SCENES.gulus = S => {
   // pencereden gün ışığı
   c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = lg(0, 0, 400, 900, [[0, 'rgba(255,220,150,.28)'], [1, 'rgba(0,0,0,0)']]); poly([80, -200, 360, -200, 760, 1100, 300, 1100], c.fillStyle, null); c.restore();
   const laugh = t => .35 + .45 * Math.abs(Math.sin(t * 9)), bob = Math.abs(Math.sin(t * 9)) * 8;
-  const pm = Object.assign({}, MOODS.mehmetali.happy, { t, talk: laugh(t + .3), lid: .6, lookX: .7, lookY: 0, blink: 0, tilt: .08 + Math.sin(t * 4) * .03, L: { x: -140, y: -300, hand: 'relax' }, R: { x: 80, y: -440, hand: 'relax' } });
-  c.save(); c.translate(230, 1150 - bob * .5); c.scale(.6, .6); drawMehmetAli(pm); c.restore();
+  // ikisi masanın arkasında; bacaklar uzun masa örtüsünün arkasında kalır (örtünün altında görünmez)
+  c.save(); c.beginPath(); c.rect(-300, -300, 1320, 1290); c.clip();
+  const pm = Object.assign({}, MOODS.mehmetali.happy, { t, talk: laugh(t + .3), lid: .6, lookX: .7, lookY: 0, blink: 0, tilt: .08 + Math.sin(t * 4) * .03, L: { x: -100, y: -400, hand: 'relax' }, R: { x: 100, y: -400, hand: 'relax' } });
+  c.save(); c.translate(222, 1065 - bob * .5); c.scale(.6, .6); drawMehmetAli(pm); c.restore();
   const pd = Object.assign({}, MOODS.demir.happy, { t, talk: laugh(t), lid: .55, mouth: 24, lookX: -.7, lookY: 0, blink: 0, tilt: -.12 + Math.sin(t * 4.5) * .04, nod: Math.sin(t * 9) * .3,
-    L: { x: -60, y: -470, hand: 'relax' }, R: { x: 160, y: -300, hand: 'relax' } });
-  c.save(); c.translate(500, 1160 - bob); c.scale(.58, .58); drawWolf(pd); c.restore();
-  evMasa(t, { food: true, hot: 1 });
+    L: { x: -96, y: -420, hand: 'relax' }, R: { x: 96, y: -420, hand: 'relax' } });
+  c.save(); c.translate(490, 1070 - bob); c.scale(.58, .58); drawWolf(pd); c.restore();
+  c.restore();
+  evMasa(t, { food: true, hot: 1, teapot: false });
   dustMotes(t, 30, 100, 200, 520, 700, .5);
 };
 

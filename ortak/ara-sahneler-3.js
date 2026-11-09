@@ -81,8 +81,10 @@ function evMasa(t, o = {}) { // masa + örtü + tabaklar + çaydanlık + bardakl
   if (o.food !== false) for (const px of [245, 465]) { if (px === 465 && o.covered >= .99) continue; ell(px, 841, 26, 8, '#c96a2a', null); ell(px - 7, 837, 7, 4, '#3a7a2a', null); } // yemek: kapak tam kapanana dek görünür
   if (o.covered) { const d = o.covered; c.save(); c.translate(465, 842 - (1 - d) * 120); c.scale(.9, .9); blob([-58, 4, -50, -40, 0, -62, 50, -40, 58, 4], lg(0, -62, 0, 4, [[0, '#e8e2d6'], [1, '#b9b2a4']]), OL, 4); ell(0, -64, 8, 6, '#9a917f', OL, 2); c.restore(); }
   // çaydanlık
+  if (o.teapot !== false) {
   c.save(); c.translate(548, 840); c.scale(.85, .85); rr(-30, -64, 60, 60, 16, '#c9c2b5', OL, 4); rr(-22, -100, 44, 40, 12, '#d9d2c4', OL, 4); ell(0, -104, 8, 6, '#3a2a1e', OL, 2); curve([30, -30, 54, -50, 60, -70], OL, 6); curve([30, -30, 54, -50, 60, -70], '#c9c2b5', 3);
   if (hot > .05) { c.save(); c.globalAlpha = hot * .5; curve([60, -74, 54 + Math.sin(t * 2) * 8, -110, 64 + Math.sin(t * 2.5) * 10, -150], 'rgba(240,240,240,.8)', 4); c.restore(); } c.restore();
+  }
   teaGlass(328, 856, .8, 1, hot, t); teaGlass(392, 856, .8, o.secondFull ?? 1, hot, t);
 }
 
