@@ -224,7 +224,7 @@ function owlLanternPos(p) { const j = ik(OWL.SL[0], OWL.SL[1], p.L.x, p.L.y, OWL
 
 // ---------------- KURT DEMİR ----------------
 const WOLF = { SL: [-126, -548], SR: [126, -548], l1: 148, l2: 138, head: -728 };
-const WOLF_C = { fur: '#959fab', furD: '#6f7986', white: '#f2f0eb', jacket: '#7d1f2a', sleeve: '#ece5d7', scarf: '#e0a234', jeans: '#2c3f63', paw: '#8e98a4' };
+const WOLF_C = { fur: '#959fab', furD: '#6f7986', white: '#f2f0eb', jacket: '#7d1f2a', sleeve: '#ece5d7', scarf: '#e0a234', jeans: '#2c3f63', paw: '#8e98a4' , jacketD: '#5a1520', band: '#ece4d3', shirt: '#24314f', shirtD: '#18213a', cuff: '#6a1822', scarfD: '#c47a1a', headL: '#a8b1bb', stripe: '#8d97a3', lid: '#a2abb6', brow: '#4c5562', mark: '#5d6774', dot: '#7c8590', shoe: '#d9772b', eye: ['#f0be66', '#b26f2a', '#6e3f16'] };
 
 function wolfPaw(x, y, ang, type) {
   c.save(); c.translate(x, y); c.rotate(ang - PI / 2);
@@ -243,8 +243,8 @@ function wolfArm(side, tgt) {
   const fa = Math.atan2(j.wy - j.ey, j.wx - j.ex), at = k => [lerp(j.ex, j.wx, k), lerp(j.ey, j.wy, k)];
   const cf = at(.84);
   capsule([S[0], S[1], j.ex, j.ey, cf[0], cf[1]], 58, WOLF_C.sleeve, 6);
-  for (const k of [.5, .62]) { const a = at(k), b = at(k + .05); c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.lineWidth = 56; c.strokeStyle = WOLF_C.jacket; c.stroke(); }
-  capsule([cf[0], cf[1], j.wx, j.wy], 48, '#6a1822', 5);
+  if (!WOLF_C.plainSleeve) for (const k of [.5, .62]) { const a = at(k), b = at(k + .05); c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.lineWidth = 56; c.strokeStyle = WOLF_C.jacket; c.stroke(); }
+  capsule([cf[0], cf[1], j.wx, j.wy], 48, WOLF_C.cuff, 5);
   wolfPaw(j.wx, j.wy, fa, tgt.hand);
   return j;
 }
@@ -258,27 +258,27 @@ function drawWolf(p) {
   for (const s of [-1, 1]) {
     poly([s * 20, -292, s * 90, -292, s * 84, -50, s * 28, -50], WOLF_C.jeans, OL, 6);
     rr(s > 0 ? 26 : -86, -78, 60, 22, 4, '#3f5784', OL, 4);
-    blob([s * 20, -56, s * 92, -58, s * 128, -26, s * 124, -2, s * 20, -2], '#d9772b', OL, 6);
+    blob([s * 20, -56, s * 92, -58, s * 128, -26, s * 124, -2, s * 20, -2], WOLF_C.shoe, OL, 6);
     rr(s > 0 ? 18 : -128, -18, 110, 16, 6, '#f1ede4', OL, 4);
     for (const k of [0, 1, 2]) line(s * (44 + k * 14), -52 + k * 2, s * (52 + k * 14), -40 + k * 2, '#f1ede4', 3);
   }
   c.save(); c.translate(0, -290); c.scale(1, 1 + br * .006); c.translate(0, 290);
   const J = [-56, -592, -128, -566, -150, -520, -140, -400, -128, -300, -134, -262, 0, -258, 134, -262, 128, -300, 140, -400, 150, -520, 128, -566, 56, -592];
-  c.beginPath(); smoothPath(J); c.fillStyle = lg(-150, 0, 150, 0, [[0, '#5a1520'], [.3, WOLF_C.jacket], [.7, WOLF_C.jacket], [1, '#5a1520']]); c.fill();
-  c.save(); c.clip(); c.fillStyle = '#ece4d3'; c.fillRect(-160, -296, 320, 40); c.fillStyle = WOLF_C.jacket; c.fillRect(-160, -286, 320, 6); c.fillRect(-160, -274, 320, 6); c.restore();
+  c.beginPath(); smoothPath(J); c.fillStyle = lg(-150, 0, 150, 0, [[0, WOLF_C.jacketD], [.3, WOLF_C.jacket], [.7, WOLF_C.jacket], [1, WOLF_C.jacketD]]); c.fill();
+  c.save(); c.clip(); c.fillStyle = WOLF_C.band; c.fillRect(-160, -296, 320, 40); c.fillStyle = WOLF_C.jacket; c.fillRect(-160, -286, 320, 6); c.fillRect(-160, -274, 320, 6); c.restore();
   c.beginPath(); smoothPath(J); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
-  poly([-42, -594, 42, -594, 36, -258, -36, -258], lg(0, -590, 0, -260, [[0, '#24314f'], [1, '#18213a']]), OL, 5);
+  poly([-42, -594, 42, -594, 36, -258, -36, -258], lg(0, -590, 0, -260, [[0, WOLF_C.shirt], [1, WOLF_C.shirtD]]), OL, 5);
   for (const s of [-1, 1]) for (const y of [-530, -470, -410, -350]) ell(s * 50, y, 5, 5, '#e9e3d6', OL, 2);
-  c.save(); c.font = '900 64px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.lineJoin = 'round';
-  c.strokeText('D', 92, -440); c.fillStyle = '#e8bf5c'; c.fillText('D', 92, -440); c.restore();
+  if (!p.noLetter) { c.save(); c.font = '900 64px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.lineJoin = 'round';
+  c.strokeText('D', 92, -440); c.fillStyle = '#e8bf5c'; c.fillText('D', 92, -440); c.restore(); }
   // atkı
   c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   for (const [pts, ln] of [[[-58, -572, -16, -572, -12, -408, -54, -404], -404], [[-4, -566, 36, -568, 52, -462, 14, -456], -456]]) {
     c.beginPath(); c.moveTo(pts[0], pts[1]); for (let i = 2; i < 8; i += 2) c.lineTo(pts[i], pts[i + 1]); c.closePath();
     c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1);
-    c.save(); c.clip(); c.fillStyle = '#c47a1a'; for (let y = -540; y < -400; y += 34) c.fillRect(-80, y, 160, 9); c.restore();
+    c.save(); c.clip(); c.fillStyle = WOLF_C.scarfD; for (let y = -540; y < -400; y += 34) c.fillRect(-80, y, 160, 9); c.restore();
     c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
-    for (let k = 0; k < 5; k++) { const fx = lerp(pts[6], pts[4], k / 4); line(fx, ln - 2 + (k % 2) * 3, fx, ln + 14, '#c47a1a', 4); }
+    for (let k = 0; k < 5; k++) { const fx = lerp(pts[6], pts[4], k / 4); line(fx, ln - 2 + (k % 2) * 3, fx, ln + 14, WOLF_C.scarfD, 4); }
   }
   c.restore();
   if (!p.hideL) wolfArm(-1, p.L); if (!p.hideR) wolfArm(1, p.R);
@@ -293,13 +293,13 @@ function drawWolf(p) {
     c.restore();
   }
   const HP = [0, -168, 112, -152, 176, -92, 196, 0, 228, 54, 190, 72, 212, 110, 152, 124, 92, 160, 0, 172, -92, 160, -152, 124, -212, 110, -190, 72, -228, 54, -196, 0, -176, -92, -112, -152];
-  c.beginPath(); smoothPath(HP, true, .85); c.fillStyle = rg(0, -60, 20, 240, [[0, '#a8b1bb'], [1, WOLF_C.furD]]); c.fill(); texFill('fur', 1);
+  c.beginPath(); smoothPath(HP, true, .85); c.fillStyle = rg(0, -60, 20, 240, [[0, WOLF_C.headL], [1, WOLF_C.furD]]); c.fill(); texFill('fur', 1);
   c.save(); c.clip();
   blob([-232, 70, -160, 6, -110, -44, -58, -58, -24, -22, 0, 8, 24, -22, 58, -58, 110, -44, 160, 6, 232, 70, 150, 130, 80, 176, 0, 190, -80, 176, -150, 130], WOLF_C.white, null, 0, .9);
-  blob([-24, -170, 24, -170, 28, -44, 14, 34, -14, 34, -28, -44], '#8d97a3', null);
+  blob([-24, -170, 24, -170, 28, -44, 14, 34, -14, 34, -28, -44], WOLF_C.stripe, null);
   c.restore();
   c.beginPath(); smoothPath(HP, true, .85); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
-  for (const s of [-1, 1]) curve([s * 30, -150, s * 44, -128, s * 40, -110], '#5d6774', 4);
+  for (const s of [-1, 1]) curve([s * 30, -150, s * 44, -128, s * 40, -110], WOLF_C.mark, 4);
   for (const s of [-1, 1]) ell(s * 122, 66, 26, 13, 'rgba(232,140,150,.38)', null);
   // gözler
   const lid = cl((p.lid || 0) + (p.blink || 0) * (1 - (p.lid || 0)), -.1, 1);
@@ -307,20 +307,22 @@ function drawWolf(p) {
     const ex = s * 70, ey = -24, px = ex + (p.lookX || 0) * 11, py = ey + 4 + (p.lookY || 0) * 10, RX = 44, RY = 48;
     ell(ex, ey, RX, RY, '#ffffff', null);
     c.save(); c.beginPath(); c.ellipse(ex, ey, RX, RY, 0, 0, TAU); c.clip();
-    ell(px, py, 31, 34, rg(px - 8, py - 10, 3, 34, [[0, '#f0be66'], [.7, '#b26f2a'], [1, '#6e3f16']]), null);
+    ell(px, py, 31, 34, rg(px - 8, py - 10, 3, 34, [[0, WOLF_C.eye[0]], [.7, WOLF_C.eye[1]], [1, WOLF_C.eye[2]]]), null);
     ell(px, py + 2, 16, 18, '#120a06', null);
     ell(px - 11, py - 12, 10, 10, '#fff', null); ell(px + 10, py + 13, 5, 5, '#fff', null);
     const ly = ey - RY + 2 * RY * Math.max(0, lid), sa = (p.brow || 0) * 14 * s;
     if (lid > 0) {
       c.beginPath(); c.moveTo(ex - RX - 4, ey - RY - 6); c.lineTo(ex + RX + 4, ey - RY - 6); c.lineTo(ex + RX + 4, ly + sa); c.quadraticCurveTo(ex, ly + 8, ex - RX - 4, ly - sa); c.closePath();
-      c.fillStyle = '#a2abb6'; c.fill(); c.lineWidth = 6; c.strokeStyle = OL;
+      c.fillStyle = WOLF_C.lid; c.fill(); c.lineWidth = 6; c.strokeStyle = OL;
       c.beginPath(); c.moveTo(ex + RX + 4, ly + sa); c.quadraticCurveTo(ex, ly + 8, ex - RX - 4, ly - sa); c.stroke();
     }
     c.restore();
     ell(ex, ey, RX, RY, null, OL, 5);
     const b = p.brow || 0;
-    curve([s * 28, -96 + b * 40, s * 70, -110 + b * 12, s * 112, -100 - b * 14], '#4c5562', 10);
+    curve([s * 28, -96 + b * 40, s * 70, -110 + b * 12, s * 112, -100 - b * 14], WOLF_C.brow, 10);
   }
+  if (p.lashes) for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) { const a = -PI / 2 + sd * (.55 + k * .28); line(sd * 70 + Math.cos(a) * 44, -24 + Math.sin(a) * 48, sd * 70 + Math.cos(a) * 60, -24 + Math.sin(a) * 62, OL, 4); } // kirpikler
+  if (!p.noGlasses) {
   // gözlük
   c.save(); c.globalAlpha = .1; ell(-70, -24, 60, 60, '#cfe8ff', null); ell(70, -24, 60, 60, '#cfe8ff', null); c.restore();
   for (const s of [-1, 1]) {
@@ -329,6 +331,7 @@ function drawWolf(p) {
     line(s * 130, -30, s * 194, -46, '#1f1c1a', 6);
   }
   c.beginPath(); c.moveTo(-12, -28); c.quadraticCurveTo(0, -40, 12, -28); c.lineWidth = 6; c.strokeStyle = '#1f1c1a'; c.stroke();
+  }
   // burun, ağız
   blob([-26, 52, 26, 52, 18, 76, 0, 86, -18, 76], lg(0, 50, 0, 86, [[0, '#2a2624'], [1, '#0d0b0a']]), OL, 4);
   ell(-8, 60, 8, 4, 'rgba(255,255,255,.55)', null);
@@ -341,6 +344,15 @@ function drawWolf(p) {
     c.beginPath(); c.moveTo(-34, 100 - m * .3); c.quadraticCurveTo(-17, 100 + m, 0, 100); c.quadraticCurveTo(17, 100 + m, 34, 100 - m * .3);
     c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
   }
-  for (const s of [-1, 1]) for (const [dx, dy] of [[34, 72], [44, 84], [30, 88]]) ell(s * dx, dy, 3, 3, '#7c8590', null);
+  for (const s of [-1, 1]) for (const [dx, dy] of [[34, 72], [44, 84], [30, 88]]) ell(s * dx, dy, 3, 3, WOLF_C.dot, null);
+  if (p.beret) { // eğik bere (kulakların arasında)
+    c.save(); c.translate(-26, -150); c.rotate(-.16);
+    ell(0, 6, 118, 30, p.beret, OL, 6);
+    c.beginPath(); c.ellipse(0, -8, 112, 50, 0, PI, TAU); c.closePath(); c.fillStyle = p.beret; c.fill();
+    c.save(); c.clip(); ell(-36, -36, 60, 22, 'rgba(255,255,255,.18)', null); c.restore();
+    c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
+    capsule([0, -56, 4, -72], 8, p.beret, 4);
+    c.restore();
+  }
   c.restore();
 }
