@@ -2,7 +2,7 @@
 // Ela: kar beyazı dişi kurt, lavanta palto, kırmızı bere ve kırmızı atkı. drawWolf'u renk paletini değiştirerek kullanır.
 const ELA_C = { fur: '#e9e6ee', furD: '#bdb8c8', white: '#fbfaf8', jacket: '#8a7aa8', jacketD: '#64557f', sleeve: '#8a7aa8', cuff: '#64557f', band: '#8a7aa8',
   scarf: '#c8302a', scarfD: '#8e1c18', shirt: '#efe6da', shirtD: '#d8cdbd', jeans: '#3a3448', paw: '#d6d2dc', headL: '#f6f4f8', stripe: '#dcd8e4',
-  lid: '#dcd8e4', brow: '#8a8494', mark: '#b0aabb', dot: '#b0aabb', shoe: '#7a2a2a', eye: ['#a6dccf', '#3f8a7c', '#1e4a42'], plainSleeve: true };
+  lid: '#dcd8e4', brow: '#8a8494', mark: '#b0aabb', dot: '#fbfaf8', shoe: '#7a2a2a', eye: ['#a6dccf', '#3f8a7c', '#1e4a42'], plainSleeve: true };
 function withPalette(pal, fn) { const old = {}; for (const k in pal) { old[k] = WOLF_C[k]; WOLF_C[k] = pal[k]; } try { fn(); } finally { for (const k in pal) { if (old[k] === undefined) delete WOLF_C[k]; else WOLF_C[k] = old[k]; } } }
 function drawEla(p) { withPalette(ELA_C, () => drawWolf(Object.assign({ noLetter: true, noGlasses: true, lashes: true, beret: '#c8302a' }, p))); }
 const SCARF = '#c8302a', SCARF_D = '#8e1c18';
@@ -162,11 +162,11 @@ SCENES.tren_bos = S => {
 
 // ---------- 2) VEDA (anı): gündüz, Ela trenin kapısında; geri bakar, kapılar kapanır, tren gider ----------
 SCENES.veda = S => {
-  const t = S.t, k = S.k, close = ss(.42, .6, k), go = ease(cl((k - .62) / .38, 0, 1));
+  const t = S.t, k = S.k, close = ss(.55, .7, k), go = ease(cl((k - .72) / .28, 0, 1));
   cam(lerp(560, 470, ease(k)), lerp(640, 700, ease(k)), lerp(2.0, 1.25, ease(k)));
   const tx = -500 - go * 1800;
   drawStation(t, { pal: 'day', min: 1020, train: () => drawTrain(tx, { cars: 3, doors: 1 - close, day: true, lights: false, whoCar: 1, who: (cx, fy) => {
-    const pe = Object.assign({}, MOODS.demir.sad, { t, talk: 0, lookX: -.6, lookY: .3, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .06, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 60, y: -600, hand: 'open' } });
+    const pe = Object.assign({}, MOODS.demir.sad, { t, talk: 0, lookX: -.6, lookY: .3, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .06, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
     c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
   } }) });
   // ön planda Demir (arkadan), hafifçe öne uzanır
