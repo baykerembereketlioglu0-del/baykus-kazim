@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Baykuş Kazım story</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Caveat:wght@600;700&family=Inter:wght@600;700;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- Instagram hikâyesi arka planı (1080x1920): YouTube bağlantı çıkartması ortadaki kesikli kutuya konur.
+     Üst ~250 px ve alt ~340 px'i Instagram arayüzü örter; önemli öğeler bu bantların dışında. -->
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script>
+(async () => {
+  for (const f of ['900 150px Cinzel', '600 34px Cinzel', '700 84px Caveat', '800 40px Inter']) await document.fonts.load(f, 'AaÇĞİÖŞÜâ');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 1080, H = 1920, CX = W / 2;
+  // gece
+  c.fillStyle = lg(0, 0, 0, H, [[0, '#04060d'], [.5, '#0d1324'], [.8, '#1c150f'], [1, '#0a0705']]); c.fillRect(0, 0, W, H);
+  for (let i = 0; i < 180; i++) { const x = hash(i) * W, y = hash(i + 7) * H * .7, r = .8 + hash(i + 3) * 1.8; ell(x, y, r, r, `rgba(255,248,230,${.15 + .55 * hash(i + 11)})`, null); }
+  ell(880, 250, 46, 46, '#efe6cf', null); ell(898, 242, 42, 42, '#0b1020', null); glow(870, 250, 200, 'rgba(210,220,255,.22)');
+  for (let i = 0; i < 20; i++) { const x = -30 + i * 60, h = 160 + hash(i + 50) * 260; rr(x, H - h, 56, h + 10, 2, '#07090f', null);
+    for (let j = 0; j < 8; j++) if (hash(i * 13 + j) > .6) rr(x + 10 + (j % 2) * 22, H - h + 18 + Math.floor(j / 2) * 34, 10, 14, 1, 'rgba(255,196,120,.45)', null); }
+  c.save(); c.strokeStyle = 'rgba(210,200,180,.08)'; c.lineWidth = 2; c.beginPath(); for (let i = 0; i < 200; i++) { const x = hash(i + 300) * W, y = hash(i + 400) * H; c.moveTo(x, y); c.lineTo(x - 6, y + 40); } c.stroke(); c.restore();
+  const spaced = (txt, x, y, font, fill, sp) => { c.save(); c.font = font; c.letterSpacing = sp + 'px'; c.textAlign = 'center'; c.fillStyle = fill; c.fillText(txt, x + sp / 2, y); c.restore(); };
+  // üst yazılar (Instagram üst bandının altında)
+  spaced('BAYKUŞ KAZIM', CX, 330, '600 34px Cinzel', 'rgba(232,206,160,.9)', 12);
+  spaced("Kâzım'ın dersleri artık", CX, 470, '700 84px Caveat', '#f3e6cc', 1);
+  c.save(); c.shadowColor = 'rgba(255,170,70,.6)'; c.shadowBlur = 36;
+  spaced("YOUTUBE'DA", CX, 620, '900 118px Cinzel', lg(0, 510, 0, 640, [[0, '#fff1c8'], [.45, '#f2c463'], [.75, '#c98a2c'], [1, '#8a5a1c']]), 4);
+  c.restore();
+  // altın oynat simgesi
+  rr(CX - 70, 680, 140, 96, 28, lg(0, 680, 0, 776, [[0, '#f2c463'], [1, '#b47a26']]), OL, 5); poly([CX - 20, 704, CX - 20, 752, CX + 28, 728], '#1a120a', null);
+  // bağlantı çıkartması alanı (kesikli kutu) + ok
+  const BY = 860, BH = 170;
+  c.save(); c.setLineDash([18, 14]); c.lineWidth = 4; c.strokeStyle = 'rgba(242,196,99,.85)'; c.beginPath(); c.roundRect(CX - 330, BY, 660, BH, 40); c.stroke(); c.restore();
+  c.fillStyle = 'rgba(255,240,210,.05)'; c.beginPath(); c.roundRect(CX - 330, BY, 660, BH, 40); c.fill();
+  spaced('BAĞLANTIYA DOKUN', CX, BY + BH / 2 + 14, '800 40px Inter', 'rgba(243,230,204,.35)', 6);
+  // Kâzım alttan kutuyu gösteriyor (işaret parmağı yukarıda)
+  LIGHTS = [];
+  const p = Object.assign({}, MOODS.kazim.warm, { t: 1.2, talk: 0, lookX: .2, lookY: -.9, blink: 0, tilt: -.04, nod: 0,
+    R: { x: 262, y: -760, hand: 'point' }, L: { x: -215, y: -310, hand: 'fist' }, lantern: 1 });
+  c.save(); c.translate(CX - 60, 2090); c.scale(.82, .82); drawOwl(p); c.restore();
+  c.save(); c.globalCompositeOperation = 'lighter';
+  for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore();
+  // yukarı ok: parmaktan kutuya
+  c.save(); c.strokeStyle = 'rgba(242,196,99,.9)'; c.lineWidth = 6; c.setLineDash([2, 16]); c.beginPath(); c.moveTo(CX + 175, 1400); c.quadraticCurveTo(CX + 240, 1220, CX + 150, BY + BH + 30); c.stroke(); c.restore();
+  poly([CX + 150, BY + BH + 12, CX + 128, BY + BH + 50, CX + 172, BY + BH + 46], 'rgba(242,196,99,.95)', null);
+  // kenar karartması + gren
+  c.fillStyle = rg(CX, H * .45, 400, 1200, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.55)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  window.READY = true;
+})();
+</script></body></html>
