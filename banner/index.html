@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Baykuş Kazım banner</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Caveat:wght@600;700&family=Inter:wght@500;600;700&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- YouTube kanal kapağı: 2560x1440. Mobilde yalnızca ortadaki 1546x423 güvenli alan görünür; tüm yazılar orada. -->
+<canvas id="c" width="2560" height="1440"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script>
+(async () => {
+  for (const f of ['700 150px Cinzel', '600 40px Cinzel', '700 78px Caveat', '600 34px Inter']) await document.fonts.load(f, 'AaÇĞİÖŞÜâ');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 2560, H = 1440, CX = W / 2, SAFE = { x: (W - 1546) / 2, y: (H - 423) / 2, w: 1546, h: 423 };
+  // gece göğü
+  c.fillStyle = lg(0, 0, 0, H, [[0, '#04060d'], [.45, '#0c1222'], [.75, '#1a1410'], [1, '#0a0705']]); c.fillRect(0, 0, W, H);
+  for (let i = 0; i < 260; i++) { const x = hash(i) * W, y = hash(i + 7) * H * .62, r = .8 + hash(i + 3) * 1.8; ell(x, y, r, r, `rgba(255,248,230,${.15 + .55 * hash(i + 11)})`, null); }
+  // ay
+  ell(2120, 330, 70, 70, '#efe6cf', null); ell(2145, 318, 64, 64, '#0a0f1c', null);
+  glow(2110, 330, 260, 'rgba(210,220,255,.25)');
+  // uzak şehir silüeti (alt)
+  for (let i = 0; i < 46; i++) { const x = -40 + i * 60, h = 90 + hash(i + 50) * 210; rr(x, H - h, 56, h + 10, 2, '#07090f', null);
+    for (let j = 0; j < 6; j++) if (hash(i * 13 + j) > .62) rr(x + 10 + (j % 2) * 22, H - h + 18 + Math.floor(j / 2) * 34, 10, 14, 1, 'rgba(255,196,120,.45)', null); }
+  // ince yağmur
+  c.save(); c.strokeStyle = 'rgba(210,200,180,.08)'; c.lineWidth = 2; c.beginPath();
+  for (let i = 0; i < 260; i++) { const x = hash(i + 300) * W, y = hash(i + 400) * H; c.moveTo(x, y); c.lineTo(x - 8, y + 46); } c.stroke(); c.restore();
+  // feneri ortanın hemen soluna as (güvenli alanın içinde, başlığın solunda)
+  LIGHTS = [];
+  const LX = SAFE.x + 60, LY = SAFE.y + 30;
+  line(LX, 0, LX, LY - 18, '#3a2f26', 4); for (let y = 10; y < LY - 22; y += 22) ell(LX, y, 5, 9, null, '#6a5a48', 3);
+  drawLantern(LX, LY, 1, 1.3, 1.15);
+  // sıcak hâle
+  c.save(); c.globalCompositeOperation = 'lighter';
+  for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); }
+  c.fillStyle = rg(CX, H / 2, 0, 900, [[0, 'rgba(255,170,80,.10)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(0, 0, W, H);
+  c.restore();
+  // yazılar
+  const spaced = (txt, x, y, font, fill, sp, stroke) => { c.save(); c.font = font; c.letterSpacing = sp + 'px'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    if (stroke) { c.lineWidth = stroke; c.strokeStyle = 'rgba(0,0,0,.7)'; c.strokeText(txt, x + sp / 2, y); } c.fillStyle = fill; c.fillText(txt, x + sp / 2, y); c.restore(); };
+  const CY = SAFE.y, tx = CX + 40;
+  spaced("KÂZIM'IN DEFTERİ", tx, CY + 72, '600 38px Cinzel', 'rgba(232,206,160,.85)', 14);
+  // başlık: altın degrade + parıltı
+  c.save(); c.shadowColor = 'rgba(255,170,70,.55)'; c.shadowBlur = 40;
+  spaced('BAYKUŞ KAZIM', tx, CY + 212, '700 126px Cinzel', lg(0, CY + 100, 0, CY + 215, [[0, '#fff1c8'], [.45, '#f2c463'], [.75, '#c98a2c'], [1, '#8a5a1c']]), 14);
+  c.restore();
+  // süs çizgisi + tüy işareti
+  const oy = CY + 252;
+  for (const s of [-1, 1]) { c.save(); c.strokeStyle = lg(tx, 0, tx + s * 360, 0, [[0, 'rgba(230,190,110,.9)'], [1, 'rgba(230,190,110,0)']]); c.lineWidth = 3; c.beginPath(); c.moveTo(tx + s * 36, oy); c.lineTo(tx + s * 360, oy); c.stroke(); c.restore(); }
+  c.save(); c.translate(tx, oy); c.rotate(PI / 4); rr(-10, -10, 20, 20, 3, '#e6b866', null); c.restore();
+  // slogan (el yazısı)
+  spaced('Herkes uyurken gerçeği fısıldayan baykuş.', tx, CY + 328, '700 66px Caveat', '#f3e6cc', 1);
+  // alt satır
+  spaced('HER HAFTA YENİ BİR HAYAT DERSİ   ·   @BaykuşKazım', tx, CY + 388, '600 26px Inter', 'rgba(220,200,170,.8)', 6);
+  // kenar karartması
+  c.fillStyle = rg(CX, H / 2, 600, 1500, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.6)']]); c.fillRect(0, 0, W, H);
+  // ince film greni
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  if (location.search.includes('safe')) { c.strokeStyle = '#0f0'; c.lineWidth = 3; c.strokeRect(SAFE.x, SAFE.y, SAFE.w, SAFE.h); }
+  window.READY = true;
+})();
+</script></body></html>
