@@ -199,16 +199,16 @@ function drawWolfBack(p) { // arkadan Demir: sırtında "DEMİR" yazılı kolej 
     line(hx, -280, fx, fy - 30, 'rgba(0,0,0,.25)', 3);                                                         // dikiş
     rr(fx - 40, fy - 34, 80, 22, 6, '#3f5784', OL, 4);                                                         // paça
     if (lift > 20) { // havadaki ayak: topuk ve taban
-      rr(fx - 36, fy - 14, 72, 40, 14, '#d9772b', OL, 5); rr(fx - 34, fy + 14, 68, 20, 9, '#f1ede4', OL, 4); line(fx - 20, fy + 24, fx + 20, fy + 24, 'rgba(0,0,0,.25)', 3);
+      rr(fx - 36, fy - 14, 72, 40, 14, WOLF_C.shoe, OL, 5); rr(fx - 34, fy + 14, 68, 20, 9, '#f1ede4', OL, 4); line(fx - 20, fy + 24, fx + 20, fy + 24, 'rgba(0,0,0,.25)', 3);
     } else {        // yere basan ayak: ayakkabının arkası
-      blob([fx - 38, fy - 14, fx + 38, fy - 14, fx + 44, fy + 28, fx - 44, fy + 28], '#d9772b', OL, 6); rr(fx - 46, fy + 22, 92, 16, 7, '#f1ede4', OL, 4);
+      blob([fx - 38, fy - 14, fx + 38, fy - 14, fx + 44, fy + 28, fx - 44, fy + 28], WOLF_C.shoe, OL, 6); rr(fx - 46, fy + 22, 92, 16, 7, '#f1ede4', OL, 4);
     }
   }
   const J = [-56, -592, -128, -566, -150, -520, -140, -400, -128, -300, -134, -262, 0, -258, 134, -262, 128, -300, 140, -400, 150, -520, 128, -566, 56, -592];
-  c.beginPath(); smoothPath(J); c.fillStyle = lg(-150, 0, 150, 0, [[0, '#5a1520'], [.3, WOLF_C.jacket], [.7, WOLF_C.jacket], [1, '#5a1520']]); c.fill(); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
-  c.save(); c.beginPath(); smoothPath(J); c.clip(); c.fillStyle = '#ece4d3'; c.fillRect(-160, -296, 320, 40); c.fillStyle = WOLF_C.jacket; c.fillRect(-160, -286, 320, 6); c.fillRect(-160, -274, 320, 6); c.restore();
+  c.beginPath(); smoothPath(J); c.fillStyle = lg(-150, 0, 150, 0, [[0, WOLF_C.jacketD], [.3, WOLF_C.jacket], [.7, WOLF_C.jacket], [1, WOLF_C.jacketD]]); c.fill(); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
+  c.save(); c.beginPath(); smoothPath(J); c.clip(); c.fillStyle = WOLF_C.band; c.fillRect(-160, -296, 320, 40); c.fillStyle = WOLF_C.jacket; c.fillRect(-160, -286, 320, 6); c.fillRect(-160, -274, 320, 6); c.restore();
   c.beginPath(); smoothPath(J); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
-  c.save(); c.font = '900 50px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.strokeText('DEMİR', 0, -440); c.fillStyle = '#e8bf5c'; c.fillText('DEMİR', 0, -440); c.restore();
+  if (p.name !== null) { const nm = p.name || 'DEMİR'; c.save(); c.font = '900 50px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.strokeText(nm, 0, -440); c.fillStyle = '#e8bf5c'; c.fillText(nm, 0, -440); c.restore(); }
   // kuyruk: sırtın ortasından aşağı sarkar, iki yana sallanır
   c.save(); c.translate(0, -272); c.rotate(Math.sin(t * 7) * (.12 + .18 * run));
   blob([-34, -4, 34, -4, 58, 70, 52, 160, 22, 222, 0, 236, -22, 222, -52, 160, -58, 70], lg(0, 0, 0, 236, [[0, WOLF_C.furD], [.7, WOLF_C.fur], [1, '#eef0f2']]), OL, 6, .8);
@@ -219,19 +219,21 @@ function drawWolfBack(p) { // arkadan Demir: sırtında "DEMİR" yazılı kolej 
     const ex = s * 172, ey = -420 - sw * 18, hx = s * (160 - Math.max(0, sw) * 12), hy = -312 - sw * 70 * (run > 0 ? 1 : .4);
     capsule([s * 126, -548, ex, ey, hx, hy], 58, WOLF_C.sleeve, 6);
     const a2 = Math.atan2(hy - ey, hx - ex);
-    capsule([lerp(ex, hx, .78), lerp(ey, hy, .78), hx, hy], 50, '#6a1822', 5);
+    capsule([lerp(ex, hx, .78), lerp(ey, hy, .78), hx, hy], 50, WOLF_C.cuff, 5);
     ell(hx + Math.cos(a2) * 20, hy + Math.sin(a2) * 20, 25, 24, WOLF_C.paw, OL, 5);
   }
-  c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
+  if (!p.noScarf) { c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke(); }
+  else { c.beginPath(); smoothPath([-70, -600, 0, -612, 70, -600, 60, -560, -60, -560]); c.fillStyle = WOLF_C.jacketD; c.fill(); c.lineWidth = 5; c.strokeStyle = OL; c.stroke(); } // yaka
   c.save(); c.translate(0, -728); c.rotate(p.tilt || 0);
   for (const s of [-1, 1]) blob([s * 46, -112, s * 112, -246, s * 168, -326, s * 206, -180, s * 196, -52], WOLF_C.furD, OL, 6, .7);
   c.beginPath(); smoothPath([0, -168, 112, -152, 176, -92, 196, 0, 210, 70, 150, 124, 0, 160, -150, 124, -210, 70, -196, 0, -176, -92, -112, -152], true, .85);
-  c.fillStyle = rg(0, -60, 20, 240, [[0, '#a8b1bb'], [1, WOLF_C.furD]]); c.fill(); texFill('fur', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
-  for (const s of [-1, 1]) line(s * 196, -40, s * 150, -30, '#1f1c1a', 6); // gözlük sapları
+  c.fillStyle = rg(0, -60, 20, 240, [[0, WOLF_C.headL], [1, WOLF_C.furD]]); c.fill(); texFill('fur', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
+  if (!p.noGlasses) for (const s of [-1, 1]) line(s * 196, -40, s * 150, -30, '#1f1c1a', 6); // gözlük sapları
   // ense: koyu tüy şeridi, perçem ve tüy çizgileri
   for (let i = 0; i < 9; i++) { const xx = -150 + i * 37, yy = 40 + Math.sin(i * 1.7) * 20; curve([xx, yy, xx + 6, yy + 30, xx + 2, yy + 60], 'rgba(70,78,90,.45)', 3); }
   blob([-60, 120, -30, 150, 0, 130, 30, 152, 60, 120, 40, 175, 0, 168, -40, 175], '#c9ced5', OL, 4); // ense perçemi
   for (const s of [-1, 1]) curve([s * 110, -150, s * 140, -230, s * 160, -280], 'rgba(60,66,76,.6)', 4); // kulak arkası
+  if (p.beret) { c.save(); c.translate(20, -150); c.rotate(.16); ell(0, 6, 118, 30, p.beret, OL, 6); c.beginPath(); c.ellipse(0, -8, 112, 50, 0, PI, TAU); c.closePath(); c.fillStyle = p.beret; c.fill(); c.lineWidth = 6; c.strokeStyle = OL; c.stroke(); capsule([0, -56, -4, -72], 8, p.beret, 4); c.restore(); }
   c.restore();
 }
 SCENES.yuruyus = S => {

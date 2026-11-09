@@ -12,7 +12,7 @@ const EPISODE = {
   musicVolume: 0.32, rainVolume: 0.03,
   cast: { kazim: { x: 235, y: 985, s: .6 }, demir: { x: 490, y: 990, s: .56 } },
   story: [
-    { who: 'demir', mood: 'sad', shot: 'wide', text: 'Abi, o gittiğinden beri her gece bu istasyona geliyorum.' },
+    { who: 'demir', mood: 'sad', shot: 'ayrilik', flash: true, text: 'Abi, o gittiğinden beri her gece bu istasyona geliyorum.' },
     { who: 'demir', mood: 'sad', shot: 'tren_bos', text: 'Her tren geldiğinde, belki o iner diye kalbim duruyor.', pause: 1.2 },
     { who: 'kazim', mood: 'calm', shot: [['two', 0], ['close-kazim', .5]], text: 'Evlat, bazı insanlar ömür boyu kalmak için değil, ders olmak için gelir. Gidişleri canını yakar, ama seni yeniden sana getirir.', pause: 1.0 },
     { who: 'demir', mood: 'sad', shot: 'veda', flash: true, text: 'Onu çok sevmiştim abi. Neden gitti?', pause: 1.6 },

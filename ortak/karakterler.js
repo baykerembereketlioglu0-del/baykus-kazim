@@ -272,6 +272,7 @@ function drawWolf(p) {
   if (!p.noLetter) { c.save(); c.font = '900 64px Georgia,serif'; c.textAlign = 'center'; c.lineWidth = 8; c.strokeStyle = OL; c.lineJoin = 'round';
   c.strokeText('D', 92, -440); c.fillStyle = '#e8bf5c'; c.fillText('D', 92, -440); c.restore(); }
   // atkı
+  if (!p.noScarf) {
   c.beginPath(); smoothPath([-108, -612, 0, -630, 108, -612, 114, -566, 0, -548, -114, -566]); c.fillStyle = WOLF_C.scarf; c.fill(); texFill('knit', 1); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   for (const [pts, ln] of [[[-58, -572, -16, -572, -12, -408, -54, -404], -404], [[-4, -566, 36, -568, 52, -462, 14, -456], -456]]) {
     c.beginPath(); c.moveTo(pts[0], pts[1]); for (let i = 2; i < 8; i += 2) c.lineTo(pts[i], pts[i + 1]); c.closePath();
@@ -279,6 +280,7 @@ function drawWolf(p) {
     c.save(); c.clip(); c.fillStyle = WOLF_C.scarfD; for (let y = -540; y < -400; y += 34) c.fillRect(-80, y, 160, 9); c.restore();
     c.lineWidth = 5; c.strokeStyle = OL; c.stroke();
     for (let k = 0; k < 5; k++) { const fx = lerp(pts[6], pts[4], k / 4); line(fx, ln - 2 + (k % 2) * 3, fx, ln + 14, WOLF_C.scarfD, 4); }
+  }
   }
   c.restore();
   if (!p.hideL) wolfArm(-1, p.L); if (!p.hideR) wolfArm(1, p.R);

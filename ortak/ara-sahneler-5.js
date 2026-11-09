@@ -144,6 +144,33 @@ SCENES.istasyon_acilis = S => {
   typeText('GECE 23:47 · SON TREN', ss(.5, 2.3, lt), 40, 1222, '600 22px Cinzel,Georgia,serif', 'rgba(200,215,240,.85)');
 };
 
+// ---------- 0b) AYRILIK (anı): Ela trene yürür, rüzgâr atkısını uçurur; Demir havada yakalar ve saklar ----------
+SCENES.ayrilik = S => {
+  const t = S.t, k = S.k, walk = cl(k / .7, 0, 1), gone = ss(.7, .8, k), off = .22, catchK = .5, hug = ss(catchK, .72, k);
+  cam(lerp(400, 500, ss(.45, 1, k)), lerp(800, 780, k), lerp(1.15, 1.4, ease(ss(.4, 1, k))));
+  drawStation(t, { pal: 'day', min: 1015, train: () => drawTrain(-845, { cars: 3, doors: 1, day: true, lights: false }) });
+  // Ela arkadan, trenin kapısına yürür (küçülerek), sonra içeri girer
+  const ex = lerp(330, 230, walk), ey = lerp(1230, 880, walk), es = lerp(.5, .27, walk);
+  if (gone < 1) { c.save(); c.globalAlpha = 1 - gone; c.translate(ex, ey); c.scale(es, es);
+    withPalette(ELA_C, () => drawWolfBack({ t, walk: walk < 1 ? 1 : 0, tilt: Math.sin(t * 3.5) * .02, name: null, noGlasses: true, beret: '#c8302a', noScarf: k > off })); c.restore(); }
+  // Demir (önden, sağda): uçan atkıyı yakalar, göğsüne bastırır
+  const X0 = 575, Y0 = 1250, SC = .58, reach = ss(.36, catchK, k) * (1 - hug);
+  const L = { x: lerp(lerp(-148, -190, reach), -24, hug), y: lerp(lerp(-272, -700, reach), -470, hug), hand: 'relax' }, R = { x: lerp(148, 30, hug), y: lerp(-272, -440, hug), hand: 'relax' };
+  const p = demirPose(k < .3 ? 'sad' : (k < .6 ? 'surprised' : 'sad'), { t, talk: S.talk.demir, lookX: k < catchK ? lerp(-.8, .5, ss(.25, .45, k)) : -.2, lookY: k < catchK ? lerp(.2, -.7, ss(.25, .45, k)) : .7, tilt: lerp(-.04, .1, hug), blink: 0, L, R });
+  c.save(); c.translate(X0, Y0); c.scale(SC, SC); drawWolf(p); c.restore();
+  const px = X0 + L.x * SC - 6, py = Y0 + L.y * SC;
+  if (k > off && k < catchK) { // havada uçan atkı: Ela'nın boynundan Demir'in patisine yay çizerek
+    const f = (k - off) / (catchK - off), nx = lerp(330, 230, off / .7), ny = lerp(1230, 880, off / .7) - lerp(.5, .27, off / .7) * 600;
+    const fx = lerp(nx, px, ease(f)), fy = lerp(ny, py, ease(f)) - Math.sin(f * PI) * 220, sc = lerp(.42, .55, f);
+    c.save(); c.translate(fx, fy); c.scale(sc, sc); c.rotate(Math.sin(t * 3) * .3); windScarf(0, 0, PI + .5, 230, t, 26); c.restore();
+  } else if (k >= catchK) { // patiden sarkan atkı
+    const sw = Math.sin(t * 2) * 5;
+    redScarf([px, py + 6, px - 6 + sw * .4, py + 50, px + 2 + sw, py + 100, px - 4 + sw * 1.3, py + 140], 26);
+    ell(px, py + 4, 15, 14, WOLF_C.paw, OL, 3);                                          // atkıyı kavrayan pati önde
+  }
+  for (let i = 0; i < 10; i++) { const x = ((t * 160 + i * 100) % 1000) - 150, y = 300 + hash(i) * 700; if (k > .15 && k < .55) line(x, y, x + 50, y - 8, 'rgba(255,255,255,.35)', 2); } // rüzgâr
+};
+
 // ---------- 1) BOŞ TREN: kapılar açılır, kimse yok (kalp atışı) ----------
 SCENES.tren_bos = S => {
   const t = S.t, lt = S.lt, k = S.k, doors = ss(.2, 1.4, lt), beat = Math.max(0, Math.sin(lt * 7.5)) ** 8 * (1 - ss(2.2, 3.2, lt)) * ss(1.2, 1.6, lt);
@@ -166,7 +193,7 @@ SCENES.veda = S => {
   cam(lerp(560, 470, ease(k)), lerp(640, 700, ease(k)), lerp(2.0, 1.25, ease(k)));
   const tx = -500 - go * 1800;
   drawStation(t, { pal: 'day', min: 1020, train: () => drawTrain(tx, { cars: 3, doors: 1 - close, day: true, lights: false, whoCar: 1, who: (cx, fy) => {
-    const pe = Object.assign({}, MOODS.demir.sad, { t, talk: 0, lookX: -.6, lookY: .3, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .06, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    const pe = Object.assign({}, MOODS.demir.sad, { noScarf: true, t, talk: 0, lookX: -.6, lookY: .3, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .06, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
     c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
   } }) });
   // ön planda Demir (arkadan), hafifçe öne uzanır
