@@ -150,9 +150,9 @@ SCENES.tren_bos = S => {
   cam(lerp(560, 580, k), 640, lerp(1.7, 1.85, k) * (1 + beat * .02));
   drawStation(t, { pal: 'night', min: 1428, train: () => drawTrain(-500 + 0, { cars: 3, doors, whoCar: 1 }) });
   // içerideki tutamaklar sallanıyor
-  c.save(); c.beginPath(); c.rect(470, 490, 210, 290); c.clip(); line(440, 506, 700, 506, '#8a8a90', 5);
+  const og = doors * 96; if (og > 2) { c.save(); c.beginPath(); c.rect(575 - og, 494, og * 2, 282); c.clip(); line(440, 506, 700, 506, '#8a8a90', 5); // yalnızca açılan kapı aralığında
   for (let i = 0; i < 4; i++) { const hx = 500 + i * 46, sw = Math.sin(t * 2 + i) * .12; c.save(); c.translate(hx, 500); c.rotate(sw); line(0, 0, 0, 40, '#8a8a90', 3); ell(0, 50, 10, 10, null, '#e8e2d2', 4); c.restore(); }
-  c.restore();
+  c.restore(); }
   screenRain(t, 0, .6);
   // ön planda Demir'in sırtı (sol altta)
   c.save(); c.translate(400, 1290); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: -.02 }); c.restore();
@@ -175,32 +175,52 @@ SCENES.veda = S => {
   for (let i = 0; i < 8; i++) { const x = ((t * 60 + i * 120) % 900) - 100, y = 300 + hash(i) * 500 + Math.sin(t * 2 + i) * 30; c.save(); c.translate(x, y); c.rotate(t * 2 + i); ell(0, 0, 10, 5, '#d98a3a', OL, 2); c.restore(); }
 };
 
-// ---------- 3) RAYLAR: perspektif; giden trenin kırmızı stop lambaları uzaklaşır ----------
+// ---------- 3) RAYLAR: peronda, perspektif; giden trenin kırmızı stop lambaları uzaklaşır ----------
 SCENES.raylar = S => {
-  const t = S.t, k = S.k, vx = 380, vy = 560;
-  cam(360, 640, lerp(1.0, 1.08, k));
-  c.fillStyle = lg(0, -300, 0, vy + 40, [[0, '#05080f'], [1, '#1c2440']]); c.fillRect(-300, -300, 1320, vy + 340);
-  for (let i = 0; i < 70; i++) ell(-100 + hash(i) * 920, -100 + hash(i + 3) * 640, 1.4, 1.4, `rgba(255,255,240,${.25 + .5 * hash(i + 5)})`, null);
-  for (let i = 0; i < 14; i++) { const x = -200 + i * 80, h = 40 + hash(i + 20) * 90; rr(x, vy - h, 70, h, 2, '#0a0e1a', null); for (let j = 0; j < 3; j++) if (hash(i * 5 + j) > .5) rr(x + 10 + j * 18, vy - h + 14, 8, 10, 1, 'rgba(255,200,120,.6)', null); }
-  // zemin (çakıl) ve raylar: kaçış noktasına daralır
-  c.fillStyle = lg(0, vy, 0, 1400, [[0, '#1a1a1e'], [1, '#2a2622']]); c.fillRect(-300, vy, 1320, 1100);
-  const scroll = (t * .0) % 1;
-  for (let i = 0; i < 26; i++) { const d = Math.pow((i + scroll) / 26, 2.2), y = lerp(vy, 1500, d), hw = lerp(4, 520, d); rr(vx - hw * 1.25, y, hw * 2.5, Math.max(1, 24 * d), 2, '#3a2e24', null); }
-  for (const s of [-1, 1]) for (const off of [0, 1]) {
-    c.beginPath(); c.moveTo(vx + s * 2, vy); c.lineTo(vx + s * (520 + off * 26), 1500); c.lineWidth = off ? 3 : 12; c.strokeStyle = off ? 'rgba(255,255,255,.35)' : '#6a6e74'; c.stroke();
-  }
-  // perona sarı çizgi (sol)
-  poly([vx - 30, vy, -300, 1300, -300, 1500, vx - 26, vy], '#55524c', null); line(vx - 30, vy, -300, 1250, '#e8c040', 10);
-  // uzaklaşan tren: arkası (küçülür)
-  const d = 1 - ease(cl(k * 1.1, 0, 1)), y = lerp(vy, 1100, d * .55), sc = lerp(.02, .9, d * .55);
-  if (sc > .03) {
-    c.save(); c.translate(vx, y); c.scale(sc, sc);
-    rr(-300, -560, 600, 560, 30, '#24364f', OL, 8); rr(-260, -500, 520, 220, 16, '#ffd89a', OL, 6); rr(-300, -200, 600, 30, 0, '#c8302a', null);
-    for (const s of [-1, 1]) { ell(s * 220, -110, 30, 30, '#ff2a1a', OL, 5); addLight(s * 220, -110, 260, 'rgba(255,40,20,.6)'); }
+  const t = S.t, k = S.k, VX = 470, VY = 560, VT = 520, E = 300;                 // kaçış noktası (zemin VY, saçak VT)
+  cam(360, 640, lerp(1.0, 1.06, k));
+  const F = u => [VX + (E - VX) * u, VY + 940 * u], R = u => [VX + (E - VX) * u, VT - 840 * u]; // peron kenarı (zemin / saçak) derinlik u'da
+  // gökyüzü + uzak şehir (sağda, rayların üstünde)
+  c.fillStyle = lg(0, -300, 0, VY, [[0, '#05080f'], [1, '#1c2440']]); c.fillRect(-300, -300, 1320, VY + 300);
+  for (let i = 0; i < 60; i++) ell(300 + hash(i) * 720, -100 + hash(i + 3) * 600, 1.3, 1.3, `rgba(255,255,240,${.25 + .5 * hash(i + 5)})`, null);
+  for (let i = 0; i < 10; i++) { const x = 330 + i * 70, h = 30 + hash(i + 20) * 80; rr(x, VY - h, 60, h, 2, '#0a0e1a', null); for (let j = 0; j < 3; j++) if (hash(i * 5 + j) > .5) rr(x + 8 + j * 16, VY - h + 12, 7, 9, 1, 'rgba(255,200,120,.6)', null); }
+  // ray yatağı (sağ)
+  poly([VX, VY, 1100, VY + 30, 1100, 1500, E, 1500], '#1c1a18', null);
+  for (let i = 1; i < 40; i++) { const u = 1 / (1 + (40 - i) * .35), y = VY + 940 * u, xl = VX + (E + 120 - VX) * u, xr = VX + (E + 460 - VX) * u; rr(xl - 20 * u, y, xr - xl + 40 * u, Math.max(1, 26 * u), 2, '#3a2e24', null); }
+  for (const bx of [E + 120, E + 460]) { c.beginPath(); c.moveTo(VX, VY); c.lineTo(bx, 1500); c.lineWidth = 12; c.strokeStyle = '#6a6e74'; c.stroke(); c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.35)'; c.stroke(); }
+  for (const bx of [E + 720, E + 1040]) { c.beginPath(); c.moveTo(VX, VY); c.lineTo(bx, 1500); c.lineWidth = 10; c.strokeStyle = '#4a4e54'; c.stroke(); }
+  // uzaklaşan tren (ray ortasında, arkası bize dönük)
+  const z = lerp(1.5, 60, Math.pow(cl(k * 1.15, 0, 1), 1.6)), u = 1 / z, cx = VX + (E + 290 - VX) * u, by = VY + 940 * u, sc = u * .78;
+  if (sc > .012) {
+    c.save(); c.translate(cx, by); c.scale(sc, sc);
+    rr(-300, -620, 600, 600, 30, '#24364f', OL, 8); rr(-250, -560, 500, 220, 16, '#ffd89a', OL, 6); rr(-300, -240, 600, 30, 0, '#c8302a', null);
+    for (const s of [-1, 1]) ell(s * 220, -140, 30, 30, '#ff2a1a', OL, 5);
     c.restore();
-  } else for (const s of [-1, 1]) { ell(vx + s * 4, vy - 2, 2, 2, '#ff3a2a', null); addLight(vx + s * 4, vy - 2, 30, 'rgba(255,40,20,.6)'); }
-  // Demir peron kenarında (arkadan, sol alt)
-  c.save(); c.translate(150, 1330); c.scale(.6, .6); drawWolfBack({ t, walk: 0, tilt: .03 }); c.restore();
+    for (const s of [-1, 1]) addLight(cx + s * 220 * sc, by - 140 * sc, Math.max(30, 300 * sc), 'rgba(255,40,20,.6)');
+  } else for (const s of [-1, 1]) { ell(cx + s * 3, by - 3, 2, 2, '#ff3a2a', null); addLight(cx + s * 3, by - 3, 30, 'rgba(255,40,20,.6)'); }
+  // peron: duvar, zemin, kenar yüzü, sarı çizgi
+  poly([VX, VT, -300, 200, -300, 840, VX, VY], '#2a2420', null);                                             // istasyon duvarı
+  for (let i = 1; i < 9; i++) { const uu = 1 / (1 + i * .55), x = VX + (-300 - VX) * uu * 1.0; line(x, VT + (200 - VT) * uu, x, VY + (840 - VY) * uu, 'rgba(0,0,0,.35)', 3); } // duvar derzleri
+  for (const [i, col] of [[2, '#8a3a2a'], [4, '#2a4a6a']]) { const u1 = 1 / (1 + i * .55), u2 = 1 / (1 + (i + .6) * .55), x1 = VX + (-300 - VX) * u1, x2 = VX + (-300 - VX) * u2;
+    poly([x1, lerp(VT, 200, u1) + 60 * u1, x2, lerp(VT, 200, u2) + 60 * u2, x2, lerp(VY, 840, u2) - 160 * u2, x1, lerp(VY, 840, u1) - 160 * u1], col, OL, 3); } // afişler
+  const fl = F(1);
+  poly([VX, VY, -300, 840, -300, 1500, fl[0], fl[1]], lg(0, VY, 0, 1500, [[0, '#2a2622'], [1, '#3a342e']]), null);   // peron zemini
+  for (let i = 1; i < 14; i++) { const uu = 1 / (1 + i * .45), a = F(uu); line(a[0], a[1], -300, VY + (840 - VY) * uu * 1.0 + 280 * uu, 'rgba(0,0,0,.2)', 2); } // fayans çizgileri
+  poly([VX, VY, fl[0], fl[1], fl[0] + 80, 1500], '#55524c', null);                                          // peron kenar yüzü
+  c.beginPath(); c.moveTo(VX - 4, VY); c.lineTo(fl[0] - 70, 1500); c.lineWidth = 16; c.strokeStyle = '#e8c040'; c.stroke();
+  c.save(); c.globalCompositeOperation = 'lighter'; for (let i = 1; i < 7; i++) { const uu = 1 / (1 + i * .9), p = F(uu); ell(p[0] - 90 * uu, p[1] + 20 * uu, 120 * uu, 30 * uu, 'rgba(255,190,110,.18)', null); } c.restore(); // ıslak zeminde lamba yansımaları
+  // saçak (tavan) + kolonlar + lambalar
+  const rl = R(1);
+  poly([VX, VT, rl[0], rl[1], -300, -300, -300, 200], '#14171c', null);
+  c.beginPath(); c.moveTo(VX, VT); c.lineTo(rl[0], rl[1]); c.lineWidth = 22; c.strokeStyle = '#1e2228'; c.stroke();
+  for (let i = 9; i >= 1; i--) {
+    const uu = 1 / (1 + i * .7), b = F(uu), r = R(uu), w = 46 * uu, x = b[0] - 60 * uu;
+    rr(x - w / 2, r[1], w, b[1] - r[1], 4 * uu, '#1f3a34', OL, Math.max(1, 5 * uu));                       // kolon
+    const ly = r[1] + 70 * uu; line(x + 120 * uu, r[1], x + 120 * uu, ly, '#111', Math.max(1, 3 * uu));
+    ell(x + 120 * uu, ly, 26 * uu, 9 * uu, '#ffe8b8', null); addLight(x + 120 * uu, ly + 10 * uu, 260 * uu, 'rgba(255,195,110,.4)');
+  }
+  // Demir peronda (arkadan), sarı çizginin gerisinde durur
+  c.save(); c.translate(120, 1330); c.scale(.6, .6); drawWolfBack({ t, walk: 0, tilt: .03 }); c.restore();
   screenRain(t, 1, .7);
 };
 
