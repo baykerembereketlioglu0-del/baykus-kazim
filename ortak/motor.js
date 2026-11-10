@@ -3,7 +3,8 @@
 (function () {
   const EP = window.EPISODE || EPISODE, STORY = EP.story;
   const cv = document.getElementById('c'), main = cv.getContext('2d');
-  const CW = cv.width, CH = cv.height, W = 720, H = 1280, BASE = CW / W;
+  if (EP.landscape) { LAND = true; SW = 1280; SH = 720; CAMZ = .75; } // yatay (16:9) bölüm
+  const CW = cv.width, CH = cv.height, W = SW, H = SH, BASE = CW / W;
   const mk = () => { const e = document.createElement('canvas'); e.width = CW; e.height = CH; const g = e.getContext('2d'); g.lineJoin = 'round'; g.lineCap = 'round'; return [e, g]; };
   const [layer, lc] = mk(), [bufA, ca] = mk(), [bufB, cb] = mk();
   const cap = location.search.includes('capture=1'); if (cap) document.body.classList.add('cap');
@@ -50,7 +51,7 @@
     if (l.noSub) continue; let cur = null;
     for (const w of l.words) {
       const txt = w[0].toLocaleUpperCase('tr');
-      if (cur && (cur.text + ' ' + txt).length <= 20 && !/[.?!…;]$/.test(cur.words[cur.words.length - 1][0])) { cur.text += ' ' + txt; cur.words.push([txt, w[1], w[2]]); cur.e = w[2]; }
+      if (cur && (cur.text + ' ' + txt).length <= (LAND ? 34 : 20) && !/[.?!…;]$/.test(cur.words[cur.words.length - 1][0])) { cur.text += ' ' + txt; cur.words.push([txt, w[1], w[2]]); cur.e = w[2]; }
       else { cur = { text: txt, words: [[txt, w[1], w[2]]], s: w[1], e: w[2], line: l }; SUBS.push(cur); }
     }
   }
@@ -135,6 +136,7 @@
     else if (shot === 'close-kazim') { cx = k.x + 45; cy = k.y - k.s * 700; z = 2.35; }
     else if (shot === 'close-demir') { cx = d.x - 10; cy = d.y - d.s * 610; z = 2.55; }
     else if (shot === 'lantern') { const lp = owlLanternPos(P.kazim); cx = k.x + lp[0] * k.s + 55; cy = k.y + lp[1] * k.s - 45; z = 2.8; }
+    if (LAND && shot.startsWith('close')) { z *= .82; cy -= 30; } // yatay kadrajda yakın çekimler: başın üstü kesilmesin
     z *= 1 + .05 * ss(0, 6, t - t0);
     cx += noise1(t * .35) * 5; cy += noise1(t * .35 + 20) * 4;
     return { cx, cy, z };
@@ -159,7 +161,7 @@
   function drawDialog(dst, shot, t) {
     const P = { kazim: pose('kazim', t), demir: pose('demir', t) };
     const cam = camFor(shot.name, t, shot.sceneStart, P);
-    const camM = new DOMMatrix().scale(BASE).translate(W / 2, H / 2).scale(cam.z).translate(-cam.cx, -cam.cy);
+    const camM = new DOMMatrix().scale(BASE).translate(W / 2, H / 2).scale(cam.z * CAMZ).translate(-cam.cx, -cam.cy);
     // mekân: satırdaki place → bölümdeki place → yağmurlu sokak (ortak/mekanlar.js)
     const pname = (shot.line && shot.line.place) || EP.place || 'sokak', PL = typeof PLACES !== 'undefined' ? PLACES[pname] : null;
     const rainy = !PL || PL.rain;
@@ -188,8 +190,8 @@
   function subtitle(t) {
     const u = SUBS.find(s => t >= s.s - .05 && t < s.e); if (!u) return;
     let fz = 50; const font = z => `italic 900 ${z}px Inter,'Inter Display',Arial,sans-serif`;
-    c.font = font(fz); while (c.measureText(u.text).width > 600) { fz -= 2; c.font = font(fz); }
-    const pop = 1 + .14 * (1 - ss(0, .12, t - u.s)), y = 1050;
+    c.font = font(fz); while (c.measureText(u.text).width > (LAND ? 1000 : 600)) { fz -= 2; c.font = font(fz); }
+    const pop = 1 + .14 * (1 - ss(0, .12, t - u.s)), y = LAND ? 628 : 1050;
     c.save(); c.translate(W / 2, y); c.scale(pop, pop); c.textAlign = 'left'; c.textBaseline = 'middle';
     const sp = c.measureText(' ').width, ws = u.words.map(w => c.measureText(w[0]).width), tot = ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
     let xx = -tot / 2;
@@ -222,14 +224,14 @@
     c = main; main.setTransform(BASE, 0, 0, BASE, 0, 0);
     const ending = shot.name === 'kapanis';
     main.save(); main.globalCompositeOperation = 'soft-light'; main.fillStyle = 'rgba(255,150,60,.22)'; main.fillRect(0, 0, W, H); main.restore();
-    main.fillStyle = rg(W / 2, H * .46, W * .32, H * .72, [[0, 'rgba(0,0,0,0)'], [.7, 'rgba(6,3,1,.42)'], [1, 'rgba(3,2,1,.9)']]); main.fillRect(0, 0, W, H);
-    if (!ending) { main.fillStyle = lg(0, 900, 0, H, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); main.fillRect(0, 900, W, H - 900); }
+    main.fillStyle = LAND ? rg(W / 2, H * .48, H * .62, W * .62, [[0, 'rgba(0,0,0,0)'], [.7, 'rgba(6,3,1,.35)'], [1, 'rgba(3,2,1,.82)']]) : rg(W / 2, H * .46, W * .32, H * .72, [[0, 'rgba(0,0,0,0)'], [.7, 'rgba(6,3,1,.42)'], [1, 'rgba(3,2,1,.9)']]); main.fillRect(0, 0, W, H);
+    if (!ending) { const gy = LAND ? 470 : 900; main.fillStyle = lg(0, gy, 0, H, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); main.fillRect(0, gy, W, H - gy); }
     if (shot.flash === true) { // eski film: çizik + titreme
       main.save(); main.globalAlpha = .25 + .1 * hash(Math.floor(t * 24)); main.strokeStyle = '#f3e6c8'; main.lineWidth = 1.2;
       for (let i = 0; i < 3; i++) { const sx = hash(Math.floor(t * 12) + i * 7) * W; main.beginPath(); main.moveTo(sx, 0); main.lineTo(sx + (hash(i + Math.floor(t * 12)) - .5) * 20, H); main.stroke(); }
       main.restore(); main.fillStyle = `rgba(255,240,210,${.03 * hash(Math.floor(t * 24) + 3)})`; main.fillRect(0, 0, W, H);
     }
-    if (!ending && !CLEAN) { subtitle(t); if (shot.name !== 'jenerik') spaced('BAYKUŞ KAZIM', W / 2, 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
+    if (!ending && !CLEAN) { subtitle(t); if (shot.name !== 'jenerik') spaced('BAYKUŞ KAZIM', W / 2, LAND ? 46 : 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
     if (t < .8) { main.fillStyle = `rgba(0,0,0,${1 - ss(0, .8, t)})`; main.fillRect(0, 0, W, H); }
     main.fillStyle = `rgba(0,0,0,${ss(DUR - .6, DUR, t)})`; main.fillRect(0, 0, W, H);
     main.setTransform(1, 0, 0, 1, 0, 0); main.save(); main.globalCompositeOperation = 'overlay'; main.globalAlpha = shot.flash ? .12 : .07;

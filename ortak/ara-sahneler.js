@@ -76,7 +76,7 @@ function dustMotes(t, n, x0, y0, w, h, a = .5, col = '255,220,170') {
     ell(x, y, 1.5 + hash(i + 5) * 2, 1.5 + hash(i + 5) * 2, `rgba(${col},${a * (.4 + .6 * hash(i + 1)) * (.6 + .4 * Math.sin(t * 2 + i))})`, null);
   }
 }
-function cam(cx, cy, z) { c.translate(W2 / 2, H2 / 2); c.scale(z, z); c.translate(-cx, -cy); }
+function cam(cx, cy, z) { c.translate(SW / 2, SH / 2); c.scale(z * CAMZ, z * CAMZ); c.translate(-cx, -cy); }
 const W2 = 720, H2 = 1280;
 // Basit dal/kök ağacı (deterministik)
 function makeBranches(seed, x, y, ang, len, depth, spread, out = [], t0 = 0, jit = .5) {
@@ -269,7 +269,7 @@ SCENES.ezme = S => {
       blob([fx - 70 * sc, footY, fx - 66 * sc, footY - 60 * sc, fx + 40 * sc, footY - 56 * sc, fx + 60 * sc, footY - 10 * sc, fx + 40 * sc, footY + 4], GANG[kind].shoe, OL, 5); rr(fx - 72 * sc, footY - 12 * sc, 134 * sc, 14 * sc, 5, GANG[kind].sole, OL, 3);
     }
   });
-  drawRain(t, 720, 1280, 1, .8);
+  drawRain(t, SW, SH, 1, .8);
 };
 
 // ---------- 6) Gece çalışma montajı (zaman akıyor) ----------
@@ -376,14 +376,14 @@ SCENES.dukkan = S => {
     gangBody(kind, { t, back: true, walk: go > 0 && go < 1, tilt: leave ? .2 * ss(.3, .5, k) : (i ? -.04 : .05), nod: leave ? 2 * ss(.3, .5, k) : 0, bob: go > 0 && go < 1 ? -Math.abs(Math.sin(t * 6)) * 8 : 0 });
     c.restore();
   });
-  drawRain(t, 720, 1280, 1, .7);
+  drawRain(t, SW, SH, 1, .7);
 };
 
 // ---------- 11) KAPANIŞ: Kâzım'ın Defteri ----------
 // A) Kâzım çalışma odasında, fener ışığında defterine yazıyor  B) kamera sayfaya dalar: ders el yazısıyla yazılır,
 // altına bölümün çizimi (filiz) çizilir, mum mühür basılır  C) imza + takip çağrısı, fener titrer, kararır.
 function kazimStudy(t, lt, talk) {
-  c.fillStyle = lg(0, 0, 0, 1280, [[0, '#1f140c'], [1, '#120b06']]); c.fillRect(-300, -300, 1320, 1900);
+  c.fillStyle = lg(0, 0, 0, 1280, [[0, '#1f140c'], [1, '#120b06']]); c.fillRect(-1000, -300, 2720, 1900);
   // kitaplık
   rr(-40, 140, 300, 640, 4, '#2a1a0f', OL, 6);
   for (let r = 0; r < 4; r++) { const y = 160 + r * 155; rr(-40, y + 130, 300, 14, 2, '#3a2416', OL, 3);
@@ -420,14 +420,15 @@ function sproutSketch(k, x, y, s = 1) { // defter sayfasına çizilen filiz (çi
 }
 SCENES.kapanis = S => {
   const t = S.t, lt = S.lt, Q = S.quote || '', dive = ss(2.2, 3.1, lt);
-  c.fillStyle = '#050302'; c.fillRect(-300, -300, 1320, 1900);
+  c.fillStyle = '#050302'; c.fillRect(-1000, -300, 2720, 1900);
+  const PX = SW / 2, PY = LAND ? SH / 2 + 6 : 650, PS = LAND ? .74 : 1, LX = PX + (LAND ? 300 : 240); // sayfa merkezi/ölçeği, fener x
   if (dive < 1) { // A) çalışma odası; sonunda deftere doğru yakınlaş
     c.save(); const z = 1 + .04 * lt + 2.2 * ease(dive); cam(360, lerp(700, 862, ease(dive)), z); kazimStudy(t, lt, S.talk.kazim); c.restore();
   }
   if (dive > 0) { // B) sayfa
-    c.save(); c.globalAlpha = dive; c.fillStyle = '#0b0705'; c.fillRect(-300, -300, 1320, 1900);
+    c.save(); c.globalAlpha = dive; c.fillStyle = '#0b0705'; c.fillRect(-1000, -300, 2720, 1900);
     const breathe = 1 + .012 * Math.sin(lt * .8), shake = ss(0, .05, lt - 6.15) * (1 - ss(.05, .3, lt - 6.15)) * 6;
-    c.translate(360 + (hash(Math.floor(lt * 60)) - .5) * shake, 650 + (hash(Math.floor(lt * 60) + 1) - .5) * shake); c.rotate(-.02); c.scale(breathe, breathe);
+    c.translate(PX + (hash(Math.floor(lt * 60)) - .5) * shake, PY + (hash(Math.floor(lt * 60) + 1) - .5) * shake); c.scale(PS, PS); c.rotate(-.02); c.scale(breathe, breathe);
     // sayfa: yanık kenarlı eski kâğıt
     const edge = []; for (let i = 0; i < 48; i++) { const a = i / 48 * TAU, rx = 300, ry = 440, px = Math.cos(a), py = Math.sin(a), sq = 1 / Math.pow(Math.pow(Math.abs(px), 6) + Math.pow(Math.abs(py), 6), 1 / 6); edge.push(px * rx * sq + (hash(i) - .5) * 10, py * ry * sq + (hash(i + 9) - .5) * 10); }
     blob(edge, lg(0, -440, 0, 440, [[0, '#f1e2bf'], [.6, '#e6d2a6'], [1, '#d3ba88']]), '#4a2e18', 6, .5);
@@ -483,8 +484,8 @@ SCENES.kapanis = S => {
     c.restore();
     c.save(); c.globalAlpha = dive; c.globalCompositeOperation = 'multiply';
     const fl = .94 + .06 * noise1(t * 7);
-    c.fillStyle = rg(560, 120, 60, 1150 * fl, [[0, 'rgba(255,245,225,1)'], [.55, 'rgba(200,150,100,1)'], [1, 'rgba(30,16,8,1)']]); c.fillRect(-300, -300, 1320, 1900); c.restore();
-    c.save(); c.globalAlpha = dive * .9; line(600, -400, 600, 76, '#6a5a48', 3); for (let y = -390; y < 72; y += 20) ell(600, y, 5, 9, null, '#b09a76', 3); drawLantern(600, 76, 1, t, 1.1); c.restore(); // tavandan zincirle sarkan fener
-    c.save(); c.globalAlpha = dive; dustMotes(t, 30, 60, 100, 600, 1000, .4); c.restore();
+    c.fillStyle = rg(LX - 40, 120, 60, 1150 * fl * PS, [[0, 'rgba(255,245,225,1)'], [.55, 'rgba(200,150,100,1)'], [1, 'rgba(30,16,8,1)']]); c.fillRect(-1000, -300, 2720, 1900); c.restore();
+    c.save(); c.globalAlpha = dive * .9; line(LX, -400, LX, 76, '#6a5a48', 3); for (let y = -390; y < 72; y += 20) ell(LX, y, 5, 9, null, '#b09a76', 3); drawLantern(LX, 76, 1, t, 1.1 * (LAND ? .8 : 1)); c.restore(); // tavandan zincirle sarkan fener
+    c.save(); c.globalAlpha = dive; dustMotes(t, 30, LAND ? 100 : 60, LAND ? 40 : 100, LAND ? 1080 : 600, LAND ? 640 : 1000, .4); c.restore();
   }
 };

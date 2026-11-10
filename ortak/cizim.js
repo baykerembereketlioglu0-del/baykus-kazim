@@ -1,6 +1,8 @@
 // Ortak çizim yardımcıları (tüm bölümler kullanır).
 // Çizim fonksiyonları global `c` (CanvasRenderingContext2D) üzerine çizer; motor bunu ayarlar.
 let c = null;
+// Ekran boyutu (dünya birimi): dikey 720x1280; yatay bölümlerde motor 1280x720 yapar. CAMZ: yatayda kamera yakınlık çarpanı.
+let SW = 720, SH = 1280, CAMZ = 1, LAND = false;
 const PI = Math.PI, TAU = Math.PI * 2;
 const OL = '#140c08'; // kontur rengi
 const cl = (v, a, b) => Math.max(a, Math.min(b, v));

@@ -116,7 +116,7 @@ function drawTrain(x0, o = {}) {
   }
 }
 
-function screenRain(t, layer, a) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); drawRain(t, 720, 1280, layer, a); c.restore(); }
+function screenRain(t, layer, a) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); drawRain(t, SW, SH, layer, a); c.restore(); }
 // Diyalog mekânları (mekanlar.js'ten SONRA yüklenir)
 PLACES.istasyon = { rain: true, bg(t) { drawStation(t, { pal: 'night', min: 1428 + Math.floor(t / 60) }); } };
 PLACES.istasyon_safak = { rain: false, bg(t) { drawStation(t, { pal: 'dawn', min: 362 + Math.floor(t / 60) }); } };
@@ -186,7 +186,7 @@ SCENES.tren_bos = S => {
   screenRain(t, 0, .6);
   // ön planda Demir'in sırtı (sol altta)
   c.save(); c.translate(400, 1290); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: -.02, heldScarf: true }); c.restore();
-  if (beat > .01) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = rg(360, 640, 200, 800, [[0, 'rgba(0,0,0,0)'], [1, `rgba(120,0,0,${.35 * beat})`]]); c.fillRect(0, 0, 720, 1280); c.restore(); }
+  if (beat > .01) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = rg(SW / 2, SH / 2, 200, 800, [[0, 'rgba(0,0,0,0)'], [1, `rgba(120,0,0,${.35 * beat})`]]); c.fillRect(0, 0, SW, SH); c.restore(); }
   screenRain(t, 1, .7);
 };
 
@@ -209,13 +209,14 @@ SCENES.veda = S => {
 SCENES.raylar = S => {
   const t = S.t, k = S.k, VX = 470, VY = 560, VT = 520, E = 300;                 // kaçış noktası (zemin VY, saçak VT)
   cam(360, 640, lerp(1.0, 1.06, k));
+  const X = (x0, y0, x1, y1, x) => y0 + (y1 - y0) * (x - x0) / (x1 - x0), L = -1000; // sol kenar (yatayda geniş)
   const F = u => [VX + (E - VX) * u, VY + 940 * u], R = u => [VX + (E - VX) * u, VT - 840 * u]; // peron kenarı (zemin / saçak) derinlik u'da
   // gökyüzü + uzak şehir (sağda, rayların üstünde)
-  c.fillStyle = lg(0, -300, 0, VY, [[0, '#05080f'], [1, '#1c2440']]); c.fillRect(-300, -300, 1320, VY + 300);
+  c.fillStyle = lg(0, -300, 0, VY, [[0, '#05080f'], [1, '#1c2440']]); c.fillRect(-1000, -300, 2720, VY + 300);
   for (let i = 0; i < 60; i++) ell(300 + hash(i) * 720, -100 + hash(i + 3) * 600, 1.3, 1.3, `rgba(255,255,240,${.25 + .5 * hash(i + 5)})`, null);
-  for (let i = 0; i < 10; i++) { const x = 330 + i * 70, h = 30 + hash(i + 20) * 80; rr(x, VY - h, 60, h, 2, '#0a0e1a', null); for (let j = 0; j < 3; j++) if (hash(i * 5 + j) > .5) rr(x + 8 + j * 16, VY - h + 12, 7, 9, 1, 'rgba(255,200,120,.6)', null); }
+  for (let i = 0; i < 20; i++) { const x = 330 + i * 70, h = 30 + hash(i + 20) * 80; rr(x, VY - h, 60, h, 2, '#0a0e1a', null); for (let j = 0; j < 3; j++) if (hash(i * 5 + j) > .5) rr(x + 8 + j * 16, VY - h + 12, 7, 9, 1, 'rgba(255,200,120,.6)', null); }
   // ray yatağı (sağ)
-  poly([VX, VY, 1100, VY + 30, 1100, 1500, E, 1500], '#1c1a18', null);
+  poly([VX, VY, 1800, VY + 50, 1800, 1500, E, 1500], '#1c1a18', null);
   for (let i = 1; i < 40; i++) { const u = 1 / (1 + (40 - i) * .35), y = VY + 940 * u, xl = VX + (E + 120 - VX) * u, xr = VX + (E + 460 - VX) * u; rr(xl - 20 * u, y, xr - xl + 40 * u, Math.max(1, 26 * u), 2, '#3a2e24', null); }
   for (const bx of [E + 120, E + 460]) { c.beginPath(); c.moveTo(VX, VY); c.lineTo(bx, 1500); c.lineWidth = 12; c.strokeStyle = '#6a6e74'; c.stroke(); c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.35)'; c.stroke(); }
   for (const bx of [E + 720, E + 1040]) { c.beginPath(); c.moveTo(VX, VY); c.lineTo(bx, 1500); c.lineWidth = 10; c.strokeStyle = '#4a4e54'; c.stroke(); }
@@ -229,19 +230,19 @@ SCENES.raylar = S => {
     for (const s of [-1, 1]) addLight(cx + s * 220 * sc, by - 140 * sc, Math.max(30, 300 * sc), 'rgba(255,40,20,.6)');
   } else for (const s of [-1, 1]) { ell(cx + s * 3, by - 3, 2, 2, '#ff3a2a', null); addLight(cx + s * 3, by - 3, 30, 'rgba(255,40,20,.6)'); }
   // peron: duvar, zemin, kenar yüzü, sarı çizgi
-  poly([VX, VT, -300, 200, -300, 840, VX, VY], '#2a2420', null);                                             // istasyon duvarı
+  poly([VX, VT, L, X(VX, VT, -300, 200, L), L, X(VX, VY, -300, 840, L), VX, VY], '#2a2420', null);                                             // istasyon duvarı
   for (let i = 1; i < 9; i++) { const uu = 1 / (1 + i * .55), x = VX + (-300 - VX) * uu * 1.0; line(x, VT + (200 - VT) * uu, x, VY + (840 - VY) * uu, 'rgba(0,0,0,.35)', 3); } // duvar derzleri
   for (const [i, col] of [[2, '#8a3a2a'], [4, '#2a4a6a']]) { const u1 = 1 / (1 + i * .55), u2 = 1 / (1 + (i + .6) * .55), x1 = VX + (-300 - VX) * u1, x2 = VX + (-300 - VX) * u2;
     poly([x1, lerp(VT, 200, u1) + 60 * u1, x2, lerp(VT, 200, u2) + 60 * u2, x2, lerp(VY, 840, u2) - 160 * u2, x1, lerp(VY, 840, u1) - 160 * u1], col, OL, 3); } // afişler
   const fl = F(1);
-  poly([VX, VY, -300, 840, -300, 1500, fl[0], fl[1]], lg(0, VY, 0, 1500, [[0, '#2a2622'], [1, '#3a342e']]), null);   // peron zemini
+  poly([VX, VY, L, X(VX, VY, -300, 840, L), L, 1500, fl[0], fl[1]], lg(0, VY, 0, 1500, [[0, '#2a2622'], [1, '#3a342e']]), null);   // peron zemini
   for (let i = 1; i < 14; i++) { const uu = 1 / (1 + i * .45), a = F(uu); line(a[0], a[1], -300, VY + (840 - VY) * uu * 1.0 + 280 * uu, 'rgba(0,0,0,.2)', 2); } // fayans çizgileri
   poly([VX, VY, fl[0], fl[1], fl[0] + 80, 1500], '#55524c', null);                                          // peron kenar yüzü
   c.beginPath(); c.moveTo(VX - 4, VY); c.lineTo(fl[0] - 70, 1500); c.lineWidth = 16; c.strokeStyle = '#e8c040'; c.stroke();
   c.save(); c.globalCompositeOperation = 'lighter'; for (let i = 1; i < 7; i++) { const uu = 1 / (1 + i * .9), p = F(uu); ell(p[0] - 90 * uu, p[1] + 20 * uu, 120 * uu, 30 * uu, 'rgba(255,190,110,.18)', null); } c.restore(); // ıslak zeminde lamba yansımaları
   // saçak (tavan) + kolonlar + lambalar
   const rl = R(1);
-  poly([VX, VT, rl[0], rl[1], -300, -300, -300, 200], '#14171c', null);
+  poly([VX, VT, rl[0], rl[1], L, -300, L, X(VX, VT, -300, 200, L)], '#14171c', null);
   c.beginPath(); c.moveTo(VX, VT); c.lineTo(rl[0], rl[1]); c.lineWidth = 22; c.strokeStyle = '#1e2228'; c.stroke();
   for (let i = 9; i >= 1; i--) {
     const uu = 1 / (1 + i * .7), b = F(uu), r = R(uu), w = 46 * uu, x = b[0] - 60 * uu;

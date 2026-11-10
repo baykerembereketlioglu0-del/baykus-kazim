@@ -36,11 +36,11 @@ function bubble(w, y, text, me, time, a, ticks) {
 }
 function typingDots(w, y, t, a) { if (a <= 0) return; c.save(); c.globalAlpha = a; rr(18, y, 96, 46, 18, UI.them, null); for (let i = 0; i < 3; i++) ell(44 + i * 22, y + 23 - Math.max(0, Math.sin(t * 8 - i)) * 6, 6, 6, UI.dim, null); c.restore(); }
 function blurredStreet(t, dawn = 0) { // telefonun arkasında bulanık yağmurlu sokak
-  c.fillStyle = lg(0, 0, 0, 1280, [[0, dawn ? '#3a2a24' : '#0a0806'], [1, '#160f0a']]); c.fillRect(-300, -300, 1320, 1900);
+  c.fillStyle = lg(0, 0, 0, 1280, [[0, dawn ? '#3a2a24' : '#0a0806'], [1, '#160f0a']]); c.fillRect(-1000, -300, 2720, 1900);
   c.save(); c.filter = 'blur(18px)';
-  for (let i = 0; i < 14; i++) ell(hash(i) * 720, 200 + hash(i + 3) * 900, 40 + hash(i + 5) * 60, 40 + hash(i + 5) * 60, `rgba(255,${150 + hash(i) * 60 | 0},70,${.15 + .25 * hash(i + 2)})`, null);
+  for (let i = 0; i < 26; i++) ell(-400 + hash(i) * 1520, 200 + hash(i + 3) * 900, 40 + hash(i + 5) * 60, 40 + hash(i + 5) * 60, `rgba(255,${150 + hash(i) * 60 | 0},70,${.15 + .25 * hash(i + 2)})`, null);
   c.restore();
-  drawRain(t, 720, 1280, 0, .6);
+  drawRain(t, SW, SH, 0, .6);
 }
 function holdingPaw(x, y, kind) { // telefonu tutan pati (alttan)
   if (kind === 'demir') { capsule([x + 60, 1420, x + 30, y + 120], 120, WOLF_C.sleeve, 7); capsule([x + 36, y + 170, x + 30, y + 120], 124, '#6a1822', 6); ell(x - 10, y + 70, 74, 60, WOLF_C.paw, OL, 6); for (const k of [-1, 0, 1]) ell(x - 60, y + 30 + k * 34, 22, 16, WOLF_C.paw, OL, 5); }
@@ -151,7 +151,7 @@ SCENES.semsiye = S => {
     silhouette(ox, 1180, .9, { type: 'cat', eyes: false, rim: .4 * (1 - day * .5), col: '#1a1620', bob: leave ? -Math.abs(Math.sin(t * 7)) * 8 : 0 });
     if (close < 1) umbrella(ox + 60, 960, 1, 1 - close);
     else umbrella(600, 860, .9, 0, '#7d1f2a', -.12);
-    if (day < .9) drawRain(t, 720, 1280, 1, 1 - day);
+    if (day < .9) drawRain(t, SW, SH, 1, 1 - day);
     if (close < .5) for (let i = 0; i < 10; i++) { const p = (t * 1.6 + hash(i)) % 1; ell(ox + 60 + (hash(i + 2) - .5) * 400, 620 + p * 40, 3, 3, `rgba(230,220,200,${(1 - p) * .6})`, null); }
   } else {
     // unutulan şemsiye: günler geçer, gölge döner, toz ve yapraklar
@@ -172,7 +172,7 @@ SCENES.ters = S => {
   c.fillStyle = '#0b0807'; c.fillRect(-300, -300, 1320, 1900);
   // ıslak bank tahtaları
   for (let i = 0; i < 5; i++) { rr(-300, 760 + i * 70, 1320, 58, 8, lg(0, 760 + i * 70, 0, 818 + i * 70, [[0, '#5a3a24'], [1, '#3a2416']]), OL, 5); for (let j = 0; j < 8; j++) ell(hash(i * 9 + j) * 720, 780 + i * 70 + hash(j) * 30, 8, 3, 'rgba(255,220,170,.15)', null); }
-  drawRain(t, 720, 1280, 0, .6);
+  drawRain(t, SW, SH, 0, .6);
   const px = 360 + buzz, py = lerp(560, 860, ease(cl(k / .35, 0, 1))), sy = Math.cos(flip * PI);
   c.save(); c.translate(px, py); c.rotate(-.08); c.scale(1, Math.max(.06, Math.abs(sy)) * .62);
   if (sy > 0) { rr(-140, -280, 280, 560, 40, '#0b0c0e', OL, 6); rr(-128, -268, 256, 536, 32, UI.bg, null);
@@ -256,7 +256,7 @@ SCENES.yuruyus = S => {
   const nb = ss(.25, .32, k);
   c.save(); c.translate(150, 1110); c.rotate(-.12); rr(-70, -40, 140, 70, 14, '#0b0c0e', OL, 4); rr(-62, -34, 124, 58, 10, nb > 0 ? '#1d2836' : '#0f1318', null); c.restore();
   if (nb > 0) { c.save(); c.globalAlpha = nb; c.translate(230, 960); rr(-150, -40, 300, 80, 20, 'rgba(25,30,38,.92)', 'rgba(255,255,255,.2)', 2); c.fillStyle = '#eef2f5'; c.font = `700 22px Inter,Arial,${EMOJI}`; c.fillText('Deniz', -130, -8); c.font = `500 20px Inter,Arial,${EMOJI}`; c.fillStyle = '#c9d2db'; c.fillText('Müsait misin? 🙂', -130, 22); c.restore(); addLight(150, 1100, 200, `rgba(160,200,255,${.4 * nb})`); }
-  if (dawn < .7) drawRain(t, 720, 1280, 0, .5 * (1 - dawn));
+  if (dawn < .7) drawRain(t, SW, SH, 0, .5 * (1 - dawn));
 };
 
 // kapanış defterine bölüm çizimi: şemsiye

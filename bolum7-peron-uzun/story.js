@@ -3,6 +3,7 @@
 // Mekânlar: 'istasyon' (gece), 'istasyon_safak'. Sahneler: ortak/ara-sahneler-5.js, ara-sahneler-6.js
 const EPISODE = {
   number: 7,
+  landscape: true,             // YouTube uzun video: yatay 1920x1080
   title: 'Peron',
   quote: 'Seni bırakanı bırak; kendini bırakma.',
   sketch: 'kalp',

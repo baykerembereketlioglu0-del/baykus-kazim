@@ -13,12 +13,13 @@ function kf(tt, keys) {
 // Ekran koordinatında (720x1280) yazı
 function scrText(txt, x, y, font, fill, a = 1, sp = 0, glowCol) {
   if (a <= 0) return;
+  if (LAND) { x += (SW - 720) / 2; y = y * SH / 1280; }
   c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.globalAlpha = cl(a, 0, 1); c.font = font; c.textAlign = 'center'; c.letterSpacing = sp + 'px';
   if (glowCol) { c.shadowColor = glowCol; c.shadowBlur = 30; }
   c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.55)'; c.lineJoin = 'round'; c.strokeText(txt, x + sp / 2, y);
   c.fillStyle = fill; c.fillText(txt, x + sp / 2, y); c.restore();
 }
-function scrFade(a, col = '0,0,0') { if (a <= 0) return; c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = `rgba(${col},${cl(a, 0, 1)})`; c.fillRect(0, 0, 720, 1280); c.restore(); }
+function scrFade(a, col = '0,0,0') { if (a <= 0) return; c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = `rgba(${col},${cl(a, 0, 1)})`; c.fillRect(0, 0, SW, SH); c.restore(); }
 // Kartın içinde baş portresi (dairesel)
 function portrait(cx, cy, r, headY, sc, fn, bg) {
   c.save(); c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.clip();
@@ -69,11 +70,12 @@ SCENES.jenerik = S => {
     const [name, role, hy, sc, fn] = cards[i];
     c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.globalAlpha = a;
     const z = 1 + .04 * cl0;
-    c.translate(360, 560); c.scale(z, z); c.translate(-360, -560);
-    portrait(360, 560, 150, hy + 40, sc, fn, [[0, '#3a2c1e'], [1, '#0e0a08']]);
+    const PX = LAND ? SW / 2 : 360, PY = LAND ? 270 : 560, PR = LAND ? 132 : 150;
+    c.translate(PX, PY); c.scale(z, z); c.translate(-PX, -PY);
+    portrait(PX, PY, PR, hy + 40, sc * PR / 150, fn, [[0, '#3a2c1e'], [1, '#0e0a08']]);
     c.restore(); LIGHTS = [];
-    scrText(name, 360, 790, '700 46px Cinzel,Georgia,serif', '#f2c463', a, 6);
-    scrText(role, 360, 850, '700 40px Caveat,cursive', 'rgba(243,230,204,.85)', a);
+    scrText(name, 360, LAND ? 820 : 790, '700 46px Cinzel,Georgia,serif', '#f2c463', a, 6);
+    scrText(role, 360, LAND ? 900 : 850, '700 40px Caveat,cursive', 'rgba(243,230,204,.85)', a);
   }
   letterbox(1, 150);
   // yazılar
@@ -143,26 +145,28 @@ SCENES.tanisma = S => {
 function trenIci(t, o = {}) {
   const sun = o.sunrise, bob = Math.sin(t * 13) * 1.4;
   c.save(); c.translate(0, bob);
-  c.fillStyle = lg(0, 0, 0, 1300, sun ? [[0, '#e8c8a0'], [1, '#a8805a']] : [[0, '#ddd4c0'], [1, '#a89e88']]); c.fillRect(-300, -300, 1320, 1900);
-  // pencere: dışarıda akan şehir
-  const WX = 40, WY = 300, WW = 640, WH = 430;
+  c.fillStyle = lg(0, 0, 0, 1300, sun ? [[0, '#e8c8a0'], [1, '#a8805a']] : [[0, '#ddd4c0'], [1, '#a89e88']]); c.fillRect(-1000, -300, 2720, 1900);
+  // pencereler: dışarıda akan şehir (yatayda yanlarda birer pencere daha)
+  for (const WX of LAND ? [-660, 40, 740] : [40]) {
+  const WY = 300, WW = 640, WH = 430;
   c.save(); c.beginPath(); c.roundRect(WX, WY, WW, WH, 36); c.clip();
   c.fillStyle = lg(0, WY, 0, WY + WH, sun ? [[0, '#3a4a7a'], [.55, '#e88a5a'], [1, '#ffd28a']] : [[0, '#9cc4e4'], [1, '#e8eef0']]); c.fillRect(WX, WY, WW, WH);
   if (sun) { ell(470, WY + WH - 70, 70, 70, 'rgba(255,236,190,.95)', null); addLight(470, WY + WH - 70, 520, 'rgba(255,180,100,.45)'); }
-  for (let i = 0; i < 14; i++) { const x = ((i * 90 - t * 60) % 1260 + 1260) % 1260 - 200, h = 60 + hash(i + 30) * 150; rr(x, WY + WH - h - 40, 70, h + 60, 2, sun ? 'rgba(90,60,70,.85)' : 'rgba(120,140,160,.8)', null); }
-  for (let i = 0; i < 6; i++) { const x = ((i * 260 - t * 700) % 1560 + 1560) % 1560 - 300; rr(x, WY - 10, 16, WH + 20, 3, sun ? 'rgba(40,30,30,.7)' : 'rgba(60,70,80,.6)', null); } // hızla geçen direkler
+  for (let i = 0; i < 30; i++) { const x = ((i * 90 - t * 60) % 2700 + 2700) % 2700 - 900, h = 60 + hash(i + 30) * 150; rr(x, WY + WH - h - 40, 70, h + 60, 2, sun ? 'rgba(90,60,70,.85)' : 'rgba(120,140,160,.8)', null); }
+  for (let i = 0; i < 11; i++) { const x = ((i * 260 - t * 700) % 2860 + 2860) % 2860 - 900; rr(x, WY - 10, 16, WH + 20, 3, sun ? 'rgba(40,30,30,.7)' : 'rgba(60,70,80,.6)', null); } // hızla geçen direkler
   c.restore();
   rr(WX, WY, WW, WH, 36, null, '#4a4038', 16); rr(WX + 8, WY + 8, WW - 16, WH - 16, 30, null, '#8a8070', 4);
   c.save(); c.globalAlpha = .25; line(WX + 80, WY + 30, WX + 220, WY + WH - 40, '#fff', 8); line(WX + 140, WY + 30, WX + 280, WY + WH - 40, '#fff', 3); c.restore();
+  }
   // bagaj rafı + tutamaklar
-  rr(-300, 210, 1320, 22, 6, '#8a8a90', OL, 4);
-  for (let i = 0; i < 6; i++) { const hx = 40 + i * 130, sw = Math.sin(t * 2 + i) * .12; c.save(); c.translate(hx, 232); c.rotate(sw); line(0, 0, 0, 34, '#8a8a90', 3); ell(0, 46, 11, 11, null, '#e8e2d2', 4); c.restore(); }
+  rr(-1000, 210, 2720, 22, 6, '#8a8a90', OL, 4);
+  for (let i = 0; i < 14; i++) { const hx = -480 + i * 130, sw = Math.sin(t * 2 + i) * .12; c.save(); c.translate(hx, 232); c.rotate(sw); line(0, 0, 0, 34, '#8a8a90', 3); ell(0, 46, 11, 11, null, '#e8e2d2', 4); c.restore(); }
   c.restore();
   return bob;
 }
 function seatBacks(bob) {
   c.save(); c.translate(0, bob);
-  for (const [x, w] of [[-80, 420], [360, 420]]) { rr(x, 905, w, 600, 46, lg(0, 905, 0, 1300, [[0, '#2f5a6a'], [1, '#1c3a46']]), OL, 6); rr(x + 50, 880, w - 100, 70, 24, '#efe8da', OL, 5); for (let k = 0; k < 6; k++) line(x + 30 + k * 64, 960, x + 30 + k * 64, 1300, 'rgba(0,0,0,.15)', 3); }
+  for (const [x, w] of LAND ? [[-960, 420], [-520, 420], [-80, 420], [360, 420], [800, 420], [1240, 420]] : [[-80, 420], [360, 420]]) { rr(x, 905, w, 600, 46, lg(0, 905, 0, 1300, [[0, '#2f5a6a'], [1, '#1c3a46']]), OL, 6); rr(x + 50, 880, w - 100, 70, 24, '#efe8da', OL, 5); for (let k = 0; k < 6; k++) line(x + 30 + k * 64, 960, x + 30 + k * 64, 1300, 'rgba(0,0,0,.15)', 3); }
   c.restore();
 }
 SCENES.tren_ici = S => {
@@ -217,7 +221,7 @@ SCENES.son_bakis = S => {
 // ---------- 6) GÖNDERİLMEYEN MESAJLAR: yazılıp silinen taslaklar ----------
 SCENES.mesajlar = S => {
   const t = S.t, k = S.k, lt = S.lt, sil = S.phase === 'sil';
-  cam(360, 640, sil ? 1.04 + .05 * k : 1.06 + .04 * k);
+  if (LAND) cam(360, 640, .9 + .02 * k); else cam(360, 640, sil ? 1.04 + .05 * k : 1.06 + .04 * k);
   blurredStreet(t);
   const drafts = sil ? ['Hâlâ seni bekliyorum.'] : ['Neredesin?', 'Seni çok özledim…', 'Bir kere sesini duysam yeter.', 'Neden gittin?'];
   const per = sil ? Math.max(3.5, S.pd * .7) : 2.4, i = Math.min(drafts.length - 1, Math.floor(lt / per)), ph = (lt - i * per) / per;

@@ -1,7 +1,7 @@
 // Ara sahneler (3): "Sonra" bölümü — baba evi, telefon görüşmesi, bekleyiş, kum saati, boş oda, koşu, kavuşma.
 const BASEX = 1.5; // 1080/720: ekran sabit çizimler (sinema bantları) için
-function letterbox(a = 1, h = 150) { c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = `rgba(0,0,0,${a})`; c.fillRect(0, 0, 720, h); c.fillRect(0, 1280 - h, 720, h); c.restore(); }
-function typeText(txt, k, x, y, font, col) { const n = Math.floor(txt.length * cl(k, 0, 1)); c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.font = font; c.fillStyle = col; c.letterSpacing = '4px'; c.fillText(txt.slice(0, n), x, y); c.restore(); }
+function letterbox(a = 1, h = 150) { if (LAND) h *= .6; c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = `rgba(0,0,0,${a})`; c.fillRect(0, 0, SW, h); c.fillRect(0, SH - h, SW, h); c.restore(); }
+function typeText(txt, k, x, y, font, col) { if (LAND && y > 640) y = SH - (1280 - y) + 32; const n = Math.floor(txt.length * cl(k, 0, 1)); c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.font = font; c.fillStyle = col; c.letterSpacing = '4px'; c.fillText(txt.slice(0, n), x, y); c.restore(); }
 
 // Telefonu yanağa tutan kol (karakterin yerel koordinatında, kafadan SONRA çizilir). k: 0 kulakta, 1 masada
 function phoneArm(k, col, sh = [126, -545], cheek = [176, -690]) {
@@ -55,9 +55,9 @@ function armchair(x, y, front = false) { // y: oturak hizası
 }
 function evIci(t, o = {}) {
   const min = o.min ?? 1200, lamp = o.lamp ?? 1;
-  c.fillStyle = lg(0, -300, 0, 900, [[0, '#4a2e1e'], [1, '#3a2416']]); c.fillRect(-300, -300, 1320, 1200);
-  c.save(); c.globalAlpha = .18; for (let x = -300; x < 1020; x += 36) { c.fillStyle = (x / 36) % 2 ? '#2a180e' : '#6a4630'; c.fillRect(x, -300, 18, 1200); } c.restore();
-  rr(-300, 640, 1320, 260, 0, '#2e1c10', null); line(-300, 640, 1020, 640, '#1a0f08', 8); for (let x = -300; x < 1020; x += 90) line(x, 650, x, 900, 'rgba(0,0,0,.3)', 3);
+  c.fillStyle = lg(0, -300, 0, 900, [[0, '#4a2e1e'], [1, '#3a2416']]); c.fillRect(-1000, -300, 2720, 1200);
+  c.save(); c.globalAlpha = .18; for (let x = -1008; x < 1720; x += 36) { c.fillStyle = (x / 36) % 2 ? '#2a180e' : '#6a4630'; c.fillRect(x, -300, 18, 1200); } c.restore();
+  rr(-1000, 640, 2720, 1000, 0, '#2e1c10', null); line(-1000, 640, 1720, 640, '#1a0f08', 8); for (let x = -1020; x < 1720; x += 90) line(x, 650, x, 900, 'rgba(0,0,0,.3)', 3);
   // pencere: gece, yağmur, dantel perde
   rr(452, 170, 236, 380, 6, '#2a180e', OL, 8); c.fillStyle = lg(0, 180, 0, 540, [[0, '#0b1220'], [1, '#18202e']]); c.fillRect(464, 182, 212, 356);
   c.save(); c.beginPath(); c.rect(464, 182, 212, 356); c.clip(); c.strokeStyle = 'rgba(200,210,230,.3)'; c.lineWidth = 1.5;
@@ -109,7 +109,7 @@ function evDisi(t, lit = 1) {
 }
 SCENES.ev = S => {
   const t = S.t, lt = S.lt, inT = ss(3.0, 3.8, lt);
-  if (inT < 1) { c.save(); cam(360, lerp(640, 630, ss(0, 3.4, lt)), lerp(1.0, 2.6, ease(cl(lt / 3.6, 0, 1)))); evDisi(t); c.restore(); drawRain(t, 720, 1280, 1, .9); }
+  if (inT < 1) { c.save(); cam(360, lerp(640, 630, ss(0, 3.4, lt)), lerp(1.0, 2.6, ease(cl(lt / 3.6, 0, 1)))); evDisi(t); c.restore(); drawRain(t, SW, SH, 1, .9); }
   if (inT > 0) {
     c.save(); c.globalAlpha = inT; cam(360, 760, 1.18 + .03 * (lt - 3)); evIci(t, { min: 1200 });
     // Mehmet Ali ikinci tabağı koyuyor, sonra saate ve kapıya bakıyor
@@ -233,7 +233,7 @@ SCENES.kosu = S => {
   const d = ease(k), sc = lerp(.62, .2, d), y = lerp(1260, 920, d);
   c.save(); c.translate(360 + Math.sin(t * 6.5) * 8 * (1 - d), y - Math.abs(Math.sin(t * 6.5)) * 30 * sc); c.scale(sc, sc); drawWolfBack({ t: t * 1.8, walk: 1.6, tilt: Math.sin(t * 6.5) * .05 }); c.restore();
   for (let i = 0; i < 8; i++) { const p = (t * 2 + hash(i)) % 1; ell(360 + (hash(i + 3) - .5) * 200 * sc * 3, y + 10, 4 + p * 20, (4 + p * 20) * .3, null, `rgba(230,220,200,${(1 - p) * .6})`, 2); }
-  drawRain(t, 720, 1280, 1, 1);
+  drawRain(t, SW, SH, 1, 1);
 };
 
 // ---------- 6) KAVUŞMA: kapı açılır, baba-oğul sarılır ----------
@@ -255,7 +255,7 @@ SCENES.kavusma = S => {
     c.save(); c.translate(222 + 276, 342); c.scale(1 - open, 1); rr(-276, 0, 276, 568, 2, '#4a2a18', OL, 6); c.restore(); // kapı kanadı
     c.fillStyle = '#16100c'; c.fillRect(-300, 910, 1320, 700);
     c.save(); c.translate(250, 1460); c.scale(.62, .62); drawWolfBack({ t, walk: 0, tilt: 0 }); c.restore();
-    drawRain(t, 720, 1280, 1, .7);
+    drawRain(t, SW, SH, 1, .7);
   } else { // sarılma (yan yana): babanın kolu Demir'in boynunun ARKASINDAN geçer, eli uzak omzunda görünür;
            // Demir'in kolu babanın sırtının arkasında, patisi babanın uzak belinde görünür
     cam(380, 760, 1.32 + .08 * ease(k));
