@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Peron: YouTube kapak görseli</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:ital,wght@1,900&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block;width:1280px;height:720px}</style></head><body>
+<!-- YouTube kapak görseli (thumbnail): 1280x720, 2x çözünürlükte çizilir. Sağ alt köşeye yazı konmaz (süre etiketi orada). -->
+<canvas id="c" width="2560" height="1440"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ara-sahneler.js"></script>
+<script src="../ortak/ara-sahneler-2.js"></script>
+<script src="../ortak/mehmetali.js"></script>
+<script src="../ortak/ara-sahneler-3.js"></script>
+<script src="../ortak/ara-sahneler-4.js"></script>
+<script src="../ortak/mekanlar.js"></script>
+<script src="../ortak/ara-sahneler-5.js"></script>
+<script>
+(async () => {
+  for (const f of ['italic 900 120px Inter', '600 26px Cinzel']) await document.fonts.load(f, 'AaÇĞİÖŞÜı');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const K = 2, W = 1280, H = 720, t = 1.4; LIGHTS = [];
+  const lights = () => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'lighter'; for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore(); LIGHTS = []; };
+  // 1) arka plan: gece istasyonu, kapıları kapanmak üzere olan tren; kapıda geri bakan Ela
+  const Z = 1.25, X0 = -110, Y0 = 438;
+  c.setTransform(K * Z, 0, 0, K * Z, -X0 * K * Z, -Y0 * K * Z);
+  drawStation(t, { pal: 'night', min: 1427, train: () => drawTrain(-500, { cars: 3, doors: .8, whoCar: 1, lights: false, who: (cx, fy) => {
+    const pe = Object.assign({}, MOODS.demir.sad, { noScarf: true, t, talk: 0, lookX: -.75, lookY: .25, blink: 0, tilt: .07, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
+  } }) });
+  lights();
+  // arka planı hafif karart (ön plan öne çıksın), kapının sıcak ışığı kalsın
+  c.setTransform(K, 0, 0, K, 0, 0);
+  c.fillStyle = lg(0, 0, W, 0, [[0, 'rgba(4,6,14,.72)'], [.45, 'rgba(4,6,14,.35)'], [.7, 'rgba(4,6,14,.05)'], [1, 'rgba(4,6,14,.3)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rg(860, 250, 0, 330, [[0, 'rgba(255,196,110,.38)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(600, 0, 680, 620); c.restore();
+  // 2) rüzgârda uçan kırmızı atkı: kapıdan Demir'e doğru
+  c.save(); c.translate(845, 230); c.rotate(-.18); c.scale(1.05, 1.05); c.shadowColor = 'rgba(255,60,40,.55)'; c.shadowBlur = 26; windScarf(0, 0, PI + .05, 250, 2.2, 26, 54); c.restore();
+  // rüzgâr çizgileri
+  for (let i = 0; i < 9; i++) { const x = 520 + hash(i) * 520, y = 60 + hash(i + 4) * 300; line(x, y, x - 70 - hash(i + 2) * 60, y + 14, 'rgba(255,255,255,.22)', 2.5); }
+  // 3) ön planda Demir: gözü yaşlı, atkıya uzanıyor
+  const DS = .92, DX = 300, DY = 978;
+  const pd = Object.assign({}, MOODS.demir.sad, { t, talk: 0, lid: .1, brow: -.5, mouth: -12, lookX: .75, lookY: -.35, blink: 0, tilt: .09, nod: 0,
+    L: { x: -150, y: -300, hand: 'relax' }, R: { x: 300, y: -640, hand: 'open' } });
+  c.save(); c.translate(DX, DY); c.scale(DS, DS); drawWolf(pd);
+  // gözyaşları
+  for (const [tx, ty, s] of [[-96, -676, 1], [52, -664, .8]]) { c.save(); c.translate(tx, ty); c.scale(s, s); blob([0, -16, 10, 6, 0, 18, -10, 6], '#9fd8ff', OL, 3); ell(-3, 4, 3, 4, 'rgba(255,255,255,.8)', null); c.restore(); }
+  c.restore(); lights();
+  // sıcak kenar ışığı (kapıdan gelen) ve yağmur
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rg(520, 330, 0, 260, [[0, 'rgba(255,170,80,.16)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(200, 60, 640, 540); c.restore();
+  c.save(); c.strokeStyle = 'rgba(225,215,195,.22)'; c.lineWidth = 2; c.beginPath(); for (let i = 0; i < 150; i++) { const x = hash(i + 300) * (W + 100), y = hash(i + 400) * H; c.moveTo(x, y); c.lineTo(x - 10, y + 46); } c.stroke(); c.restore();
+  // 4) yazı: alt bantta, sağ alt köşe (süre etiketi) boş
+  c.fillStyle = lg(0, 440, 0, H, [[0, 'rgba(0,0,0,0)'], [.55, 'rgba(0,0,0,.72)'], [1, 'rgba(0,0,0,.9)']]); c.fillRect(0, 440, W, 280);
+  const txt = (s, x, y, size, fill) => { c.save(); c.font = `italic 900 ${size}px Inter,Arial,sans-serif`; c.textAlign = 'left'; c.lineJoin = 'round';
+    c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 18; c.shadowOffsetY = 6; c.lineWidth = size * .16; c.strokeStyle = '#0a0604'; c.strokeText(s, x, y); c.shadowColor = 'transparent'; c.fillStyle = fill; c.fillText(s, x, y); c.restore(); };
+  txt('O GİTTİ.', 545, 548, 90, '#ffffff');
+  txt('ATKISI KALDI.', 545, 644, 90, lg(0, 570, 0, 650, [[0, '#ffe08a'], [1, '#f2b23c']]));
+  // marka
+  c.save(); c.font = '700 24px Cinzel,Georgia,serif'; c.letterSpacing = '6px'; c.textAlign = 'right'; c.fillStyle = 'rgba(240,214,160,.95)'; c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 10; c.fillText('BAYKUŞ KAZIM', W - 30, 44); c.restore();
+  // kenar karartması
+  c.fillStyle = rg(W / 2, H / 2, 420, 860, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); c.fillRect(0, 0, W, H);
+  window.READY = true;
+})();
+</script></body></html>
