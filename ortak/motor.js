@@ -31,11 +31,12 @@
   L.forEach((l, i) => {
     const list = Array.isArray(l.shot) ? l.shot : [[l.shot || 'close-' + l.who, 0, l.phase]];
     list.forEach(([name, f, phase], j) => {
-      const s = i === 0 && j === 0 && !EP.openShot ? 0 : l.start + (l.end - l.start) * (f || 0);
+      const s = i === 0 && j === 0 && !EP.openShot && !EP.openShots ? 0 : l.start + (l.end - l.start) * (f || 0);
       SHOTS.push({ name, phase: phase ?? l.phase, start: s, line: l, flash: l.flash });
     });
   });
   if (EP.openShot) SHOTS.unshift({ name: EP.openShot, phase: EP.openPhase, start: 0, line: L[0], flash: EP.openFlash });
+  if (EP.openShots) SHOTS.unshift(...EP.openShots.map(([name, start, flash]) => ({ name, start, line: L[0], flash }))); // birden çok sessiz açılış planı (jenerik + sahne)
   SHOTS.forEach((s, i) => { s.end = SHOTS[i + 1] ? SHOTS[i + 1].start : DUR; });
   SHOTS.forEach((s, i) => { // aynı sahne art arda: tek sahne gibi akar
     const p = SHOTS[i - 1]; s.sceneStart = p && p.name === s.name ? p.sceneStart : s.start;
@@ -228,7 +229,7 @@
       for (let i = 0; i < 3; i++) { const sx = hash(Math.floor(t * 12) + i * 7) * W; main.beginPath(); main.moveTo(sx, 0); main.lineTo(sx + (hash(i + Math.floor(t * 12)) - .5) * 20, H); main.stroke(); }
       main.restore(); main.fillStyle = `rgba(255,240,210,${.03 * hash(Math.floor(t * 24) + 3)})`; main.fillRect(0, 0, W, H);
     }
-    if (!ending && !CLEAN) { subtitle(t); spaced('BAYKUŞ KAZIM', W / 2, 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
+    if (!ending && !CLEAN) { subtitle(t); if (shot.name !== 'jenerik') spaced('BAYKUŞ KAZIM', W / 2, 70, "600 19px Cinzel,Georgia,serif", 'rgba(232,212,176,.85)', 7); }
     if (t < .8) { main.fillStyle = `rgba(0,0,0,${1 - ss(0, .8, t)})`; main.fillRect(0, 0, W, H); }
     main.fillStyle = `rgba(0,0,0,${ss(DUR - .6, DUR, t)})`; main.fillRect(0, 0, W, H);
     main.setTransform(1, 0, 0, 1, 0, 0); main.save(); main.globalCompositeOperation = 'overlay'; main.globalAlpha = shot.flash ? .12 : .07;
