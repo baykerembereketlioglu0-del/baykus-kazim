@@ -102,19 +102,19 @@ SCENES.jenerik = S => {
 
 // ---------- 1) FENER: Demir yalnız; soldan sıcak bir ışık; kamera açılınca Kâzım feneriyle orada ----------
 SCENES.fener = S => {
-  const t = S.t, lt = S.lt, k = S.k, rev = ease(ss(.18, .62, k)), light = ss(0, .3, k);
-  cam(lerp(500, 350, rev), lerp(640, 700, rev), lerp(2.3, 1.3, rev));
+  const t = S.t, lt = S.lt, k = S.k, rev = ease(ss(.18, .62, k)), light = ss(0, .3, k), CK = (window.EPISODE || EPISODE).cast, KX = CK.kazim.x, DX = CK.demir.x; // diyalog planlarıyla aynı yerler
+  cam(lerp(DX + 10, (KX + DX) / 2 - 15, rev), lerp(640, 700, rev), lerp(2.3, 1.3, rev));
   drawStation(t, { pal: 'night', min: 1428 });
   screenRain(t, 0, .6);
   const pk = Object.assign({}, MOODS.kazim.calm, { t, talk: S.talk.kazim, lookX: .5, lookY: .1, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .02, nod: 0,
     R: { x: 186, y: -300, hand: 'relax' }, L: { x: -200, y: -640, hand: 'fist' }, lantern: light });
-  c.save(); c.translate(235, 985); c.scale(.6, .6); drawOwl(pk); c.restore();
+  c.save(); c.translate(KX, 985); c.scale(.6, .6); drawOwl(pk); c.restore();
   const turn = ss(.1, .3, k);
   const pd = demirPose(turn > .5 ? 'surprised' : 'sad', { t, talk: S.talk.demir, lookX: lerp(.2, -.85, turn), lookY: lerp(.6, 0, turn), tilt: lerp(.05, -.03, turn), blink: (t % 3.7 < .14) ? 1 : 0,
     L: { x: -24, y: -448, hand: 'relax' }, R: { x: 24, y: -442, hand: 'relax' }, heldScarf: true });
-  c.save(); c.translate(490, 990); c.scale(.56, .56); drawWolf(pd); c.restore();
+  c.save(); c.translate(DX, 990); c.scale(.56, .56); drawWolf(pd); c.restore();
   // sol kenardan yaklaşan sıcak ışık (Kâzım'ın feneri, kadraj dışından)
-  addLight(lerp(60, 120, light), 560, 520 * light, `rgba(255,170,70,${.5 * light})`);
+  addLight(KX - lerp(175, 115, light), 560, 520 * light, `rgba(255,170,70,${.5 * light})`);
   screenRain(t, 1, .7);
 };
 
@@ -186,10 +186,12 @@ SCENES.tren_ici = S => {
   const bob = trenIci(t);
   // gün ışığı bantları kayar
   c.save(); c.globalCompositeOperation = 'lighter'; for (let i = 0; i < 3; i++) { const x = ((t * 120 + i * 400) % 1300) - 300; poly([x, 300, x + 120, 300, x + 40, 1300, x - 80, 1300], 'rgba(255,230,180,.08)', null); } c.restore();
-  const pe = Object.assign({}, MOODS.demir.calm, { t, talk: 0, lookX: -.8, lookY: -.15, blink: (t % 3.6 < .14) ? 1 : 0, tilt: .03, mouth: 8, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+  const turn = ss(.6, .7, k), shy = ss(.68, .78, k); // Ela dönüp Demir'e bakar; Demir utanıp bakışını kaçırır
+  const pe = Object.assign({}, MOODS.demir.calm, { t, talk: 0, lookX: lerp(-.8, .75, turn), lookY: lerp(-.15, .05, turn), blink: (t % 3.6 < .14) ? 1 : 0, tilt: lerp(.03, .07, turn), mouth: lerp(8, 18, turn), L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
   c.save(); c.translate(230, 1080 + bob); c.scale(.6, .6); drawEla(pe); c.restore();
-  const pd = demirPose('happy', { t, talk: S.talk.demir, lookX: -.7, lookY: .05, blink: (t % 4.1 < .14) ? 1 : 0, tilt: -.06, mouth: 14, lid: .15 });
+  const pd = demirPose('happy', { t, talk: S.talk.demir, lookX: lerp(-.7, .55, shy), lookY: lerp(.05, .5, shy), blink: (t % 4.1 < .14) ? 1 : 0, tilt: lerp(-.06, .05, shy), mouth: lerp(14, 20, shy), lid: .15 });
   c.save(); c.translate(490, 1085 + bob); c.scale(.6, .6); drawWolf(pd); c.restore();
+  if (shy > 0) for (const sx of [-1, 1]) ell(490 + sx * 73, 1085 + bob - .6 * 662, 20, 10, `rgba(240,110,120,${.45 * shy})`, null); // utangaç yanaklar
   seatBacks(bob);
 };
 
@@ -310,4 +312,52 @@ SCENES.yolculuk = S => {
   const pd = demirPose('hope', { t, talk: 0, lookX: .5, lookY: -.1, blink: (t % 4 < .14) ? 1 : 0, tilt: .04, mouth: lerp(8, 20, ss(.2, .7, k)), lid: .1 });
   c.save(); c.translate(250, 1085 + bob); c.scale(.6, .6); drawWolf(pd); c.restore();
   seatBacks(bob);
+};
+
+// ---------- 9) MEVSİMLER (sessiz): aylar geçer, Demir her gece aynı peronda; her tren boş gelir ----------
+SCENES.mevsimler = S => {
+  const t = S.t, lt = S.lt, per = S.pd / 3, i = Math.min(2, Math.floor(lt / per)), ph = cl((lt - i * per) / per, 0, 1);
+  const [pal, min] = [['dawn', 1085], ['snow', 1020], ['night', 1427]][i];
+  cam(lerp(400, 430, ph), lerp(700, 740, ph), lerp(1.12, 1.24, ph));
+  const arrive = ease(cl(ph / .42, 0, 1)), doors = ss(.46, .58, ph), drop = ss(.7, .9, ph);
+  drawStation(t, { pal, min, train: () => drawTrain(lerp(1300, -500, arrive), { cars: 3, doors, whoCar: 1, day: pal === 'snow', lights: pal !== 'snow' }) });
+  if (i === 0) petals(t, 22, 'rgba(214,126,48,.9)', 1.3); else if (i === 1) snow(t, 40, .8); else screenRain(t, 0, .7);
+  const look = ss(.4, .55, ph) * (1 - drop);
+  const p = demirPose(look > .5 ? 'surprised' : 'sad', { t, talk: 0, lookX: lerp(-.2, .7, look), lookY: lerp(.5, -.1, look) + drop * .7, tilt: lerp(.02, -.06, look) + drop * .08, nod: drop * .5,
+    blink: (t % 3.7 < .14) ? 1 : 0, L: { x: -24, y: -448, hand: 'relax' }, R: { x: 24, y: -442, hand: 'relax' }, heldScarf: true });
+  c.save(); c.translate(470, 1240); c.scale(.6, .6); drawWolf(p); c.restore();
+  if (i === 1) snow(t + 40, 26, 1); else if (i === 2) screenRain(t, 1, .8);
+  letterbox(1, 150);
+  typeText(`${i + 1}. AY`, ss(.06, .3, ph), 40, 1222, '600 22px Cinzel,Georgia,serif', 'rgba(236,224,200,.9)');
+  if (i > 0) scrFade(1 - ss(0, .1, ph)); if (i < 2) scrFade(ss(.9, 1, ph));   // aylar arası kararma
+};
+
+// ---------- 10) ATKI GÖKYÜZÜNDE (sessiz): bırakılan atkı şafakta şehrin üstünden güneşe doğru süzülür ----------
+SCENES.atki_gokyuzu = S => {
+  const t = S.t, k = S.k, f = ease(k);
+  cam(lerp(300, 380, f), lerp(520, 600, f), lerp(1.02, 1.18, f));
+  PLACES.cati.bg(t);
+  const x = lerp(-380, 372, f), y = lerp(330, 660, f) - Math.sin(k * PI) * 110 + Math.sin(k * 9) * 14, sc = lerp(1.25, .16, f);
+  c.save(); c.globalAlpha = 1 - ss(.86, 1, k); c.translate(x, y); c.scale(sc, sc); c.rotate(-.15 + Math.sin(t * 2) * .2); windScarf(0, 0, PI + .25, 230, t, 26); c.restore();
+  c.save(); c.globalCompositeOperation = 'lighter'; ell(380, 700, 420, 420, rg(380, 700, 0, 420, [[0, `rgba(255,210,140,${.25 * ss(.6, 1, k)})`], [1, 'rgba(0,0,0,0)']]), null); c.restore();
+};
+
+// ---------- 11) BİTİŞ EKRANI: YouTube bitiş öğeleri (abone ol + sıradaki video) için boş alanlar, müzik künyesi ----------
+SCENES.bitis = S => {
+  const t = S.t, lt = S.lt, a = ss(.3, 1.3, lt);
+  cam(360, 640, 1.08);
+  softBg(() => drawStation(t, { pal: 'night', min: 1427 })); LIGHTS = [];
+  scrFade(.66);
+  c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.globalAlpha = a; c.textAlign = 'center';
+  const G = 'rgba(242,196,99,.9)', CXc = LAND ? 330 : 360, CYc = LAND ? 350 : 430, R = LAND ? 112 : 120, VX = LAND ? 600 : 110, VY = LAND ? 216 : 640, VW = LAND ? 480 : 500, VH = LAND ? 270 : 281;
+  const label = (txt, x, y) => { c.font = '700 26px Cinzel,Georgia,serif'; c.letterSpacing = '5px'; c.fillStyle = '#f2c463'; c.fillText(txt, x, y); c.letterSpacing = '0px'; };
+  c.setLineDash([14, 12]); c.lineWidth = 3; c.strokeStyle = G;
+  c.beginPath(); c.arc(CXc, CYc, R, 0, TAU); c.stroke();                               // abone ol dairesi
+  c.beginPath(); c.roundRect(VX, VY, VW, VH, 18); c.stroke(); c.setLineDash([]);        // sıradaki video
+  c.fillStyle = 'rgba(255,240,210,.04)'; c.beginPath(); c.arc(CXc, CYc, R, 0, TAU); c.fill(); c.beginPath(); c.roundRect(VX, VY, VW, VH, 18); c.fill();
+  label('ABONE OL', CXc, CYc - R - 26); label('SIRADAKİ BÖLÜM', VX + VW / 2, VY - 26);
+  c.font = '700 54px Caveat,cursive'; c.fillStyle = '#f3e6cc'; c.fillText('Her hafta yeni bir ders.', SW / 2, LAND ? 590 : 1010);
+  c.font = '600 17px Inter,Arial,sans-serif'; c.fillStyle = 'rgba(220,205,180,.75)';
+  c.fillText('Müzik: "Sad Trio" ve "Touching Moments Two – Higher" · Kevin MacLeod (incompetech.com) · CC BY 4.0', SW / 2, LAND ? 668 : 1180, SW - 60);
+  c.restore();
 };
