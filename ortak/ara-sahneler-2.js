@@ -37,9 +37,10 @@ function bubble(w, y, text, me, time, a, ticks) {
 function typingDots(w, y, t, a) { if (a <= 0) return; c.save(); c.globalAlpha = a; rr(18, y, 96, 46, 18, UI.them, null); for (let i = 0; i < 3; i++) ell(44 + i * 22, y + 23 - Math.max(0, Math.sin(t * 8 - i)) * 6, 6, 6, UI.dim, null); c.restore(); }
 function blurredStreet(t, dawn = 0) { // telefonun arkasında bulanık yağmurlu sokak
   c.fillStyle = lg(0, 0, 0, 1280, [[0, dawn ? '#3a2a24' : '#0a0806'], [1, '#160f0a']]); c.fillRect(-1000, -300, 2720, 1900);
-  c.save(); c.filter = 'blur(18px)';
-  for (let i = 0; i < 26; i++) ell(-400 + hash(i) * 1520, 200 + hash(i + 3) * 900, 40 + hash(i + 5) * 60, 40 + hash(i + 5) * 60, `rgba(255,${150 + hash(i) * 60 | 0},70,${.15 + .25 * hash(i + 2)})`, null);
-  c.restore();
+  for (let i = 0; i < 26; i++) { // yumuşak bokeh (bulanıklık filtresi yerine radyal degrade: çok daha hızlı)
+    const x = -400 + hash(i) * 1520, y = 200 + hash(i + 3) * 900, r = (40 + hash(i + 5) * 60) * 1.45, col = `rgba(255,${150 + hash(i) * 60 | 0},70,${.15 + .25 * hash(i + 2)})`;
+    c.fillStyle = rg(x, y, 0, r, [[0, col], [.55, col], [1, 'rgba(255,160,70,0)']]); c.fillRect(x - r, y - r, r * 2, r * 2);
+  }
   drawRain(t, SW, SH, 0, .6);
 }
 function holdingPaw(x, y, kind) { // telefonu tutan pati (alttan)

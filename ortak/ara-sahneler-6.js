@@ -20,6 +20,17 @@ function scrText(txt, x, y, font, fill, a = 1, sp = 0, glowCol) {
   c.fillStyle = fill; c.fillText(txt, x + sp / 2, y); c.restore();
 }
 function scrFade(a, col = '0,0,0') { if (a <= 0) return; c.save(); c.setTransform(BASEX, 0, 0, BASEX, 0, 0); c.fillStyle = `rgba(${col},${cl(a, 0, 1)})`; c.fillRect(0, 0, SW, SH); c.restore(); }
+// Bulanık sabit arka plan: bir kez küçük tuvale çizilir, büyütülerek kullanılır (her karede bulanıklık filtresi çok yavaş)
+let SOFT_BG = null;
+function softBg(drawFn) {
+  const W = c.canvas.width, H = c.canvas.height;
+  if (!SOFT_BG) {
+    const m = c.getTransform(), off = document.createElement('canvas'); off.width = W / 10 | 0; off.height = H / 10 | 0;
+    const g = off.getContext('2d'), prev = c, n = LIGHTS.length; c = g; g.setTransform(m.a / 10, m.b / 10, m.c / 10, m.d / 10, m.e / 10, m.f / 10);
+    drawFn(); LIGHTS.length = n; c = prev; SOFT_BG = off;
+  }
+  c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high'; c.drawImage(SOFT_BG, 0, 0, W, H); c.restore();
+}
 // Kartın içinde baş portresi (dairesel)
 function portrait(cx, cy, r, headY, sc, fn, bg) {
   c.save(); c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.clip();
@@ -57,7 +68,7 @@ SCENES.jenerik = S => {
     screenRain(t, 1, .7);
   } else { // C) oyuncu kartları: bulanık peron üstünde portreler
     cam(360, 640, 1.08);
-    c.save(); c.filter = 'blur(10px)'; drawStation(t, { pal: 'night', min: 1427 }); c.restore();
+    softBg(() => drawStation(t, { pal: 'night', min: 1427 }));
     LIGHTS = [];
     scrFade(.55);
     const cards = [
