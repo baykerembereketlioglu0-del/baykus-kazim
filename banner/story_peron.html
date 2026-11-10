@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Peron: Instagram hikâyesi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Caveat:wght@700&family=Inter:wght@700;800&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- Instagram hikâyesi (1080x1920): yeni YouTube videosunun duyurusu. Bağlantı çıkartması sağ alttaki kesikli kutuya konur.
+     Üst ~250 px ve alt ~340 px'i Instagram arayüzü örter. -->
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ara-sahneler.js"></script>
+<script src="../ortak/ara-sahneler-2.js"></script>
+<script src="../ortak/mehmetali.js"></script>
+<script src="../ortak/ara-sahneler-3.js"></script>
+<script src="../ortak/ara-sahneler-4.js"></script>
+<script src="../ortak/mekanlar.js"></script>
+<script src="../ortak/ara-sahneler-5.js"></script>
+<script>
+(async () => {
+  for (const f of ['900 170px Cinzel', '600 34px Cinzel', '700 76px Caveat', '800 36px Inter']) await document.fonts.load(f, 'AaÇĞİÖŞÜıâ');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 1080, H = 1920, CX = W / 2, t = 1.4; LIGHTS = [];
+  const lights = () => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'lighter'; for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore(); LIGHTS = []; };
+  // istasyon + tren; kapıda geri bakan Ela (kapı ekranda ~ (760, 1000))
+  const Z = 1.15, X0 = -86, Y0 = -237;
+  c.setTransform(Z, 0, 0, Z, -X0 * Z, -Y0 * Z);
+  drawStation(t, { pal: 'night', min: 1427, train: () => drawTrain(-500, { cars: 3, doors: .8, whoCar: 1, lights: false, who: (cx, fy) => {
+    const pe = Object.assign({}, MOODS.demir.sad, { noScarf: true, t, talk: 0, lookX: -.75, lookY: .25, blink: 0, tilt: .07, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
+  } }) });
+  lights();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  // yazılar için üstü karart, kapı ışığını güçlendir
+  c.fillStyle = lg(0, 0, 0, 860, [[0, 'rgba(3,4,10,.96)'], [.75, 'rgba(3,4,10,.82)'], [1, 'rgba(3,4,10,0)']]); c.fillRect(0, 0, W, 860);
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rg(760, 1000, 0, 360, [[0, 'rgba(255,196,110,.3)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(380, 620, 700, 760); c.restore();
+  // ön planda Demir: gözü yaşlı, uçan atkıya uzanıyor
+  const DX = 250, DY = 1790, DS = 1.05;
+  const pd = Object.assign({}, MOODS.demir.sad, { t, talk: 0, lid: .1, brow: -.5, mouth: -12, lookX: .75, lookY: -.3, blink: 0, tilt: .08, nod: 0, L: { x: -150, y: -300, hand: 'relax' }, R: { x: 300, y: -640, hand: 'open' } });
+  // atkı: Ela'nın boynundan Demir'in patisine
+  c.save(); c.translate(718, 935); c.rotate(-.1); c.shadowColor = 'rgba(255,60,40,.6)'; c.shadowBlur = 26; windScarf(0, 0, 2.9, 175, 2.2, 30, 52); c.restore();
+  for (let i = 0; i < 7; i++) { const x = 600 + hash(i) * 260, y = 860 + hash(i + 4) * 160; line(x, y, x - 60, y + 14, 'rgba(255,255,255,.28)', 3); } // rüzgâr
+  c.save(); c.translate(DX, DY); c.scale(DS, DS); drawWolf(pd);
+  for (const [tx, ty, s] of [[-96, -676, 1], [52, -664, .8]]) { c.save(); c.translate(tx, ty); c.scale(s, s); blob([0, -16, 10, 6, 0, 18, -10, 6], '#9fd8ff', OL, 3); ell(-3, 4, 3, 4, 'rgba(255,255,255,.8)', null); c.restore(); }
+  c.restore(); lights();
+  // yağmur
+  c.save(); c.strokeStyle = 'rgba(225,215,195,.2)'; c.lineWidth = 2; c.beginPath(); for (let i = 0; i < 220; i++) { const x = hash(i + 300) * (W + 100), y = hash(i + 400) * H; c.moveTo(x, y); c.lineTo(x - 9, y + 46); } c.stroke(); c.restore();
+  // üst yazılar
+  const sp = (txt, x, y, font, fill, s = 0, glow) => { c.save(); c.font = font; c.letterSpacing = s + 'px'; c.textAlign = 'center'; if (glow) { c.shadowColor = glow; c.shadowBlur = 40; } c.fillStyle = fill; c.fillText(txt, x + s / 2, y); c.restore(); };
+  sp('BAYKUŞ KAZIM', CX, 300, '600 34px Cinzel,Georgia,serif', 'rgba(232,206,160,.9)', 12);
+  sp("YENİ VİDEO · YOUTUBE'DA", CX, 380, '800 36px Inter,Arial,sans-serif', '#ff5a4a', 6);
+  sp('PERON', CX, 560, '900 170px Cinzel,Georgia,serif', lg(0, 420, 0, 570, [[0, '#fff1c8'], [.5, '#f2c463'], [1, '#b47a26']]), 8, 'rgba(255,170,70,.65)');
+  sp('O gitti. Atkısı kaldı.', CX, 660, '700 76px Caveat,cursive', '#f3e6cc');
+  sp('5 dakikalık kısa animasyon film', CX, 724, '800 30px Inter,Arial,sans-serif', 'rgba(230,215,190,.85)', 2);
+  // bağlantı çıkartması alanı (sağ altta, Demir'in yanında)
+  const BX = 560, BY = 1395, BW = 470, BH = 150;
+  c.save(); c.fillStyle = 'rgba(8,8,14,.55)'; c.beginPath(); c.roundRect(BX, BY, BW, BH, 36); c.fill();
+  c.setLineDash([16, 12]); c.lineWidth = 4; c.strokeStyle = 'rgba(242,196,99,.9)'; c.stroke(); c.restore();
+  sp('İZLEMEK İÇİN DOKUN', BX + BW / 2, BY + BH / 2 + 12, '800 30px Inter,Arial,sans-serif', 'rgba(243,230,204,.45)', 3);
+  // oynat simgesi kutunun üstünde
+  rr(BX + BW / 2 - 52, BY - 96, 104, 72, 22, lg(0, BY - 96, 0, BY - 24, [[0, '#ff6a5a'], [1, '#c8302a']]), OL, 4); poly([BX + BW / 2 - 14, BY - 78, BX + BW / 2 - 14, BY - 42, BX + BW / 2 + 22, BY - 60], '#fff', null);
+  // kenar karartması + gren
+  c.fillStyle = rg(CX, H * .5, 500, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  window.READY = true;
+})();
+</script></body></html>

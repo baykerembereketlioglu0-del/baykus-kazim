@@ -53,8 +53,8 @@
   c.fillStyle = lg(0, 440, 0, H, [[0, 'rgba(0,0,0,0)'], [.55, 'rgba(0,0,0,.72)'], [1, 'rgba(0,0,0,.9)']]); c.fillRect(0, 440, W, 280);
   const txt = (s, x, y, size, fill) => { c.save(); c.font = `italic 900 ${size}px Inter,Arial,sans-serif`; c.textAlign = 'left'; c.lineJoin = 'round';
     c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 18; c.shadowOffsetY = 6; c.lineWidth = size * .16; c.strokeStyle = '#0a0604'; c.strokeText(s, x, y); c.shadowColor = 'transparent'; c.fillStyle = fill; c.fillText(s, x, y); c.restore(); };
-  txt('O GİTTİ.', 545, 548, 90, '#ffffff');
-  txt('ATKISI KALDI.', 545, 644, 90, lg(0, 570, 0, 650, [[0, '#ffe08a'], [1, '#f2b23c']]));
+  txt('O GİTTİ.', 515, 540, 82, '#ffffff');
+  txt('ATKISI KALDI.', 515, 628, 82, lg(0, 560, 0, 635, [[0, '#ffe08a'], [1, '#f2b23c']]));
   // marka
   c.save(); c.font = '700 24px Cinzel,Georgia,serif'; c.letterSpacing = '6px'; c.textAlign = 'right'; c.fillStyle = 'rgba(240,214,160,.95)'; c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 10; c.fillText('BAYKUŞ KAZIM', W - 30, 44); c.restore();
   // kenar karartması
