@@ -149,7 +149,7 @@ SCENES.ayrilik = S => {
   const t = S.t, k = S.k, walk = cl(k / .3, 0, 1), board = ss(.3, .36, k), off = .42, catchK = .58, hug = ss(catchK, .7, k),
     close = ss(.62, .72, k), go = ease(cl((k - .74) / .26, 0, 1));
   cam(lerp(400, 450, ss(.6, 1, k)), lerp(800, 780, k), lerp(1.15, 1.25, ease(ss(.6, 1, k))));
-  const tx = -845 - go * 1900;
+  const tx = -845 - go * 2200;
   drawStation(t, { pal: 'day', min: 1015, train: () => drawTrain(tx, { cars: 3, doors: 1 - close, day: true, lights: false, whoCar: 1, who: (cx, fy) => {
     if (board <= 0) return; // trene binen Ela kapıda döner, Demir'e bakar (atkı uçana dek boynunda)
     const pe = Object.assign({}, MOODS.demir.sad, { noScarf: k > off, t, talk: 0, lookX: .7, lookY: .2, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .05, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
@@ -194,7 +194,7 @@ SCENES.tren_bos = S => {
 SCENES.veda = S => {
   const t = S.t, k = S.k, close = ss(.55, .7, k), go = ease(cl((k - .72) / .28, 0, 1));
   cam(lerp(560, 470, ease(k)), lerp(640, 700, ease(k)), lerp(2.0, 1.25, ease(k)));
-  const tx = -500 - go * 1800;
+  const tx = -500 - go * 2600;
   drawStation(t, { pal: 'day', min: 1020, train: () => drawTrain(tx, { cars: 3, doors: 1 - close, day: true, lights: false, whoCar: 1, who: (cx, fy) => {
     const pe = Object.assign({}, MOODS.demir.sad, { noScarf: true, t, talk: 0, lookX: -.6, lookY: .3, blink: (t % 3.3 < .14) ? 1 : 0, tilt: .06, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
     c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
@@ -296,7 +296,7 @@ SCENES.atki = S => {
 SCENES.sabah_treni = S => {
   const t = S.t, k = S.k, lt = S.lt, walk = ss(0, .55, k), inside = ss(.5, .6, k), close = ss(.62, .72, k), go = ease(cl((k - .74) / .26, 0, 1));
   cam(lerp(420, 380, ease(k)), lerp(760, 700, ease(k)), lerp(1.3, 1.12, ease(k)));
-  const tx = -745 - go * 1400;
+  const tx = -745 - go * 2300;
   drawStation(t, { pal: 'dawn', min: 375, train: () => drawTrain(tx, { cars: 3, doors: 1 - close, lit: 1, whoCar: 1, who: (cx, fy) => {
     if (inside > .01 && close < .99) { c.save(); c.globalAlpha = inside; c.translate(cx, fy); c.scale(.27, .27); drawWolf(demirPose('hope', { t, talk: 0, lookX: .4, lookY: .1, mouth: 18, R: { x: 205, y: -620, hand: 'open' } })); c.restore(); }
   } }) });

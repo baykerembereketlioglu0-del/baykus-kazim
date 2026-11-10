@@ -56,9 +56,9 @@ function snow(t, n, a = 1) {
 SCENES.jenerik = S => {
   const t = S.t, lt = S.lt;
   if (lt < 9.6) { // A) yağmurlu gece, boş peron; tren hızla geçer
-    const pass = cl((lt - 4.4) / 3.0, 0, 1), k = lt / 9.6;
+    const pass = cl((lt - 4.2) / 3.6, 0, 1), k = lt / 9.6;
     cam(lerp(300, 430, ease(k)), lerp(660, 700, k), lerp(1.02, 1.12, k));
-    drawStation(t, { pal: 'night', min: 1425, train: pass > 0 && pass < 1 ? () => drawTrain(lerp(1500, -3300, pass), { cars: 6, doors: 0 }) : null });
+    drawStation(t, { pal: 'night', min: 1425, train: pass > 0 && pass < 1 ? () => drawTrain(lerp(1600, -5300, pass), { cars: 6, doors: 0 }) : null });
     if (pass > 0 && pass < 1) { c.save(); c.globalAlpha = .25; for (let i = 0; i < 14; i++) line(-300, 470 + i * 24, 1100, 470 + i * 24, 'rgba(255,220,160,.35)', 2); c.restore(); } // hız çizgileri
     screenRain(t, 0, .6); screenRain(t, 1, .8);
   } else if (lt < 15) { // B) istasyon saatine yakın çekim, başlık
@@ -232,33 +232,53 @@ SCENES.son_bakis = S => {
 // ---------- 6) GÖNDERİLMEYEN MESAJLAR: yazılıp silinen taslaklar ----------
 SCENES.mesajlar = S => {
   const t = S.t, k = S.k, lt = S.lt, sil = S.phase === 'sil';
-  if (LAND) cam(360, 640, .9 + .02 * k); else cam(360, 640, sil ? 1.04 + .05 * k : 1.06 + .04 * k);
+  if (LAND) cam(360, 610, .74 + .02 * k); else cam(360, 640, sil ? 1.04 + .05 * k : 1.06 + .04 * k);
   blurredStreet(t);
   const drafts = sil ? ['Hâlâ seni bekliyorum.'] : ['Neredesin?', 'Seni çok özledim…', 'Bir kere sesini duysam yeter.', 'Neden gittin?'];
   const per = sil ? Math.max(3.5, S.pd * .7) : 2.4, i = Math.min(drafts.length - 1, Math.floor(lt / per)), ph = (lt - i * per) / per;
   const d = drafts[i], typed = sil ? ss(.05, .45, ph) : ss(.05, .45, ph), del = sil ? ss(.72, .9, ph) : ss(.68, .92, ph);
   const shown = d.slice(0, Math.floor(d.length * typed * (1 - del) + .0001)), off = sil ? ss(.9, 1, k) : 0;
-  const tilt = Math.sin(t * .8) * .012;
+  const tilt = Math.sin(t * .8) * .012, PX = 160, PY = 230, KB = 780 - 240; // telefon ekranının sol üstü (dünya), klavyenin üstü (ekran yerel)
+  // klavye tuşları (ekran yerel): 3 sıra harf + boşluk; parmağın dokunacağı yerler buradan
+  const ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'], keyAt = (r, i) => { const n = ROWS[r].length, kw = 36, x0 = (400 - n * kw) / 2 + (r === 2 ? -20 : 0); return [x0 + i * kw + kw / 2, KB + 22 + r * 54 + 20]; }, BACK = [400 - 34, KB + 22 + 2 * 54 + 20];
+  const typing = typed > 0 && typed < 1 && del <= 0, deleting = del > 0 && del < 1;
+  let tip = null; // sağ patinin işaret parmağı (ekran yerel)
+  if (typing) { const n = Math.floor(typed * d.length), r = Math.floor(hash(n + i * 7) * 3), kk = keyAt(r, Math.floor(hash(n * 3 + 1) * ROWS[r].length)); tip = [kk[0], kk[1] + 4 - Math.abs(Math.sin(lt * 14)) * 6]; }
+  else if (deleting) tip = [BACK[0], BACK[1] + 4 - Math.abs(Math.sin(lt * 16)) * 6];
   c.save(); c.translate(360, 620); c.rotate(tilt); c.translate(-360, -620);
+  // ARKA: sol kol ve avuç telefonun arkasında (avuç alt köşeden görünür)
+  capsule([-90, 1470, 150, 1090], 150, WOLF_C.sleeve, 7); capsule([132, 1112, 168, 1060], 138, '#6a1822', 6);
+  ell(215, 990, 104, 84, WOLF_C.paw, OL, 6);
   phoneFrame(360, 620, 400, 780, (w, h) => {
     chatHeader(w, 'Ela', 'son görülme: 3 ay önce', '🧣');
-    c.fillStyle = UI.dim; c.font = '600 16px Inter,Arial'; c.textAlign = 'center'; c.fillText('3 AY ÖNCE', w / 2, 175); c.textAlign = 'left';
-    let y = 200;
+    c.fillStyle = UI.dim; c.font = '600 16px Inter,Arial'; c.textAlign = 'center'; c.fillText('3 AY ÖNCE', w / 2, 170); c.textAlign = 'left';
+    let y = 190;
     y = bubble(w, y, 'Üşüme, tamam mı? 🧣', false, '08:12', 1);
     y = bubble(w, y, 'Sen yanımdayken üşümem ki', true, '08:13', 1, 2);
-    y = bubble(w, y, 'Yarın aynı tren? 🚆', false, '21:40', 1);
-    y = bubble(w, y, 'Her zaman 🙂', true, '21:41', 1, 2);
-    // yazma çubuğu
-    rr(14, h - 92, w - 96, 68, 34, '#1e252e', null);
-    c.font = `500 22px Inter,Arial,${EMOJI}`; c.fillStyle = shown ? UI.text : UI.dim; c.fillText(shown || 'Mesaj yaz', 36, h - 50);
-    if (Math.sin(t * 9) > 0) { const cw = c.measureText(shown).width; line(38 + cw, h - 72, 38 + cw, h - 40, UI.blue, 2); }
-    ell(w - 46, h - 58, 30, 30, shown ? UI.me : '#2a3038', null); c.fillStyle = '#fff'; c.font = '700 26px Inter,Arial'; c.textAlign = 'center'; c.fillText('➤', w - 44, h - 48); c.textAlign = 'left';
+    // yazma çubuğu (klavyenin üstünde)
+    const iy = KB - 84;
+    rr(14, iy, w - 96, 64, 32, '#1e252e', null);
+    c.font = `500 22px Inter,Arial,${EMOJI}`; c.fillStyle = shown ? UI.text : UI.dim; c.fillText(shown || 'Mesaj yaz', 36, iy + 40);
+    if (Math.sin(t * 9) > 0) { const cw = c.measureText(shown).width; line(38 + cw, iy + 16, 38 + cw, iy + 48, UI.blue, 2); }
+    ell(w - 46, iy + 32, 30, 30, shown ? UI.me : '#2a3038', null); c.fillStyle = '#fff'; c.font = '700 26px Inter,Arial'; c.textAlign = 'center'; c.fillText('➤', w - 44, iy + 42);
+    // klavye
+    c.fillStyle = '#1a1f26'; c.fillRect(0, KB, w, h - KB);
+    c.font = '600 17px Inter,Arial';
+    ROWS.forEach((row, r) => { for (let q = 0; q < row.length; q++) { const [kx, ky] = keyAt(r, q), on = tip && Math.abs(tip[0] - kx) < 10 && Math.abs(tip[1] - ky) < 14; rr(kx - 16, ky - 22, 32, 44, 7, on ? '#4a5563' : '#2c333d', null); c.fillStyle = '#d8dee6'; c.fillText(row[q], kx, ky + 6); } });
+    rr(BACK[0] - 26, BACK[1] - 22, 52, 44, 7, deleting ? '#4a5563' : '#3a424d', null); c.fillStyle = '#d8dee6'; c.font = '700 20px Inter,Arial'; c.fillText('⌫', BACK[0], BACK[1] + 7);
+    rr(12, BACK[1] - 22, 52, 44, 7, '#3a424d', null); c.fillText('⇧', 38, BACK[1] + 7);
+    rr(90, KB + 22 + 3 * 54, 220, 40, 7, '#2c333d', null); c.font = '600 15px Inter,Arial'; c.fillStyle = '#8d98a5'; c.fillText('boşluk', 200, KB + 22 + 3 * 54 + 26);
+    c.textAlign = 'left';
     if (off > 0) { c.fillStyle = `rgba(0,0,0,${off})`; c.fillRect(0, 0, w, h); }
   });
+  // ÖN: sol patinin parmak uçları telefonun sağ kenarını sarar, başparmak sol alt köşede
+  for (const fy of [880, 935, 990]) rr(552, fy - 16, 36, 32, 16, WOLF_C.paw, OL, 4);
+  c.save(); c.translate(168, 1010); c.rotate(-.8); rr(-16, -50, 32, 74, 16, WOLF_C.paw, OL, 4.5); c.restore();
+  // sağ pati: yazarken tuşlara, silerken geri tuşuna dokunur; boşta aşağıda bekler
+  const rest = [470, 1150], tw = tip ? [PX + tip[0], PY + tip[1]] : rest;
+  capsule([860, 1480, tw[0] + 120, tw[1] + 250], 130, WOLF_C.sleeve, 7); capsule([tw[0] + 108, tw[1] + 226, tw[0] + 88, tw[1] + 186], 132, '#6a1822', 6);
+  pawFinger(tw[0], tw[1], -.42, WOLF_C.paw, 1.1);
   c.restore();
-  holdingPaw(250, 1010, 'demir');
-  // sağ patinin parmağı: silerken geri tuşuna dokunur
-  if (del > 0 && del < 1) { capsule([760, 1420, 600, 1130], 120, WOLF_C.sleeve, 7); pawFinger(520, 1000 + Math.sin(t * 14) * 4, -.45, WOLF_C.paw, 1.1); }
 };
 
 // ---------- 7) BABANIN SOFRASI: Mehmet Ali konuşur, Demir'in tabağı el sürülmemiş, atkı masada ----------
