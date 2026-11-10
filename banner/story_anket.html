@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Peron: anket hikâyesi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Caveat:wght@700&family=Inter:ital,wght@0,800;1,900&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- Instagram hikâyesi (1080x1920): ortadaki kesikli alana anket çıkartması, sağ alttaki kutuya bağlantı çıkartması konur.
+     Üst ~250 px ve alt ~340 px'i Instagram arayüzü örter. -->
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ara-sahneler.js"></script>
+<script src="../ortak/ara-sahneler-2.js"></script>
+<script src="../ortak/mehmetali.js"></script>
+<script src="../ortak/ara-sahneler-3.js"></script>
+<script src="../ortak/ara-sahneler-4.js"></script>
+<script src="../ortak/mekanlar.js"></script>
+<script src="../ortak/ara-sahneler-5.js"></script>
+<script>
+(async () => {
+  for (const f of ['italic 900 82px Inter', '800 30px Inter', '600 34px Cinzel', '700 80px Caveat']) await document.fonts.load(f, 'AaÇĞİÖŞÜı');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 1080, H = 1920, CX = W / 2, t = 1.4; LIGHTS = [];
+  const lights = () => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'lighter'; for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore(); LIGHTS = []; };
+  // arka plan: gece istasyonu, düşük çözünürlükte çizilip büyütülür (yumuşak bulanık)
+  const off = document.createElement('canvas'); off.width = 108; off.height = 192; const g = off.getContext('2d'), prev = c; c = g;
+  const Z = 1.15 / 10; g.setTransform(Z, 0, 0, Z, 86 * Z, 237 * Z);
+  drawStation(t, { pal: 'night', min: 1427, train: () => drawTrain(-500, { cars: 3, doors: 0, lights: false }) }); LIGHTS = []; c = prev;
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high'; c.drawImage(off, 0, 0, W, H);
+  c.fillStyle = 'rgba(4,5,12,.62)'; c.fillRect(0, 0, W, H);
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rg(CX, 960, 0, 700, [[0, 'rgba(255,170,80,.12)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(0, 0, W, H); c.restore();
+  // yağmur
+  c.save(); c.strokeStyle = 'rgba(225,215,195,.16)'; c.lineWidth = 2; c.beginPath(); for (let i = 0; i < 200; i++) { const x = hash(i + 300) * (W + 100), y = hash(i + 400) * H; c.moveTo(x, y); c.lineTo(x - 9, y + 46); } c.stroke(); c.restore();
+  const sp = (txt, x, y, font, fill, s = 0, stroke) => { c.save(); c.font = font; c.letterSpacing = s + 'px'; c.textAlign = 'center'; c.lineJoin = 'round';
+    if (stroke) { c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 16; c.shadowOffsetY = 5; c.lineWidth = stroke; c.strokeStyle = '#0a0604'; c.strokeText(txt, x + s / 2, y); c.shadowColor = 'transparent'; }
+    c.fillStyle = fill; c.fillText(txt, x + s / 2, y); c.restore(); };
+  // üst yazılar
+  sp('BAYKUŞ KAZIM', CX, 300, '600 34px Cinzel,Georgia,serif', 'rgba(232,206,160,.9)', 12);
+  sp('Sence…', CX, 420, '700 80px Caveat,cursive', '#f3e6cc');
+  sp('AŞK ACISI', CX, 530, 'italic 900 92px Inter,Arial,sans-serif', '#ffffff', 0, 14);
+  sp('NE ZAMAN GEÇER?', CX, 630, 'italic 900 92px Inter,Arial,sans-serif', lg(0, 560, 0, 640, [[0, '#ffe08a'], [1, '#f2b23c']]), 0, 14);
+  // kırmızı kalp (kırık) yazının yanında
+  c.save(); c.translate(CX, 690); c.strokeStyle = '#c8302a'; c.lineWidth = 5; const hp = []; for (let i = 0; i <= 40; i++) { const a = i / 40 * TAU; hp.push(16 * Math.sin(a) ** 3 * 1.6, -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) * 1.6); }
+  c.beginPath(); smoothPath(hp, true); c.fillStyle = '#c8302a'; c.fill(); line(0, -14, -5, 0, '#2a0a08', 4); line(-5, 0, 4, 10, '#2a0a08', 4); line(4, 10, 0, 24, '#2a0a08', 4); c.restore();
+  // anket çıkartması alanı
+  const PX = 150, PY = 760, PW = 780, PH = 470;
+  c.save(); c.fillStyle = 'rgba(8,8,14,.45)'; c.beginPath(); c.roundRect(PX, PY, PW, PH, 44); c.fill(); c.setLineDash([18, 14]); c.lineWidth = 4; c.strokeStyle = 'rgba(242,196,99,.85)'; c.stroke(); c.restore();
+  sp('ANKET ÇIKARTMASI', CX, PY + PH / 2 + 12, '800 32px Inter,Arial,sans-serif', 'rgba(243,230,204,.3)', 4);
+  // Demir sol altta, atkısını tutmuş, ankete bakıyor
+  const pd = Object.assign({}, MOODS.demir.sad, { t, talk: 0, lookX: .55, lookY: -.75, blink: 0, tilt: .1, nod: 0, L: { x: -24, y: -448, hand: 'relax' }, R: { x: 24, y: -442, hand: 'relax' }, heldScarf: true });
+  c.save(); c.translate(225, 2060); c.scale(.82, .82); drawWolf(pd); c.restore(); lights();
+  // bağlantı çıkartması alanı (sağ altta)
+  sp('Cevap videoda 👇', 700, 1330, '700 64px Caveat,cursive', '#f3e6cc');
+  const BX = 470, BY = 1370, BW = 500, BH = 140;
+  c.save(); c.fillStyle = 'rgba(8,8,14,.55)'; c.beginPath(); c.roundRect(BX, BY, BW, BH, 34); c.fill(); c.setLineDash([16, 12]); c.lineWidth = 4; c.strokeStyle = 'rgba(242,196,99,.85)'; c.stroke(); c.restore();
+  sp('İZLEMEK İÇİN DOKUN', BX + BW / 2, BY + BH / 2 + 11, '800 28px Inter,Arial,sans-serif', 'rgba(243,230,204,.4)', 3);
+  // kenar karartması + gren
+  c.fillStyle = rg(CX, H * .5, 500, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  window.READY = true;
+})();
+</script></body></html>
