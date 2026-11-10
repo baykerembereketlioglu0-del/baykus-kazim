@@ -8,3 +8,4 @@ build/
 ses/
 bolum*/*.mp4
 !bolum*/kaynak/*.mp3
+videolar/*_onizleme.mp4
