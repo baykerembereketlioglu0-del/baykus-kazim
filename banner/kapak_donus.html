@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Dönüş: Instagram kapağı</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:ital,wght@1,900&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- Instagram Reels kapağı (1080x1920). Profil ızgarası ortadaki 1080x1440'ı (y 240–1680) gösterir: yazılar o alanda. -->
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ara-sahneler.js"></script>
+<script src="../ortak/ara-sahneler-2.js"></script>
+<script src="../ortak/mehmetali.js"></script>
+<script src="../ortak/ara-sahneler-3.js"></script>
+<script src="../ortak/ara-sahneler-4.js"></script>
+<script src="../ortak/mekanlar.js"></script>
+<script src="../ortak/ara-sahneler-5.js"></script>
+<script>
+(async () => {
+  for (const f of ['italic 900 104px Inter', '700 40px Cinzel']) await document.fonts.load(f, 'AaÇĞİÖŞÜı');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 1080, H = 1920, CX = W / 2, t = 1.4; LIGHTS = [];
+  const lights = () => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'lighter'; for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore(); LIGHTS = []; };
+  // şafakta istasyon; açık kapıda geri dönen Ela (kapı ekranda ~ (760, 830))
+  const Z = 1.25, X0 = -33, Y0 = 13;
+  c.setTransform(Z, 0, 0, Z, -X0 * Z, -Y0 * Z);
+  drawStation(t, { pal: 'dawn', min: 372, train: () => drawTrain(-500, { cars: 3, doors: 1, whoCar: 1, who: (cx, fy) => {
+    const pe = Object.assign({}, MOODS.demir.sad, { noScarf: true, t, talk: 0, lookX: -.6, lookY: .15, blink: 0, tilt: .07, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
+  } }) });
+  lights();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  // üst kısmı hafif karart, kapı ışığını güçlendir
+  c.fillStyle = lg(0, 0, 0, 640, [[0, 'rgba(10,6,14,.92)'], [.55, 'rgba(10,6,14,.8)'], [1, 'rgba(10,6,14,0)']]); c.fillRect(0, 0, W, 640);
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rg(760, 830, 0, 380, [[0, 'rgba(255,200,120,.12)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(380, 430, 700, 800); c.restore();
+  // ön planda Demir: Ela'ya yan dönmüş, sakin ve kararlı (kollar yanında)
+  const pd = Object.assign({}, MOODS.demir.calm, { t, talk: 0, lid: .22, brow: .12, mouth: 2, lookX: .6, lookY: -.05, blink: 0, tilt: -.03, nod: 0, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+  c.save(); c.translate(300, 1830); c.scale(1.12, 1.12); drawWolf(pd); c.restore(); lights();
+  // alt yazı bandı
+  c.fillStyle = lg(0, 1180, 0, H, [[0, 'rgba(0,0,0,0)'], [.35, 'rgba(0,0,0,.72)'], [1, 'rgba(0,0,0,.92)']]); c.fillRect(0, 1180, W, H - 1180);
+  const txt = (s, x, y, size, fill) => { c.save(); c.font = `italic 900 ${size}px Inter,Arial,sans-serif`; c.textAlign = 'center'; c.lineJoin = 'round';
+    c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 20; c.shadowOffsetY = 6; c.lineWidth = size * .16; c.strokeStyle = '#0a0604'; c.strokeText(s, x, y); c.shadowColor = 'transparent'; c.fillStyle = fill; c.fillText(s, x, y); c.restore(); };
+  txt('O GERİ DÖNDÜ.', CX, 1440, 104, '#ffffff');
+  txt('AMA KAPIYI AÇMADIM.', CX, 1555, 78, lg(0, 1490, 0, 1570, [[0, '#ffe08a'], [1, '#f2b23c']]));
+  // marka
+  c.save(); c.font = '700 40px Cinzel,Georgia,serif'; c.letterSpacing = '12px'; c.textAlign = 'center'; c.fillStyle = '#f0d6a0'; c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 12; c.fillText('BAYKUŞ KAZIM', CX + 6, 330); c.restore();
+  c.save(); c.font = '700 26px Cinzel,Georgia,serif'; c.letterSpacing = '8px'; c.textAlign = 'center'; c.fillStyle = 'rgba(240,214,160,.8)'; c.fillText('BÖLÜM 8 · DÖNÜŞ', CX + 4, 380); c.restore();
+  // kenar karartması + gren
+  c.fillStyle = rg(CX, H * .5, 520, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.45)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  window.READY = true;
+})();
+</script></body></html>
