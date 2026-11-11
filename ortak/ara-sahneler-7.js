@@ -41,40 +41,44 @@ SCENES.yuz_yuze = S => {
   if (oz) heartbeat(lt, ss(.35, .5, k));
 };
 
-// ---------- 2) KAPI: aralık kapıdan soğuk rüzgâr; bir pati kapıyı nazikçe kapatır, anahtar deliğinde sıcak bir ışık kalır ----------
+// ---------- 2) KAPI: aralık kapıdan soğuk rüzgâr giriyor; Demir kapının yanında durur, kendi patisiyle kapıyı iter.
+//      Kapı kendi ağırlığıyla kapanır, anahtar deliğinde kalp biçiminde sıcak bir ışık kalır. Demir dönüp bize bakar.
 SCENES.kapi_kapan = S => {
-  const t = S.t, k = S.k, o = 1 - ease(ss(.25, .7, k)), glowK = ss(.68, .9, k);
-  cam(lerp(370, 360, k), 640, lerp(1.15, 1.25, ease(k)));
+  const t = S.t, k = S.k;
+  // kapı açıklığı: 1 açık … 0 kapalı. Pati .62'ye kadar iter, gerisini kapı kendi kapanır
+  const push = ease(ss(.16, .42, k)), swing = ease(ss(.42, .66, k)), o = lerp(lerp(1, .62, push), 0, swing), glowK = ss(.64, .82, k);
+  cam(lerp(400, 392, k), 690, lerp(1.18, 1.26, ease(k)));
   // sıcak iç oda
   c.fillStyle = lg(0, -300, 0, 1300, [[0, '#4a2e1e'], [1, '#24160c']]); c.fillRect(-1000, -300, 2720, 1900);
   c.save(); c.globalAlpha = .16; for (let x = -1008; x < 1720; x += 36) { c.fillStyle = (x / 36) % 2 ? '#2a180e' : '#6a4630'; c.fillRect(x, -300, 18, 1200); } c.restore();
   rr(-1000, 1010, 2720, 900, 0, '#2e1c10', null); line(-1000, 1010, 1720, 1010, '#1a0f08', 8);
-  // kapı kasası
-  const DX = 220, DY = 320, DW = 290, DH = 690;
+  for (let x = -1020; x < 1720; x += 90) line(x, 1020, x - 30, 1400, 'rgba(0,0,0,.25)', 3);
+  // kapı kasası (menteşe sağda)
+  const DX = 150, DY = 330, DW = 290, DH = 680;
   rr(DX - 28, DY - 28, DW + 56, DH + 28, 6, '#3a2416', OL, 7);
-  // aralıktan görünen dış: soğuk mavi gece, yağmur
-  c.save(); c.beginPath(); c.rect(DX, DY, DW, DH); c.clip();
+  c.save(); c.beginPath(); c.rect(DX, DY, DW, DH); c.clip(); // aralıktan: soğuk, yağmurlu gece
   c.fillStyle = lg(0, DY, 0, DY + DH, [[0, '#0a1020'], [1, '#1a2438']]); c.fillRect(DX, DY, DW, DH);
   for (let i = 0; i < 30; i++) { const x = DX + hash(i) * DW, y = DY + ((hash(i + 3) * DH + t * 600) % DH); line(x, y, x - 5, y + 26, 'rgba(200,215,240,.35)', 2); }
   c.restore();
-  // kapı kanadı: sola menteşeli, açıklığa göre daralır (perspektif)
-  const w = DW * lerp(1, .32, o), sk = 40 * o;
-  const door = [DX, DY, DX + w, DY + sk, DX + w, DY + DH - sk, DX, DY + DH];
-  poly(door, lg(DX, 0, DX + w, 0, [[0, '#6a4128'], [1, '#4a2c18']]), OL, 6);
+  const w = DW * lerp(1, .32, o), sk = 40 * o, ex = DX + DW - w;          // kanadın serbest kenarı x
+  const door = [ex, DY + sk, DX + DW, DY, DX + DW, DY + DH, ex, DY + DH - sk];
+  poly(door, lg(ex, 0, DX + DW, 0, [[0, '#4a2c18'], [1, '#6a4128']]), OL, 6);
   c.save(); c.beginPath(); c.moveTo(door[0], door[1]); for (let i = 2; i < 8; i += 2) c.lineTo(door[i], door[i + 1]); c.closePath(); c.clip();
-  for (const [fy, fh] of [[.08, .36], [.52, .4]]) poly([DX + w * .14, DY + DH * fy + sk * .2, DX + w * .86, DY + DH * fy + sk * .5, DX + w * .86, DY + DH * (fy + fh) - sk * .3, DX + w * .14, DY + DH * (fy + fh)], 'rgba(0,0,0,.14)', 'rgba(0,0,0,.35)', 3);
+  for (const [fy, fh] of [[.08, .36], [.52, .4]]) poly([ex + w * .14, DY + DH * fy + sk * .5, DX + DW - w * .14, DY + DH * fy + sk * .2, DX + DW - w * .14, DY + DH * (fy + fh), ex + w * .14, DY + DH * (fy + fh) - sk * .3], 'rgba(0,0,0,.14)', 'rgba(0,0,0,.35)', 3);
   c.restore();
-  // kapı kolu + anahtar deliği (kapanınca kalp biçiminde ışık)
-  const hx = DX + w * .86, hy = DY + DH * .5;
-  ell(hx, hy, 14, 14, '#c9a04a', OL, 4); rr(hx - 34, hy - 6, 34, 12, 6, '#c9a04a', OL, 3);
-  if (glowK > 0) { c.save(); c.translate(hx, hy + 46); c.globalAlpha = glowK; const hp = []; for (let i = 0; i <= 30; i++) { const a = i / 30 * TAU; hp.push(16 * Math.sin(a) ** 3 * .9, -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) * .9); } c.beginPath(); smoothPath(hp, true); c.fillStyle = '#ffd890'; c.fill(); c.restore(); addLight(hx, hy + 44, 160 * glowK, `rgba(255,200,120,${.5 * glowK})`); }
-  // soğuk rüzgâr çizgileri (kapı açıkken)
-  if (o > .05) for (let i = 0; i < 8; i++) { const y = DY + 80 + hash(i) * 520, x = DX + w + ((t * 260 + hash(i + 2) * 400) % 420); c.save(); c.globalAlpha = .4 * o; curve([x, y, x + 40, y - 6, x + 90, y + 4], 'rgba(200,220,255,.8)', 3); c.restore(); }
-  // Demir'in patisi sağdan uzanıp kapının kenarını iter
-  const px = lerp(DX + w + 120, DX + w + 30, ss(.15, .3, k)) - (1 - o) * 0, py = DY + DH * .55, out = ss(.78, .95, k);
-  if (out < 1) { c.save(); c.globalAlpha = 1 - out; c.translate(px, py); c.scale(.7, .7); capsule([520, 460, 250, 150, 74, 16], 112, WOLF_C.sleeve, 7); capsule([118, 46, 60, 8], 104, WOLF_C.cuff, 6); for (const k of [.5, .62]) { const ax = lerp(250, 74, k), ay = lerp(150, 16, k), bx = lerp(250, 74, k + .06), by = lerp(150, 16, k + .06); line(ax, ay, bx, by, WOLF_C.jacket, 108); } c.scale(1.5, 1.5); wolfPaw(0, 0, PI * .82, 'open'); c.restore(); } // Demir'in kolu sağdan, kapının kenarını iter
+  const hx = ex + w * .14, hy = DY + DH * .5;                             // kol (serbest kenara yakın)
+  ell(hx, hy, 14, 14, '#c9a04a', OL, 4); rr(hx, hy - 6, 34, 12, 6, '#c9a04a', OL, 3);
+  if (glowK > 0) { c.save(); c.translate(hx, hy + 46); c.globalAlpha = glowK; const hp = []; for (let i = 0; i <= 30; i++) { const a = i / 30 * TAU; hp.push(16 * Math.sin(a) ** 3 * .9, -(13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) * .9); } c.beginPath(); smoothPath(hp, true); c.fillStyle = '#ffd890'; c.fill(); c.restore(); addLight(hx, hy + 44, 170 * glowK, `rgba(255,200,120,${.55 * glowK})`); }
+  if (o > .05) for (let i = 0; i < 8; i++) { const y = DY + 80 + hash(i) * 520, x = ex + 30 + ((t * 260 + hash(i + 2) * 300) % 300); c.save(); c.globalAlpha = .4 * o; curve([x, y, x + 40, y - 6, x + 90, y + 4], 'rgba(200,220,255,.8)', 3); c.restore(); } // içeri giren soğuk rüzgâr
+  // Demir kapının sağında: sol patisi kapının kenarını iter (eklem çözümüyle gerçek kol), sonra kolunu indirip bize döner
+  const X0 = 590, Y0 = 1100, SC = .62, reach = push * (1 - ss(.48, .62, k));
+  const tx = (ex + 22 - X0) / SC, ty = (hy + 30 - Y0) / SC;               // kapı kenarı, kolun hemen altı
+  const L = { x: lerp(-148, tx, reach), y: lerp(-272, ty, reach), hand: reach > .5 ? 'open' : 'relax' };
+  const turn = ss(.66, .8, k);
+  const pd = demirPose(turn > .5 ? 'hope' : 'sad', { t, talk: 0, lookX: lerp(-.85, .05, turn), lookY: lerp(.1, 0, turn), tilt: lerp(-.05, .02, turn), mouth: lerp(-4, 12, turn), blink: (t % 3.9 < .14) ? 1 : 0, L, R: { x: 148, y: -272, hand: 'relax' } });
+  c.save(); c.translate(X0, Y0); c.scale(SC, SC); drawWolf(pd); c.restore();
   dustMotes(t, 22, 0, 200, 720, 800, .35);
-  addLight(560, 520, 520, 'rgba(255,180,100,.22)');
+  addLight(600, 520, 520, 'rgba(255,180,100,.22)');
 };
 
 // ---------- 3) SON SÖZ: Demir cevabını verir; Ela trene biner, kapılar kapanır, tren gider. Demir bu sefer beklemez ----------
