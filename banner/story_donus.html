@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Dönüş: Instagram hikâye afişi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Caveat:wght@700&family=Inter:wght@800&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- Instagram hikâye afişi (1080x1920). Sağ alttaki kesikli kutuya bağlantı çıkartması konur.
+     Üst ~250 px ve alt ~340 px'i Instagram arayüzü örter. -->
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ara-sahneler.js"></script>
+<script src="../ortak/ara-sahneler-2.js"></script>
+<script src="../ortak/mehmetali.js"></script>
+<script src="../ortak/ara-sahneler-3.js"></script>
+<script src="../ortak/ara-sahneler-4.js"></script>
+<script src="../ortak/mekanlar.js"></script>
+<script src="../ortak/ara-sahneler-5.js"></script>
+<script>
+(async () => {
+  for (const f of ['900 170px Cinzel', '600 34px Cinzel', '700 64px Caveat', '800 32px Inter']) await document.fonts.load(f, 'AaÇĞİÖŞÜıâ');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 1080, H = 1920, CX = W / 2, t = 1.4; LIGHTS = [];
+  const lights = () => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'lighter'; for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore(); LIGHTS = []; };
+  // şafakta istasyon; açık kapıda geri dönen Ela (kapı ekranda ~ (720, 880))
+  const Z = 1.25, X0 = -1, Y0 = -175;
+  c.setTransform(Z, 0, 0, Z, -X0 * Z, -Y0 * Z);
+  drawStation(t, { pal: 'dawn', min: 372, train: () => drawTrain(-500, { cars: 3, doors: 1, whoCar: 1, who: (cx, fy) => {
+    const pe = Object.assign({}, MOODS.demir.sad, { noScarf: true, t, talk: 0, lookX: -.35, lookY: .1, blink: 0, tilt: .05, L: { x: -148, y: -272, hand: 'relax' }, R: { x: 148, y: -272, hand: 'relax' } });
+    c.save(); c.beginPath(); c.rect(cx - 105, 490, 210, 290); c.clip(); c.translate(cx, fy); c.scale(.27, .27); drawEla(pe); c.restore();
+  } }) });
+  lights();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = lg(0, 0, 0, 840, [[0, 'rgba(10,6,14,.97)'], [.72, 'rgba(10,6,14,.9)'], [1, 'rgba(10,6,14,0)']]); c.fillRect(0, 0, W, 840);
+  c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = rg(720, 1010, 0, 360, [[0, 'rgba(255,200,120,.14)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(360, 650, 720, 720); c.restore();
+  // ön planda Demir arkadan, kapıdaki Ela'ya bakıyor
+  c.save(); c.translate(320, 1900); c.scale(1.02, 1.02); drawWolfBack({ t, walk: 0, tilt: .06 }); c.restore();
+  // ışık süzmesi
+  c.save(); c.globalCompositeOperation = 'lighter'; for (let i = 0; i < 4; i++) poly([620 + i * 40, 830, 660 + i * 40, 830, 300 + i * 120, 1920, 220 + i * 120, 1920], 'rgba(255,210,150,.035)', null); c.restore();
+  const sp = (txt, x, y, font, fill, s = 0, glow) => { c.save(); c.font = font; c.letterSpacing = s + 'px'; c.textAlign = 'center'; if (glow) { c.shadowColor = glow; c.shadowBlur = 40; } c.fillStyle = fill; c.fillText(txt, x + s / 2, y); c.restore(); };
+  sp('BAYKUŞ KAZIM', CX, 300, '600 34px Cinzel,Georgia,serif', 'rgba(232,206,160,.9)', 12);
+  sp('YENİ BÖLÜM', CX, 372, '800 32px Inter,Arial,sans-serif', '#ff6a5a', 8);
+  sp('DÖNÜŞ', CX, 548, '900 170px Cinzel,Georgia,serif', lg(0, 410, 0, 560, [[0, '#fff1c8'], [.5, '#f2c463'], [1, '#b47a26']]), 10, 'rgba(255,170,70,.6)');
+  sp('Affetmek, kapıyı yeniden', CX, 640, '700 64px Caveat,cursive', '#f3e6cc');
+  sp('açmak değildir.', CX, 712, '700 64px Caveat,cursive', '#f3e6cc');
+  // bağlantı alanı (sağ altta)
+  const BX = 560, BY = 1395, BW = 470, BH = 140;
+  sp("Peron'un devamı 🚉", BX + BW / 2, BY - 40, '700 58px Caveat,cursive', '#f3e6cc');
+  c.save(); c.fillStyle = 'rgba(8,8,14,.6)'; c.beginPath(); c.roundRect(BX, BY, BW, BH, 34); c.fill(); c.setLineDash([16, 12]); c.lineWidth = 4; c.strokeStyle = 'rgba(242,196,99,.9)'; c.stroke(); c.restore();
+  sp('İZLEMEK İÇİN DOKUN', BX + BW / 2, BY + BH / 2 + 11, '800 28px Inter,Arial,sans-serif', 'rgba(243,230,204,.42)', 3);
+  c.fillStyle = rg(CX, H * .5, 500, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.5)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  window.READY = true;
+})();
+</script></body></html>
