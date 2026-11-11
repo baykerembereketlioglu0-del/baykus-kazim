@@ -2,7 +2,7 @@
 // Ela: kar beyazı dişi kurt, lavanta palto, kırmızı bere ve kırmızı atkı. drawWolf'u renk paletini değiştirerek kullanır.
 const ELA_C = { fur: '#e9e6ee', furD: '#bdb8c8', white: '#fbfaf8', jacket: '#8a7aa8', jacketD: '#64557f', sleeve: '#8a7aa8', cuff: '#64557f', band: '#8a7aa8',
   scarf: '#c8302a', scarfD: '#8e1c18', shirt: '#efe6da', shirtD: '#d8cdbd', jeans: '#3a3448', paw: '#d6d2dc', headL: '#f6f4f8', stripe: '#dcd8e4',
-  lid: '#dcd8e4', brow: '#8a8494', mark: '#b0aabb', dot: '#fbfaf8', shoe: '#7a2a2a', eye: ['#a6dccf', '#3f8a7c', '#1e4a42'], plainSleeve: true };
+  lid: '#c4bdd2', brow: '#8a8494', mark: '#b0aabb', dot: '#fbfaf8', shoe: '#7a2a2a', eye: ['#a6dccf', '#3f8a7c', '#1e4a42'], plainSleeve: true };
 function withPalette(pal, fn) { const old = {}; for (const k in pal) { old[k] = WOLF_C[k]; WOLF_C[k] = pal[k]; } try { fn(); } finally { for (const k in pal) { if (old[k] === undefined) delete WOLF_C[k]; else WOLF_C[k] = old[k]; } } }
 function drawEla(p) { withPalette(ELA_C, () => drawWolf(Object.assign({ noLetter: true, noGlasses: true, lashes: true, beret: '#c8302a' }, p))); }
 const SCARF = '#c8302a', SCARF_D = '#8e1c18';
