@@ -32,8 +32,7 @@ SCENES.yuz_yuze = S => {
   if (oz) cam(lerp(420, 470, ease(k)), lerp(760, 700, ease(k)), lerp(1.55, 2.05, ease(k)));
   else cam(lerp(370, 380, k), lerp(780, 760, k), lerp(1.3, 1.4, ease(k)));
   drawStation(t, { pal: 'dawn', min: 373, train: () => drawTrain(-745, { cars: 3, doors: 1, whoCar: 1 }) });
-  const pe = elaPose(oz ? 'sad' : 'worry', { t, talk: 0, lookX: .75, lookY: oz ? .35 : .05, blink: (t % 3.3 < .14) ? 1 : 0, tilt: oz ? .09 : .04,
-    L: { x: -24, y: -448, hand: 'relax' }, R: { x: 24, y: -442, hand: 'relax' } });
+  const pe = elaPose(oz ? 'sad' : 'worry', { t, talk: 0, lookX: .75, lookY: oz ? .35 : .05, blink: (t % 3.3 < .14) ? 1 : 0, tilt: oz ? .09 : .04 });   // kollar yanında (göğüste birleşen patiler top gibi görünüyordu)
   c.save(); c.translate(220, 1200); c.scale(.56, .56); drawEla(pe); c.restore();
   if (oz) { const f = ss(.25, .55, k); c.save(); c.globalAlpha = f; blob([220 + 30, 1200 - .56 * 700, 220 + 34, 1200 - .56 * 670, 220 + 28, 1200 - .56 * 650, 220 + 24, 1200 - .56 * 670], '#9fd2ff', OL, 2); c.restore(); } // gözyaşı
   const pd = demirPose(oz ? 'sad' : 'surprised', { t, talk: S.talk.demir, lookX: -.75, lookY: oz ? .15 : 0, blink: (t % 4.1 < .14) ? 1 : 0, tilt: oz ? -.06 : -.03, lid: oz ? .15 : -.05 });
