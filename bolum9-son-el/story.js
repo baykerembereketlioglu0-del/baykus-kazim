@@ -10,8 +10,8 @@ const EPISODE = {
   intro: 6.8, openShot: 'kart_acilis',   // sessiz açılış: gece 01:20, arka oda, kartlar dağıtılır, dükkân kavanozu masaya konur
   tail: 7,
   sign: 'KIRAATHANE',
-  music: '../muzik/son_el_muzik.m4a',      // Kevin MacLeod "Despair and Triumph" (CC BY 4.0), 89. sn'den: yükseliş Demir'in masadan kalktığı ana denk gelir
-  musicVolume: 0.32, rainVolume: 0.03,
+  music: '../muzik/floating_in_reverie_slowed.m4a',
+  musicVolume: 0, rainVolume: 0.03,   // müziksiz ana sürüm: şarkı Instagram'da paylaşırken eklenir (ayrıca 'Floating In Reverie' sürümü üretilir)
   cast: { kazim: { x: 235, y: 985, s: .6 }, demir: { x: 490, y: 990, s: .56 } },
   story: [
     { who: 'demir', mood: 'happy', gesture: 'rest', shot: 'masa', phase: 'kazan', pause: 1.4, text: 'Abi, Tilki beni arka odadaki masaya oturttu. İlk elde paramı ikiye katladım.' },

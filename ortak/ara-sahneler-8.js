@@ -74,75 +74,115 @@ function cardTable(x = 360, y = 930, rx = 360) {
   c.save(); c.globalAlpha = .12; ell(x, y - 2, rx * .92, rx * .24, null, '#e8e0c8', 2); c.restore();
 }
 
-// ---------- masa düzeni: Tilki (solda) ve Demir (sağda) masanın arkasında. Kollar eklem çözümüyle masaya uzanır ----------
-// Bedenler masanın uzak kenarında kesilir; masaya uzanan kollar masa çizildikten sonra yeniden çizilir (çuhanın üstünde görünsün).
+// ---------- masa düzeni (kıraathane usulü): Tilki solda, Demir sağda, masanın arkasında. Kartlar ELDE yelpaze;
+// sırası gelen kartını ortadaki yığına açık atar. Masada kâğıt para. Kollar eklem çözümüyle; masaya uzanan kol çuhanın üstünde çizilir.
 const MASA = { TX: 280, DX: 470, Y: 1085, SC: .58, EDGE: 842 };
 const toL = (X0, x, y) => ({ x: (x - X0) / MASA.SC, y: (y - MASA.Y) / MASA.SC });   // dünya → karakter yerel
+const PILE = [398, 898], POT = [440, 930];                                         // ortadaki kart yığını ve para
+const FAN = { demir: { L: [452, 832], R: [512, 828], c: [482, 812] }, tilki: { L: [266, 832], R: [326, 828], c: [296, 812] } };
+// Kâğıt para destesi (₺): n adet, hafif dağınık
+function cashPile(x, y, n, sc = 1) {
+  for (let i = 0; i < n; i++) { const r = (hash(i * 3 + x) - .5) * .3, yy = y - i * 3.2 * sc;
+    c.save(); c.translate(x + (hash(i + x) - .5) * 8 * sc, yy); c.rotate(r); c.scale(sc, sc);
+    rr(-38, -18, 76, 36, 3, i % 3 === 2 ? '#c96a7a' : '#5f9a6a', OL, 2.5); rr(-32, -12, 64, 24, 2, null, 'rgba(255,255,255,.35)', 1.5); ell(0, 0, 9, 9, 'rgba(255,255,255,.3)', null); c.restore(); }
+}
+// Elde tutulan kart yelpazesi (arkası bize dönük)
+function cardFan(cx, cy, n, sc = .42, spread = .17) {
+  for (let j = 0; j < n; j++) { const a = (j - (n - 1) / 2) * spread; playCard(cx + Math.sin(a) * 70 * sc * 2, cy - Math.cos(a) * 26 * sc * 2 + 26 * sc * 2, a, sc, null); }
+}
+// Atılan kart: elden (x0,y0) yığına (PILE) uçar; f 0..1; açık yüzüyle düşer
+function flyCard(x0, y0, f, face, rot0 = 0, rot1 = 0, dx = 0, dy = 0) {
+  const e = ease(f), x = lerp(x0, PILE[0] + dx, e), y = lerp(y0, PILE[1] + dy, e) - Math.sin(f * PI) * 40;
+  playCard(x, y, lerp(rot0, rot1, e) + Math.sin(f * PI) * .6, lerp(.44, .42, e), f > .45 ? face : null);
+}
 function masaKur(t, o) {
   backRoom(t);
+  const F = o.fans || {};
+  // kol hedefleri: yelpaze tutan patiler göğüs/masa kenarı hizasında; o.demirL/o.tilkiR verilirse (atış/çekiş) onlar
+  const DLt = o.demirL || (F.demir ? Object.assign(toL(MASA.DX, ...FAN.demir.L), { hand: 'relax' }) : { x: -148, y: -272, hand: 'relax' });
+  const DRt = o.demirR || (F.demir ? Object.assign(toL(MASA.DX, ...FAN.demir.R), { hand: 'relax' }) : { x: 148, y: -272, hand: 'relax' });
+  const TLt = F.tilki ? Object.assign(toL(MASA.TX, ...FAN.tilki.L), { hand: 'relax' }) : { x: -150, y: -300, hand: 'relax' };
+  const TRt = o.tilkiR || (F.tilki ? Object.assign(toL(MASA.TX, ...FAN.tilki.R), { hand: 'relax' }) : { x: 150, y: -300, hand: 'relax' });
   c.save(); c.beginPath(); c.rect(-1000, -300, 2720, MASA.EDGE + 300); c.clip();
   if (o.crowd !== false) {
     c.save(); c.translate(80, 1010); c.scale(.45, .45); gangBody('ayi', { t, laugh: o.ayi || 0, lookX: .5, tilt: Math.sin(t * 6) * .03 * (o.ayi || 0) }); c.restore();
     c.save(); c.translate(655, 1000); c.scale(.42, .42); gangBody('kedi', { t, laugh: o.kedi || 0, lookX: -.5, tilt: -.04 }); c.restore();
   }
-  const TR = o.tilkiR || { x: 150, y: -300, hand: 'relax' }, TL = { x: -150, y: -300, hand: 'relax' };
-  c.save(); c.translate(MASA.TX, MASA.Y); c.scale(MASA.SC, MASA.SC); gangBody('tilki', { t, laugh: o.tl ?? .25, lookX: o.tlook ?? .6, lookY: .2, tilt: .04, L: TL, R: TR }); c.restore();
-  const DR = o.demirR || { x: 148, y: -272, hand: 'relax' }, DL = o.demirL || { x: -148, y: -272, hand: 'relax' };
-  c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); drawWolf(Object.assign({}, o.demir, { L: DL, R: DR })); c.restore();
+  c.save(); c.translate(MASA.TX, MASA.Y); c.scale(MASA.SC, MASA.SC); gangBody('tilki', { t, laugh: o.tl ?? .25, lookX: o.tlook ?? .6, lookY: .2, tilt: .04, L: TLt, R: TRt }); c.restore();
+  c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); drawWolf(Object.assign({}, o.demir, { L: DLt, R: DRt })); c.restore();
   c.restore();
   cardTable();
   if (o.items) o.items();
   // masaya uzanan kollar çuhanın üstünde
-  if (o.tilkiR) { c.save(); c.translate(MASA.TX, MASA.Y); c.scale(MASA.SC, MASA.SC); gangArm(GANG.tilki, 1, TR, GANG.tilki.sw); c.restore(); }
-  if (o.demirR) { c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); wolfArm(1, DR); c.restore(); }
-  if (o.demirL) { c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); wolfArm(-1, DL); c.restore(); }
+  const onTable = tg => tg.y > (MASA.EDGE - MASA.Y) / MASA.SC + 8;
+  // yalnızca bilerek masaya uzatılan kollar (atış/çekiş) yeniden çizilir; boştaki kollar masanın arkasında kalır
+  if (o.tilkiR && onTable(TRt)) { c.save(); c.translate(MASA.TX, MASA.Y); c.scale(MASA.SC, MASA.SC); gangArm(GANG.tilki, 1, TRt, GANG.tilki.sw); c.restore(); }
+  if (o.demirL && onTable(DLt)) { c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); wolfArm(-1, DLt); c.restore(); }
+  if (o.demirR && onTable(DRt)) { c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); wolfArm(1, DRt); c.restore(); }
+  // eldeki yelpazeler (patiler kartları önden kavrar)
+  if (F.tilki) { cardFan(...FAN.tilki.c, F.tilki); for (const [k2, pt] of [['L', TLt], ['R', TRt]]) if (!onTable(pt) && !(k2 === 'R' && o.tilkiR)) { const w = FAN.tilki[k2]; ell(w[0], w[1] - 4, 15, 13, GANG.tilki.paw, OL, 3); } }
+  if (F.demir) { cardFan(...FAN.demir.c, F.demir); for (const [k2, pt] of [['L', DLt], ['R', DRt]]) if (!onTable(pt) && !(k2 === 'L' && o.demirL) && !(k2 === 'R' && o.demirR)) { const w = FAN.demir[k2]; ell(w[0], w[1] - 4, 15, 13, WOLF_C.paw, OL, 3); } }
   if (o.over) o.over();
 }
-const POT = [418, 905];   // Tilki'nin sağ kolu ve Demir'in sol kolu dirsek bükerek yetişir
+// atış kolu: ph 0..1 (gidiş-dönüş), elden yığına
+const throwArm = (X0, from, ph, hand = 'relax') => Object.assign(toL(X0, lerp(from[0], PILE[0] + 10, Math.sin(ph * PI)), lerp(from[1], PILE[1] + 6, Math.sin(ph * PI))), { hand });
 
-// ---------- 0) AÇILIŞ (sessiz): gece 01:20, arka oda. Tilki kart dağıtır, Demir dükkân kavanozunu masaya koyar ----------
+// ---------- 0) AÇILIŞ (sessiz): gece 01:20, arka oda. Demir dükkân parasını masaya koyar; Tilki kartları dağıtır, Demir elini toplar ----------
 SCENES.kart_acilis = S => {
   const t = S.t, lt = S.lt;
   cam(lerp(360, 380, ss(0, 7, lt)), lerp(820, 860, ss(0, 7, lt)), lerp(1.0, 1.28, ease(ss(0, 7, lt))));
-  // Tilki dağıtır: sağ patisi önünde ileri geri (her kart bir savuruş)
-  const deal = [1.0, 1.7, 2.4], swing = lt < 3.0 ? Math.max(0, Math.sin(((lt - .8) % .7) / .7 * PI)) : 0;
-  const tilkiR = toL(MASA.TX, lerp(340, 372, swing), lerp(905, 898, swing)); tilkiR.hand = 'grab';
-  // Demir kavanozu taşır ve masaya bırakır
-  const JAR = [592, 940], lift = ease(ss(3.6, 4.6, lt)), back = ss(5.0, 5.8, lt);
+  // 1) Demir kavanozu sağ patisiyle masaya bırakır (0.8–2.2)
+  const JAR = [592, 940], lift = ease(ss(.8, 1.7, lt)), back = ss(1.9, 2.4, lt);
   const jarPos = [lerp(560, JAR[0], lift), lerp(925, JAR[1], lift) - Math.sin(lift * PI) * 40];
-  const demirR = lt > 3.5 && back < 1 ? Object.assign(toL(MASA.DX, lerp(jarPos[0], 600, back), lerp(jarPos[1] - 70, 925, back)), { hand: 'relax' }) : null;
-  masaKur(t, { tilkiR, demirR, tl: .3, ayi: 0, kedi: 0,
-    demir: demirPose('calm', { t, talk: 0, lookX: lt < 3.3 ? -.5 : .3, lookY: .4, blink: (lt % 3.9 < .14) ? 1 : 0, mouth: 4 }),
+  const demirR = lt > .7 && back < 1 ? Object.assign(toL(MASA.DX, lerp(jarPos[0], 512, back), lerp(jarPos[1] - 70, 828, back)), { hand: 'relax' }) : null;
+  // 2) Tilki elindeki desteden Demir'e 5 kart atar (2.5–4.3); 3) Demir kartları toplayıp yelpaze yapar (4.6–5.3)
+  const deal = [2.5, 2.86, 3.22, 3.58, 3.94], picked = ss(4.6, 5.3, lt), dealing = lt > 2.4 && lt < 4.4;
+  const flick = dealing ? Math.max(0, Math.sin(((lt - 2.5) % .36) / .36 * PI)) : 0;
+  const tilkiR = dealing ? Object.assign(toL(MASA.TX, lerp(326, 352, flick), lerp(828, 846, flick)), { hand: 'relax' }) : null;
+  masaKur(t, { demirR, tilkiR, tl: .3, ayi: 0, kedi: 0, fans: { tilki: lt < 2.4 ? 0 : 0, demir: picked > .5 ? 5 : 0 },
+    demir: demirPose('calm', { t, talk: 0, lookX: lt < 2.4 ? .3 : -.4, lookY: .4, blink: (lt % 3.9 < .14) ? 1 : 0, mouth: 4 }),
     items: () => {
-      chipStack(318, 908, 6, '#c8302a', .8); chipStack(286, 920, 4, '#1a1614', .8);
-      deal.forEach((d0, i) => { const f = ease(ss(d0, d0 + .5, lt)); if (lt > d0) playCard(lerp(372, 470 + i * 34, f), lerp(895, 960, f) - Math.sin(f * PI) * 30, lerp(-.6, -.12 + i * .12, f), .48, null); });
+      cashPile(286, 938, 6, .8); cashPile(540, 936, 5, .8);
       moneyJar(jarPos[0], jarPos[1], 1, .62);
-    } });
+      deal.forEach((d0, i) => { const f = ease(ss(d0, d0 + .3, lt)); if (lt > d0 && picked < .5) playCard(lerp(340, 470 + (i - 2) * 6, f) + (picked > 0 ? (482 - 470) * picked : 0), lerp(832, 905 - i * 2, f) - Math.sin(f * PI) * 26 - picked * 80, lerp(-.5, (i - 2) * .05, f), .42, null); });
+    },
+    over: () => { if (lt < 4.4) { playCard(330, 822, -.15, .44, null); playCard(333, 819, -.12, .44, null); ell(326, 824, 15, 13, GANG.tilki.paw, OL, 3); } } }); // Tilki'nin destesi
   letterbox(1, 150);
   typeText('GECE 01:20 · ARKA ODA', ss(.4, 2.0, lt), 40, 1222, '600 22px Cinzel,Georgia,serif', 'rgba(236,224,200,.9)');
 };
 
-// ---------- 1) MASA: 'kazan' ilk el (pot Demir'e kayar, ekip alkışlar); 'kaybet' bir el daha… (Demir iter, Tilki süpürür) ----------
+// ---------- 1) MASA: 'kazan' ilk el (Demir'in kartı büyük, para ona gelir); 'kaybet' her elde Tilki üstüne daha büyüğünü atar ----------
 SCENES.masa = S => {
-  const t = S.t, k = S.k, lt = S.lt, lose = S.phase === 'kaybet';
+  const t = S.t, k = S.k, lose = S.phase === 'kaybet';
   cam(lerp(360, 370, k), lerp(820, 800, k), lerp(1.12, 1.2, ease(k)));
-  const win = lose ? 0 : ss(.15, .45, k), drain = lose ? ss(.05, .9, k) : 0;
-  // kaybet: 2 sn'lik döngü — Demir fiş iter (0–.35), Tilki süpürür (.5–.85)
-  const cyc = lose ? (S.pt % 2) / 2 : 0, push = lose ? Math.sin(ss(0, .35, cyc) * PI) : 0, sweep = lose ? Math.sin(ss(.45, .85, cyc) * PI) : 0;
-  const demirL = lose && push > .02 ? Object.assign(toL(MASA.DX, lerp(480, POT[0] + 22, push), lerp(912, POT[1] + 4, push)), { hand: 'relax' }) : (win > .2 && win < .95 ? Object.assign(toL(MASA.DX, lerp(POT[0] + 26, 488, win), lerp(POT[1], 910, win)), { hand: 'relax' }) : null);
-  const tilkiR = lose && sweep > .02 ? Object.assign(toL(MASA.TX, lerp(350, POT[0] - 12, sweep), lerp(912, POT[1] + 2, sweep)), { hand: 'grab' }) : null;
-  const mood = lose ? (drain > .5 ? 'sad' : 'worry') : (win > .5 ? 'happy' : 'calm');
-  masaKur(t, { demirL, tilkiR, tl: lose ? .3 + .2 * Math.abs(Math.sin(t * 4)) : .25 + win * .2,
+  let demirL = null, tilkiR = null, pile = [], potTo = 0, drain = 0, mood, win = 0;
+  if (!lose) { // Tilki önce atar, Demir büyük kartla keser, para Demir'e
+    const tTh = ss(.08, .26, k), dTh = ss(.3, .48, k); win = ss(.52, .72, k);
+    if (tTh > 0 && tTh < 1) tilkiR = throwArm(MASA.TX, FAN.tilki.R, tTh);
+    if (dTh > 0 && dTh < 1) demirL = throwArm(MASA.DX, FAN.demir.L, dTh);
+    if (win > 0 && win < 1) demirL = Object.assign(toL(MASA.DX, lerp(POT[0] + 10, 520, win), lerp(POT[1], 930, win)), { hand: 'relax' });
+    pile = [[tTh, FAN.tilki.c, ['K', 'c'], -.2, .1, -14, 0], [dTh, FAN.demir.c, ['A', 'h'], .2, -.12, 14, 6]];
+    mood = win > .5 ? 'happy' : (dTh > .5 ? 'hope' : 'calm');
+  } else { // 2.4 sn'lik eller: Demir atar → Tilki üstüne büyüğünü atar → Tilki parayı çeker
+    drain = ss(.05, .9, k); const cyc = (S.pt % 2.4) / 2.4, n = Math.floor(S.pt / 2.4);
+    const dTh = ss(.04, .26, cyc), tTh = ss(.32, .54, cyc), pull = ss(.6, .92, cyc);
+    if (dTh > 0 && dTh < 1) demirL = throwArm(MASA.DX, FAN.demir.L, dTh);
+    if (tTh > 0 && tTh < 1) tilkiR = throwArm(MASA.TX, FAN.tilki.R, tTh);
+    if (pull > 0 && pull < 1) tilkiR = Object.assign(toL(MASA.TX, lerp(POT[0] - 6, 330, pull), lerp(POT[1], 934, pull)), { hand: 'grab' });
+    const dc = [['7', 'd'], ['9', 'c'], ['5', 'h'], ['8', 's']][n % 4], tc = [['K', 's'], ['A', 'd'], ['Q', 'h'], ['A', 's']][n % 4];
+    pile = [[dTh, FAN.demir.c, dc, .2, -.1, 12, 4], [tTh, FAN.tilki.c, tc, -.2, .15, -10, -2]];
+    potTo = pull; mood = drain > .5 ? 'sad' : 'worry';
+  }
+  masaKur(t, { demirL, tilkiR, fans: { tilki: 5, demir: 5 }, tl: lose ? .3 + .2 * Math.abs(Math.sin(t * 4)) : .25 + win * .2,
     ayi: lose ? .55 + .3 * Math.abs(Math.sin(t * 6)) : win * (.5 + .3 * Math.abs(Math.sin(t * 7))), kedi: lose ? .25 : win * .6,
-    demir: demirPose(mood, { t, talk: S.talk.demir, lookX: -.5, lookY: lose ? .5 : .25, blink: (t % 3.7 < .14) ? 1 : 0, tilt: lose ? .06 * drain : -.04 * win, mouth: lose ? lerp(0, -12, drain) : lerp(6, 24, win) }),
+    demir: demirPose(mood, { t, talk: S.talk.demir, lookX: -.45, lookY: .55, blink: (t % 3.7 < .14) ? 1 : 0, tilt: lose ? .06 * drain : -.04 * win, mouth: lose ? lerp(0, -12, drain) : lerp(6, 24, win) }),
     items: () => {
-      playCard(468, 962, -.12, .46, lose ? ['7', 'd'] : ['A', 'h']); playCard(500, 966, .1, .46, lose ? ['2', 'c'] : ['A', 's']);
-      playCard(262, 952, -.08, .46, lose ? ['A', 's'] : ['9', 'c']); playCard(292, 956, .1, .46, lose ? ['K', 's'] : ['4', 'd']);
-      const px = lose ? lerp(POT[0], 330, sweep) : lerp(POT[0], 500, ease(win)), py = lose ? POT[1] + 6 * sweep : lerp(POT[1], 912, win);
-      chipStack(px, py, lose ? Math.max(2, Math.round(lerp(8, 3, drain))) : 7, '#c8302a', .7); chipStack(px + 28, py + 8, lose ? 3 : 5, '#2a5a9a', .7);
-      chipStack(318, 906, lose ? Math.round(lerp(4, 12, drain)) : 4, '#e8c040', .7);                         // Tilki'nin kasası büyür
+      cashPile(lerp(286, 286, 0), 938, lose ? Math.round(lerp(5, 14, drain)) : 5, .8);                                  // Tilki'nin parası
+      cashPile(540, 936, lose ? Math.max(1, Math.round(lerp(6, 1, drain))) : Math.round(lerp(4, 9, win)), .8);           // Demir'in parası
+      const px = lose ? lerp(POT[0], 300, potTo) : lerp(POT[0], 530, win), py = lose ? lerp(POT[1], 936, potTo) : lerp(POT[1], 930, win);
+      if (lose ? potTo < .98 : win < .98) cashPile(px, py, 4, .75);                                                     // ortadaki bahis
       moneyJar(600, 968, lose ? 1 - drain : 1, .58);
-      if (!lose && win > .2 && win < 1) for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + t; ell(500 + Math.cos(a) * 60 * win, 900 + Math.sin(a) * 30 * win, 4, 4, `rgba(255,230,150,${1 - win})`, null); }
+      for (const [f, fr, face, r0, r1, dx, dy] of pile) if (f > 0) flyCard(fr[0], fr[1], f, face, r0, r1, dx, dy);
     } });
 };
 
@@ -176,49 +216,47 @@ SCENES.olta = S => {
   c.save(); c.globalCompositeOperation = 'lighter'; ell(360, 640, 520, 520, rg(360, 640, 100, 520, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0)']]), null); c.restore();
 };
 
-// ---------- 3) BİR EL DAHA: masaya yakın; Demir fişleri iter, kartlar açılır, Tilki süpürür. 3 kez, sayaç azalır ----------
+// ---------- 3) BİR EL DAHA: masaya yakın; her elde Demir atar, Tilki üstüne büyüğünü atar, parayı çeker. 3 el, sayaç azalır ----------
 SCENES.bir_el_daha = S => {
   const t = S.t, per = S.pd / 3, i = Math.min(2, Math.floor(S.pt / per)), ph = cl((S.pt - i * per) / per, 0, 1);
   cam(380, 860, 1.5);
-  const push = Math.sin(ss(.05, .35, ph) * PI), flip = ss(.35, .5, ph), sweep = ease(ss(.58, .88, ph)), reachT = Math.sin(ss(.55, .9, ph) * PI);
-  const money = [12000, 6000, 1500, 0], cur = sweep > .5 ? money[i + 1] : money[i];
-  const potX = lerp(lerp(486, POT[0] + 8, ss(.05, .3, ph)), 330, sweep), potY = POT[1] + 4;
-  const demirL = push > .02 ? Object.assign(toL(MASA.DX, potX + 30, potY + 2), { hand: 'relax' }) : null;
-  const tilkiR = reachT > .02 ? Object.assign(toL(MASA.TX, Math.max(338, potX - 16), potY + 4), { hand: 'grab' }) : null;
-  masaKur(t, { demirL, tilkiR, tl: .35 + .25 * sweep, ayi: .5, kedi: .2,
-    demir: demirPose(i < 2 ? 'worry' : 'sad', { t, talk: 0, lookX: -.3, lookY: .6, blink: 0, tilt: .04 + i * .03, mouth: -4 - i * 4 }),
+  const dTh = ss(.04, .26, ph), tTh = ss(.32, .54, ph), pull = ss(.62, .9, ph);
+  const money = [12000, 6000, 1500, 0], cur = pull > .5 ? money[i + 1] : money[i];
+  let demirL = null, tilkiR = null;
+  if (dTh > 0 && dTh < 1) demirL = throwArm(MASA.DX, FAN.demir.L, dTh);
+  if (tTh > 0 && tTh < 1) tilkiR = throwArm(MASA.TX, FAN.tilki.R, tTh);
+  if (pull > 0 && pull < 1) tilkiR = Object.assign(toL(MASA.TX, lerp(POT[0] - 6, 330, pull), lerp(POT[1], 934, pull)), { hand: 'grab' });
+  masaKur(t, { demirL, tilkiR, fans: { tilki: 5, demir: 5 - i }, tl: .35 + .25 * pull, ayi: .5, kedi: .2,
+    demir: demirPose(i < 2 ? 'worry' : 'sad', { t, talk: 0, lookX: -.3, lookY: .65, blink: 0, tilt: .04 + i * .03, mouth: -4 - i * 4 }),
     items: () => {
-      const tc = [['A', 's'], ['K', 'h'], ['Q', 'd']][i], tc2 = [['A', 'd'], ['K', 'c'], ['Q', 's']][i], dc = [['7', 'c'], ['3', 'd'], ['2', 's']][i], dc2 = [['2', 'h'], ['5', 'c'], ['4', 'h']][i];
-      playCard(262, 952, -.08, .46, flip > .5 ? tc : null); playCard(292, 956, .1, .46, flip > .5 ? tc2 : null);
-      playCard(468, 962, -.12, .46, flip > .5 ? dc : null); playCard(500, 966, .1, .46, flip > .5 ? dc2 : null);
-      const n = [6, 5, 3][i]; chipStack(potX, potY, n, '#e8c040', .75); chipStack(potX + 30, potY + 8, Math.max(1, n - 2), '#c8302a', .75);
-      chipStack(318, 906, 6 + i * 3, '#e8c040', .7);
-      moneyJar(600, 968, [.66, .33, .08][i] * (1 - .5 * sweep), .58);
+      cashPile(286, 938, 6 + i * 3, .8); cashPile(540, 936, 3 - i, .8);
+      if (pull < .98) cashPile(lerp(POT[0], 300, pull), lerp(POT[1], 936, pull), 4 - i, .75);
+      moneyJar(600, 968, [.66, .33, .08][i] * (1 - .5 * pull), .58);
+      const dc = [['7', 'c'], ['3', 'd'], ['2', 's']][i], tc = [['A', 's'], ['K', 'h'], ['Q', 'd']][i];
+      if (dTh > 0) flyCard(...FAN.demir.c, dTh, dc, .2, -.1, 12, 4);
+      if (tTh > 0) flyCard(...FAN.tilki.c, tTh, tc, -.2, .15, -10, -2);
     },
-    over: () => { // para sayacı (kırmızı dijital), masanın üstünde
-      const sx = 255, sy = 1000, txt = '₺ ' + cur.toLocaleString('tr');   // masanın önünde (yüzleri kapatmasın)
+    over: () => { // para sayacı (kırmızı dijital), masanın önünde
+      const sx = 255, sy = 1000, txt = '₺ ' + cur.toLocaleString('tr');
       rr(sx, sy, 250, 62, 10, '#121418', OL, 4); c.font = '700 36px "Courier New",monospace'; c.fillStyle = cur === 0 ? '#ff3a2a' : '#ff6a5a'; c.textAlign = 'center'; c.fillText(txt, sx + 125, sy + 44);
-      if (sweep > .5 && sweep < 1) { c.save(); c.globalAlpha = 1 - sweep; c.font = '800 30px Inter,Arial'; c.fillStyle = '#ff5a4a'; c.fillText('−' + (money[i] - money[i + 1]).toLocaleString('tr'), sx + 125, sy + 100 + 26 * sweep); c.restore(); }
+      if (pull > .5 && pull < 1) { c.save(); c.globalAlpha = 1 - pull; c.font = '800 30px Inter,Arial'; c.fillStyle = '#ff5a4a'; c.fillText('−' + (money[i] - money[i + 1]).toLocaleString('tr'), sx + 125, sy + 100 + 26 * pull); c.restore(); }
     } });
 };
 
-// ---------- 4) KARTLARIN: elindeki kötü kartlar; Demir onları masaya bırakıp Tilki'nin tarafına sürer, Tilki toplar ----------
+// ---------- 4) KARTLARIN: Demir elindeki kartlara bakar; sonra hepsini kapalı olarak Tilki'nin önüne fırlatır, Tilki toplar ----------
 SCENES.kart_el = S => {
   const t = S.t, k = S.k;
   cam(390, 860, 1.42);
-  const fold = ease(ss(.3, .45, k)), down = ease(ss(.4, .55, k)), slide = ease(ss(.55, .75, k)), take = ease(ss(.72, .92, k));
-  // eller: önce göğüs hizasında yelpaze tutar; sonra masaya indirip itti
-  const hold = 1 - down, deckX = lerp(lerp(482, 460, down), 372, slide) - take * 34, deckY = lerp(lerp(800, 912, down), 908, slide);
-  const demirR = hold > .5 ? Object.assign(toL(MASA.DX, 512, 828), { hand: 'relax' }) : null;
-  const demirL = hold > .5 ? Object.assign(toL(MASA.DX, 452, 832), { hand: 'relax' }) : (slide < .98 ? Object.assign(toL(MASA.DX, deckX + 26, deckY + 4), { hand: 'relax' }) : null);
-  const tilkiR = take > .02 ? Object.assign(toL(MASA.TX, deckX - 22, deckY + 4), { hand: 'grab' }) : null;
-  masaKur(t, { demirR, demirL, tilkiR, tl: .35, ayi: .3, kedi: .1,
-    demir: demirPose('sad', { t, talk: 0, lookX: -.2, lookY: .6, blink: (t % 4 < .14) ? 1 : 0, tilt: .05, mouth: -8 }),
-    items: () => { chipStack(318, 906, 12, '#e8c040', .7); moneyJar(600, 968, 0, .58); },
-    over: () => {
-      const hand = [['2', 'c'], ['7', 'd'], ['3', 's'], ['9', 'h'], ['4', 'c']];
-      hand.forEach((f, j) => { const a = (j - 2) * .2 * (1 - fold); playCard(deckX + Math.sin(a) * 80 * (1 - fold), deckY - Math.cos(a) * 26 * (1 - fold) + 20 * (1 - fold), a, .5 - .06 * down, fold > .6 ? null : f); });
-      if (hold > .5) { c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); wolfPaw((512 - MASA.DX) / MASA.SC, (828 - MASA.Y) / MASA.SC, PI / 2, 'relax'); wolfPaw((452 - MASA.DX) / MASA.SC, (832 - MASA.Y) / MASA.SC, PI / 2, 'relax'); c.restore(); } // kartları tutan patiler önde
+  const look = ss(0, .25, k), toss = ss(.4, .58, k), take = ss(.68, .9, k);
+  const tossArm = toss > 0 && toss < 1 ? Object.assign(toL(MASA.DX, lerp(FAN.demir.L[0], 352, Math.sin(toss * PI * .5)), lerp(FAN.demir.L[1], 906, Math.sin(toss * PI * .5))), { hand: 'open' }) : null;
+  const tilkiR = take > 0 && take < 1 ? Object.assign(toL(MASA.TX, lerp(330, 344, Math.sin(take * PI)), lerp(828, 908, Math.sin(take * PI))), { hand: 'grab' }) : null;
+  masaKur(t, { demirL: tossArm, tilkiR, fans: { tilki: 5, demir: toss > .05 ? 0 : 5 }, tl: .35 + .3 * take, ayi: .35, kedi: .1,
+    demir: demirPose('sad', { t, talk: 0, lookX: lerp(.05, -.35, toss), lookY: lerp(.85, .5, toss), blink: (t % 4 < .14) ? 1 : 0, tilt: .06, mouth: -8, nod: look * .4 * (1 - toss) }),
+    items: () => {
+      cashPile(286, 938, 15, .8); moneyJar(600, 968, 0, .58);
+      if (toss > .05) { // fırlatılan kartlar: yelpazeden Tilki'nin önüne savrulur, kapalı
+        for (let j = 0; j < 5; j++) { const f = ease(cl((toss - j * .04) / .9, 0, 1)), g = take; playCard(lerp(482 + (j - 2) * 14, 340 + (j - 2) * 16, f) - g * 30, lerp(812, 900 + (hash(j) - .5) * 20, f) - Math.sin(f * PI) * 50 + g * 20, lerp((j - 2) * .17, (hash(j + 3) - .5) * 1.2, f), .42, null); }
+      }
     } });
 };
 
