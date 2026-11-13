@@ -5,6 +5,8 @@ const EPISODE = {
   title: 'Son El',
   quote: 'Masadan kalkmayı bilmeyen, kaybeder kendini.',
   sketch: 'kart',
+  cta: 'İzle, öğren, beğen ve takip et.',
+  sig: '— Baykuş Kâzım',   // defter sayfasındaki çağrı (seslendirmeyle aynı)
   intro: 6.8, openShot: 'kart_acilis',   // sessiz açılış: gece 01:20, arka oda, kartlar dağıtılır, dükkân kavanozu masaya konur
   tail: 7,
   sign: 'KIRAATHANE',
@@ -22,7 +24,7 @@ const EPISODE = {
     { who: 'kazim', mood: 'warm', gesture: 'rest', shot: [['close-kazim', 0], ['tezgah', .3]], pause: 2.0, text: 'Paranı kaybettin evlat, ama ellerin hâlâ seninle. Masada giden, tezgâhta geri gelir; bir bir, alın teriyle, emekle.' },
     { who: 'demir', mood: 'hope', gesture: 'rest', shot: 'cikis', pause: 4.0, text: 'Kartları masaya bıraktım ve kapıdan çıktım. Bu sefer, bir el daha demedim.' },
     { who: 'kazim', mood: 'stern', gesture: 'rest', shot: [['wide', 0], ['close-kazim', .45]], pause: 1.8, text: 'Kumar önce cebini boşaltır evlat, sonra evini. Masadan kalkmayı bilmeyen, kaybeder kendini.' },
-    { who: 'kazim', mood: 'warm', gesture: 'rest', shot: 'kapanis', noSub: true, text: 'İzle, öğren ve sessizce yüksel. Geceyi gören sen olana dek.' },
+    { who: 'kazim', mood: 'warm', gesture: 'rest', shot: 'kapanis', noSub: true, text: 'İzle, öğren, beğen ve takip et. Ben, Baykuş Kâzım.' },
   ],
 };
 if (typeof module !== 'undefined') module.exports = EPISODE;

@@ -477,9 +477,9 @@ SCENES.kapanis = S => {
     // imza + çağrı (el yazısıyla)
     const sig = ss(sealT + .5, sealT + 1.3, lt);
     c.save(); c.globalAlpha *= sig; c.textAlign = 'center'; c.fillStyle = '#3a2410';
-    c.font = '700 40px Caveat,cursive'; c.fillText('— Kâzım', -40, 250);
+    c.font = '700 40px Caveat,cursive'; c.fillText(S.sig || '— Kâzım', -40, 250);
     c.font = '600 24px Inter,Arial,sans-serif'; c.fillStyle = '#5a3a20'; c.fillText('@baykus.kazim', -40, 320);
-    c.font = 'italic 600 22px Georgia,serif'; c.fillText('İzle, öğren ve sessizce yüksel…', -40, 356); c.restore();
+    c.font = 'italic 600 22px Georgia,serif'; c.fillText(S.cta || 'İzle, öğren ve sessizce yüksel…', -40, 356); c.restore();
     // fener ışığı sayfada titrer
     c.restore();
     c.save(); c.globalAlpha = dive; c.globalCompositeOperation = 'multiply';

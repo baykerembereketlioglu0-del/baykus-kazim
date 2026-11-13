@@ -181,7 +181,7 @@
     const fn = SCENES[shot.name]; if (!fn) return;
     const pt = t - shot.start, pd = shot.end - shot.start;
     dst.setTransform(BASE, 0, 0, BASE, 0, 0); dst.save();
-    fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title, sketch: EP.sketch,
+    fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title, sketch: EP.sketch, cta: EP.cta, sig: EP.sig,
       talk: new Proxy({}, { get: (_, w) => talkOf(String(w), t) }) });
     dst.restore(); lightsOn(dst);
   }

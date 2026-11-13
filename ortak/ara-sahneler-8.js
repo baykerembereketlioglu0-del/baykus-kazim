@@ -76,7 +76,7 @@ function cardTable(x = 360, y = 930, rx = 360) {
 
 // ---------- masa düzeni: Tilki (solda) ve Demir (sağda) masanın arkasında. Kollar eklem çözümüyle masaya uzanır ----------
 // Bedenler masanın uzak kenarında kesilir; masaya uzanan kollar masa çizildikten sonra yeniden çizilir (çuhanın üstünde görünsün).
-const MASA = { TX: 250, DX: 470, Y: 1085, SC: .58, EDGE: 842 };
+const MASA = { TX: 280, DX: 470, Y: 1085, SC: .58, EDGE: 842 };
 const toL = (X0, x, y) => ({ x: (x - X0) / MASA.SC, y: (y - MASA.Y) / MASA.SC });   // dünya → karakter yerel
 function masaKur(t, o) {
   backRoom(t);
@@ -98,7 +98,7 @@ function masaKur(t, o) {
   if (o.demirL) { c.save(); c.translate(MASA.DX, MASA.Y); c.scale(MASA.SC, MASA.SC); wolfArm(-1, DL); c.restore(); }
   if (o.over) o.over();
 }
-const POT = [432, 902];   // iki kolun da yetiştiği orta nokta
+const POT = [418, 905];   // Tilki'nin sağ kolu ve Demir'in sol kolu dirsek bükerek yetişir
 
 // ---------- 0) AÇILIŞ (sessiz): gece 01:20, arka oda. Tilki kart dağıtır, Demir dükkân kavanozunu masaya koyar ----------
 SCENES.kart_acilis = S => {
@@ -106,7 +106,7 @@ SCENES.kart_acilis = S => {
   cam(lerp(360, 380, ss(0, 7, lt)), lerp(820, 860, ss(0, 7, lt)), lerp(1.0, 1.28, ease(ss(0, 7, lt))));
   // Tilki dağıtır: sağ patisi önünde ileri geri (her kart bir savuruş)
   const deal = [1.0, 1.7, 2.4], swing = lt < 3.0 ? Math.max(0, Math.sin(((lt - .8) % .7) / .7 * PI)) : 0;
-  const tilkiR = toL(MASA.TX, lerp(320, 360, swing), lerp(905, 895, swing)); tilkiR.hand = 'relax';
+  const tilkiR = toL(MASA.TX, lerp(340, 372, swing), lerp(905, 898, swing)); tilkiR.hand = 'grab';
   // Demir kavanozu taşır ve masaya bırakır
   const JAR = [592, 940], lift = ease(ss(3.6, 4.6, lt)), back = ss(5.0, 5.8, lt);
   const jarPos = [lerp(560, JAR[0], lift), lerp(925, JAR[1], lift) - Math.sin(lift * PI) * 40];
@@ -114,8 +114,8 @@ SCENES.kart_acilis = S => {
   masaKur(t, { tilkiR, demirR, tl: .3, ayi: 0, kedi: 0,
     demir: demirPose('calm', { t, talk: 0, lookX: lt < 3.3 ? -.5 : .3, lookY: .4, blink: (lt % 3.9 < .14) ? 1 : 0, mouth: 4 }),
     items: () => {
-      chipStack(285, 905, 6, '#c8302a', .8); chipStack(250, 918, 4, '#1a1614', .8);
-      deal.forEach((d0, i) => { const f = ease(ss(d0, d0 + .5, lt)); if (lt > d0) playCard(lerp(345, 470 + i * 34, f), lerp(895, 960, f) - Math.sin(f * PI) * 30, lerp(-.6, -.12 + i * .12, f), .48, null); });
+      chipStack(318, 908, 6, '#c8302a', .8); chipStack(286, 920, 4, '#1a1614', .8);
+      deal.forEach((d0, i) => { const f = ease(ss(d0, d0 + .5, lt)); if (lt > d0) playCard(lerp(372, 470 + i * 34, f), lerp(895, 960, f) - Math.sin(f * PI) * 30, lerp(-.6, -.12 + i * .12, f), .48, null); });
       moneyJar(jarPos[0], jarPos[1], 1, .62);
     } });
   letterbox(1, 150);
@@ -129,20 +129,20 @@ SCENES.masa = S => {
   const win = lose ? 0 : ss(.15, .45, k), drain = lose ? ss(.05, .9, k) : 0;
   // kaybet: 2 sn'lik döngü — Demir fiş iter (0–.35), Tilki süpürür (.5–.85)
   const cyc = lose ? (S.pt % 2) / 2 : 0, push = lose ? Math.sin(ss(0, .35, cyc) * PI) : 0, sweep = lose ? Math.sin(ss(.45, .85, cyc) * PI) : 0;
-  const demirR = lose && push > .02 ? Object.assign(toL(MASA.DX, lerp(560, POT[0] + 20, push), lerp(930, POT[1] + 6, push)), { hand: 'relax' }) : (win > .2 && win < .95 ? Object.assign(toL(MASA.DX, lerp(POT[0] + 30, 560, win), lerp(POT[1], 930, win)), { hand: 'open' }) : null);
-  const tilkiR = lose && sweep > .02 ? Object.assign(toL(MASA.TX, lerp(330, POT[0] - 10, sweep), lerp(912, POT[1], sweep)), { hand: 'relax' }) : null;
+  const demirL = lose && push > .02 ? Object.assign(toL(MASA.DX, lerp(480, POT[0] + 22, push), lerp(912, POT[1] + 4, push)), { hand: 'relax' }) : (win > .2 && win < .95 ? Object.assign(toL(MASA.DX, lerp(POT[0] + 26, 488, win), lerp(POT[1], 910, win)), { hand: 'relax' }) : null);
+  const tilkiR = lose && sweep > .02 ? Object.assign(toL(MASA.TX, lerp(350, POT[0] - 12, sweep), lerp(912, POT[1] + 2, sweep)), { hand: 'grab' }) : null;
   const mood = lose ? (drain > .5 ? 'sad' : 'worry') : (win > .5 ? 'happy' : 'calm');
-  masaKur(t, { demirR, tilkiR, tl: lose ? .3 + .2 * Math.abs(Math.sin(t * 4)) : .25 + win * .2,
+  masaKur(t, { demirL, tilkiR, tl: lose ? .3 + .2 * Math.abs(Math.sin(t * 4)) : .25 + win * .2,
     ayi: lose ? .55 + .3 * Math.abs(Math.sin(t * 6)) : win * (.5 + .3 * Math.abs(Math.sin(t * 7))), kedi: lose ? .25 : win * .6,
     demir: demirPose(mood, { t, talk: S.talk.demir, lookX: -.5, lookY: lose ? .5 : .25, blink: (t % 3.7 < .14) ? 1 : 0, tilt: lose ? .06 * drain : -.04 * win, mouth: lose ? lerp(0, -12, drain) : lerp(6, 24, win) }),
     items: () => {
       playCard(468, 962, -.12, .46, lose ? ['7', 'd'] : ['A', 'h']); playCard(500, 966, .1, .46, lose ? ['2', 'c'] : ['A', 's']);
-      playCard(232, 952, -.08, .46, lose ? ['A', 's'] : ['9', 'c']); playCard(262, 956, .1, .46, lose ? ['K', 's'] : ['4', 'd']);
-      const px = lose ? lerp(POT[0], 300, sweep) : lerp(POT[0], 548, ease(win)), py = lose ? POT[1] + 8 * sweep : lerp(POT[1], 928, win);
+      playCard(262, 952, -.08, .46, lose ? ['A', 's'] : ['9', 'c']); playCard(292, 956, .1, .46, lose ? ['K', 's'] : ['4', 'd']);
+      const px = lose ? lerp(POT[0], 330, sweep) : lerp(POT[0], 500, ease(win)), py = lose ? POT[1] + 6 * sweep : lerp(POT[1], 912, win);
       chipStack(px, py, lose ? Math.max(2, Math.round(lerp(8, 3, drain))) : 7, '#c8302a', .7); chipStack(px + 28, py + 8, lose ? 3 : 5, '#2a5a9a', .7);
-      chipStack(292, 908, lose ? Math.round(lerp(4, 12, drain)) : 4, '#e8c040', .7);                         // Tilki'nin kasası büyür
+      chipStack(318, 906, lose ? Math.round(lerp(4, 12, drain)) : 4, '#e8c040', .7);                         // Tilki'nin kasası büyür
       moneyJar(600, 968, lose ? 1 - drain : 1, .58);
-      if (!lose && win > .2 && win < 1) for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + t; ell(548 + Math.cos(a) * 60 * win, 900 + Math.sin(a) * 30 * win, 4, 4, `rgba(255,230,150,${1 - win})`, null); }
+      if (!lose && win > .2 && win < 1) for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + t; ell(500 + Math.cos(a) * 60 * win, 900 + Math.sin(a) * 30 * win, 4, 4, `rgba(255,230,150,${1 - win})`, null); }
     } });
 };
 
@@ -182,17 +182,17 @@ SCENES.bir_el_daha = S => {
   cam(380, 860, 1.5);
   const push = Math.sin(ss(.05, .35, ph) * PI), flip = ss(.35, .5, ph), sweep = ease(ss(.58, .88, ph)), reachT = Math.sin(ss(.55, .9, ph) * PI);
   const money = [12000, 6000, 1500, 0], cur = sweep > .5 ? money[i + 1] : money[i];
-  const potX = lerp(lerp(540, POT[0] + 10, ss(.05, .3, ph)), 300, sweep), potY = POT[1] + 4;
-  const demirR = push > .02 ? Object.assign(toL(MASA.DX, potX + 34, potY + 4), { hand: 'relax' }) : null;
-  const tilkiR = reachT > .02 ? Object.assign(toL(MASA.TX, lerp(330, POT[0] - 8, reachT) + (sweep > .5 ? -40 * (sweep - .5) : 0), potY + 6), { hand: 'relax' }) : null;
-  masaKur(t, { demirR, tilkiR, tl: .35 + .25 * sweep, ayi: .5, kedi: .2,
+  const potX = lerp(lerp(486, POT[0] + 8, ss(.05, .3, ph)), 330, sweep), potY = POT[1] + 4;
+  const demirL = push > .02 ? Object.assign(toL(MASA.DX, potX + 30, potY + 2), { hand: 'relax' }) : null;
+  const tilkiR = reachT > .02 ? Object.assign(toL(MASA.TX, Math.max(338, potX - 16), potY + 4), { hand: 'grab' }) : null;
+  masaKur(t, { demirL, tilkiR, tl: .35 + .25 * sweep, ayi: .5, kedi: .2,
     demir: demirPose(i < 2 ? 'worry' : 'sad', { t, talk: 0, lookX: -.3, lookY: .6, blink: 0, tilt: .04 + i * .03, mouth: -4 - i * 4 }),
     items: () => {
       const tc = [['A', 's'], ['K', 'h'], ['Q', 'd']][i], tc2 = [['A', 'd'], ['K', 'c'], ['Q', 's']][i], dc = [['7', 'c'], ['3', 'd'], ['2', 's']][i], dc2 = [['2', 'h'], ['5', 'c'], ['4', 'h']][i];
-      playCard(232, 952, -.08, .46, flip > .5 ? tc : null); playCard(262, 956, .1, .46, flip > .5 ? tc2 : null);
+      playCard(262, 952, -.08, .46, flip > .5 ? tc : null); playCard(292, 956, .1, .46, flip > .5 ? tc2 : null);
       playCard(468, 962, -.12, .46, flip > .5 ? dc : null); playCard(500, 966, .1, .46, flip > .5 ? dc2 : null);
       const n = [6, 5, 3][i]; chipStack(potX, potY, n, '#e8c040', .75); chipStack(potX + 30, potY + 8, Math.max(1, n - 2), '#c8302a', .75);
-      chipStack(292, 908, 6 + i * 3, '#e8c040', .7);
+      chipStack(318, 906, 6 + i * 3, '#e8c040', .7);
       moneyJar(600, 968, [.66, .33, .08][i] * (1 - .5 * sweep), .58);
     },
     over: () => { // para sayacı (kırmızı dijital), masanın üstünde
@@ -208,13 +208,13 @@ SCENES.kart_el = S => {
   cam(390, 860, 1.42);
   const fold = ease(ss(.3, .45, k)), down = ease(ss(.4, .55, k)), slide = ease(ss(.55, .75, k)), take = ease(ss(.72, .92, k));
   // eller: önce göğüs hizasında yelpaze tutar; sonra masaya indirip itti
-  const hold = 1 - down, deckX = lerp(lerp(500, 470, down), 330, slide) - take * 60, deckY = lerp(lerp(800, 930, down), 912, slide);
-  const demirR = slide < .98 ? Object.assign(toL(MASA.DX, hold > .5 ? 512 : deckX + 30, hold > .5 ? 828 : deckY + 4), { hand: 'relax' }) : null;
-  const demirL = hold > .5 ? Object.assign(toL(MASA.DX, 452, 832), { hand: 'relax' }) : null;
-  const tilkiR = take > .02 ? Object.assign(toL(MASA.TX, deckX - 20, deckY + 4), { hand: 'relax' }) : null;
+  const hold = 1 - down, deckX = lerp(lerp(482, 460, down), 372, slide) - take * 34, deckY = lerp(lerp(800, 912, down), 908, slide);
+  const demirR = hold > .5 ? Object.assign(toL(MASA.DX, 512, 828), { hand: 'relax' }) : null;
+  const demirL = hold > .5 ? Object.assign(toL(MASA.DX, 452, 832), { hand: 'relax' }) : (slide < .98 ? Object.assign(toL(MASA.DX, deckX + 26, deckY + 4), { hand: 'relax' }) : null);
+  const tilkiR = take > .02 ? Object.assign(toL(MASA.TX, deckX - 22, deckY + 4), { hand: 'grab' }) : null;
   masaKur(t, { demirR, demirL, tilkiR, tl: .35, ayi: .3, kedi: .1,
     demir: demirPose('sad', { t, talk: 0, lookX: -.2, lookY: .6, blink: (t % 4 < .14) ? 1 : 0, tilt: .05, mouth: -8 }),
-    items: () => { chipStack(292, 908, 12, '#e8c040', .7); moneyJar(600, 968, 0, .58); },
+    items: () => { chipStack(318, 906, 12, '#e8c040', .7); moneyJar(600, 968, 0, .58); },
     over: () => {
       const hand = [['2', 'c'], ['7', 'd'], ['3', 's'], ['9', 'h'], ['4', 'c']];
       hand.forEach((f, j) => { const a = (j - 2) * .2 * (1 - fold); playCard(deckX + Math.sin(a) * 80 * (1 - fold), deckY - Math.cos(a) * 26 * (1 - fold) + 20 * (1 - fold), a, .5 - .06 * down, fold > .6 ? null : f); });

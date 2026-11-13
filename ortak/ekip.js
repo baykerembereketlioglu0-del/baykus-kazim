@@ -14,6 +14,10 @@ function gangArm(G, side, tgt, sw) {
   capsule([j.wx - Math.cos(fa) * 26, j.wy - Math.sin(fa) * 26, j.wx - Math.cos(fa) * 10, j.wy - Math.sin(fa) * 10], G === GANG.ayi ? 66 : 54, G.trim, 5);
   c.save(); c.translate(j.wx, j.wy); c.rotate(fa - PI / 2);
   if (tgt.hand === 'point') { capsule([-6, 20, -6, 78], 17, G.paw, 5); ell(0, 22, 26, 24, G.paw, OL, 5); capsule([18, 10, 28, 30], 13, G.paw, 4); }
+  else if (tgt.hand === 'grab') { // masada fiş/kart toplayan pençe: geniş avuç, açık parmaklar, açık renk tırnaklar
+    for (const a of [-.55, -.18, .18, .55]) { const fx = Math.sin(a) * 40, fy = 22 + Math.cos(a) * 40; capsule([Math.sin(a) * 14, 26, fx, fy], 20, G.paw, 5); poly([fx - 5, fy + 4, fx + 5, fy + 4, fx + Math.sin(a) * 4, fy + 16], '#efe6d6', OL, 2); }
+    ell(0, 24, 32, 28, G.paw, OL, 5); ell(0, 30, 14, 10, 'rgba(255,255,255,.12)', null);
+  }
   else { ell(0, 22, 27, 26, G.paw, OL, 5); for (const k of [-11, 0, 11]) curve([k - 4, 36, k, 45, k + 4, 36], 'rgba(0,0,0,.45)', 3); }
   c.restore();
 }
