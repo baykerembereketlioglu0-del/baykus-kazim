@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8">
+<title>Son El: Instagram kapağı</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:ital,wght@1,900&display=block" rel="stylesheet">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body>
+<!-- Instagram Reels kapağı (1080x1920). Profil ızgarası ortadaki 1080x1440'ı (y 240–1680) gösterir: yazılar o alanda. -->
+<canvas id="c" width="1080" height="1920"></canvas>
+<script src="../ortak/cizim.js"></script>
+<script src="../ortak/karakterler.js"></script>
+<script src="../ortak/sahneler.js"></script>
+<script src="../ortak/ekip.js"></script>
+<script src="../ortak/ara-sahneler.js"></script>
+<script src="../ortak/ara-sahneler-2.js"></script>
+<script src="../ortak/mehmetali.js"></script>
+<script src="../ortak/ara-sahneler-3.js"></script>
+<script src="../ortak/ara-sahneler-4.js"></script>
+<script src="../ortak/mekanlar.js"></script>
+<script src="../ortak/ara-sahneler-5.js"></script>
+<script src="../ortak/ara-sahneler-6.js"></script>
+<script src="../ortak/ara-sahneler-7.js"></script>
+<script src="../ortak/ara-sahneler-8.js"></script>
+<script>
+(async () => {
+  for (const f of ['italic 900 104px Inter', '700 40px Cinzel']) await document.fonts.load(f, 'AaÇĞİÖŞÜı');
+  await document.fonts.ready;
+  const cv = document.getElementById('c'); c = cv.getContext('2d'); c.lineJoin = c.lineCap = 'round'; initTextures();
+  const W = 1080, H = 1920, CX = W / 2, t = 1.4; LIGHTS = [];
+  const lights = () => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'lighter'; for (const g of LIGHTS) { c.fillStyle = rg(g.x, g.y, 0, g.r, [[0, g.col], [1, 'rgba(0,0,0,0)']]); c.fillRect(g.x - g.r, g.y - g.r, g.r * 2, g.r * 2); } c.restore(); LIGHTS = []; };
+  // arka oda, kart masası: Tilki sinsi gülüyor, Demir'in dükkân kavanozu boş, fişler Tilki'de
+  c.setTransform(1.5, 0, 0, 1.5, 0, 0); cam(372, 800, 1.32);
+  masaKur(t, { tl: .55, ayi: .7, kedi: .3, tilkiR: Object.assign(toL(MASA.TX, 346, 904), { hand: 'grab' }),
+    demir: demirPose('sad', { t, talk: 0, lookX: -.25, lookY: .55, blink: 0, tilt: .08, mouth: -12, lid: .2, brow: -.55 }),
+    items: () => { playCard(262, 952, -.08, .46, ['A', 's']); playCard(292, 956, .1, .46, ['K', 's']); playCard(468, 962, -.12, .46, ['7', 'd']); playCard(500, 966, .1, .46, ['2', 'c']);
+      chipStack(318, 906, 13, '#e8c040', .7); chipStack(352, 914, 7, '#c8302a', .7); moneyJar(600, 968, 0, .58); } });
+  lights();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = lg(0, 0, 0, 560, [[0, 'rgba(6,4,3,.9)'], [1, 'rgba(6,4,3,0)']]); c.fillRect(0, 0, W, 560);
+  // alt yazı bandı
+  c.fillStyle = lg(0, 1180, 0, H, [[0, 'rgba(0,0,0,0)'], [.35, 'rgba(0,0,0,.72)'], [1, 'rgba(0,0,0,.92)']]); c.fillRect(0, 1180, W, H - 1180);
+  const txt = (s, x, y, size, fill) => { c.save(); c.font = `italic 900 ${size}px Inter,Arial,sans-serif`; c.textAlign = 'center'; c.lineJoin = 'round';
+    c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 20; c.shadowOffsetY = 6; c.lineWidth = size * .16; c.strokeStyle = '#0a0604'; c.strokeText(s, x, y); c.shadowColor = 'transparent'; c.fillStyle = fill; c.fillText(s, x, y); c.restore(); };
+  txt('İLK ELİ SANA', CX, 1440, 100, '#ffffff');
+  txt('BİLEREK KAZANDIRIRLAR.', CX, 1552, 72, lg(0, 1490, 0, 1570, [[0, '#ffe08a'], [1, '#f2b23c']]));
+  // marka
+  c.save(); c.font = '700 40px Cinzel,Georgia,serif'; c.letterSpacing = '12px'; c.textAlign = 'center'; c.fillStyle = '#f0d6a0'; c.shadowColor = 'rgba(0,0,0,.9)'; c.shadowBlur = 12; c.fillText('BAYKUŞ KAZIM', CX + 6, 330); c.restore();
+  c.save(); c.font = '700 26px Cinzel,Georgia,serif'; c.letterSpacing = '8px'; c.textAlign = 'center'; c.fillStyle = 'rgba(240,214,160,.8)'; c.fillText('BÖLÜM 9 · SON EL', CX + 4, 380); c.restore();
+  // kenar karartması + gren
+  c.fillStyle = rg(CX, H * .5, 520, 1250, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.45)']]); c.fillRect(0, 0, W, H);
+  c.save(); c.globalAlpha = .05; c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(TEX.grain[0], 'repeat'); c.fillRect(0, 0, W, H); c.restore();
+  window.READY = true;
+})();
+</script></body></html>
