@@ -301,7 +301,7 @@ SCENES.cikis = S => {
   c.restore();
   cardTable(150, 930, 300);
   [[110, -.2, ['2', 'c']], [150, .05, ['7', 'd']], [190, .25, null]].forEach(([x, r, f]) => playCard(x, 945, r, .48, f));
-  chipStack(240, 930, 8, '#c8302a', .8);
+  cashPile(240, 932, 9, .8);   // Tilki'nin önünde kazandığı paralar
   // Demir arkadan, kapıya yürür (küçülerek), ışıkta kaybolur
   if (fade < 1) { const dx = lerp(430, 595, walk), dy = lerp(1340, 905, walk), ds = lerp(.66, .3, walk);
     c.save(); c.globalAlpha = 1 - fade; c.translate(dx, dy); c.scale(ds, ds); drawWolfBack({ t, walk: walk > 0 && walk < 1 ? 1 : 0, tilt: Math.sin(t * 3.5) * .02 }); c.restore(); }
