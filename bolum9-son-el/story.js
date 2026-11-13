@@ -10,7 +10,7 @@ const EPISODE = {
   intro: 6.8, openShot: 'kart_acilis',   // sessiz açılış: gece 01:20, arka oda, kartlar dağıtılır, dükkân kavanozu masaya konur
   tail: 7,
   sign: 'KIRAATHANE',
-  music: '../muzik/floating_in_reverie_slowed.m4a',
+  music: '../muzik/son_el_muzik.m4a',      // Kevin MacLeod "Despair and Triumph" (CC BY 4.0), 89. sn'den: yükseliş Demir'in masadan kalktığı ana denk gelir
   musicVolume: 0.32, rainVolume: 0.03,
   cast: { kazim: { x: 235, y: 985, s: .6 }, demir: { x: 490, y: 990, s: .56 } },
   story: [

@@ -12,3 +12,9 @@ http://creativecommons.org/licenses/by/4.0/
 
 Lisans gereği video açıklamasında bu künye yer almalıdır. Kaynak:
 https://incompetech.com/music/royalty-free/music.html
+
+## son_el_muzik.m4a (Bölüm 9 "Son El")
+
+"Despair and Triumph" — Kevin MacLeod (incompetech.com), 1:29'dan itibaren kesit.
+Licensed under Creative Commons: By Attribution 4.0 License
+http://creativecommons.org/licenses/by/4.0/
