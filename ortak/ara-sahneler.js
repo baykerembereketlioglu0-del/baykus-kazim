@@ -453,7 +453,7 @@ SCENES.kapanis = S => {
       if (part.length) { penX = -fw / 2 + c.measureText(part).width; penY = y; }
     });
     const wEnd = wStart + total * perCh, sk = ss(wEnd + .1, wEnd + 1.2, lt);
-    (({ semsiye: typeof umbrellaSketch === 'function' && umbrellaSketch, cay: typeof teaSketch === 'function' && teaSketch, kare: typeof frameSketch === 'function' && frameSketch, kalp: typeof heartSketch === 'function' && heartSketch, kapi: typeof doorSketch === 'function' && doorSketch })[S.sketch] || sproutSketch)(sk, 0, Math.max(60, -170 + lines.length * 82 + 60), 1.1);
+    (({ semsiye: typeof umbrellaSketch === 'function' && umbrellaSketch, cay: typeof teaSketch === 'function' && teaSketch, kare: typeof frameSketch === 'function' && frameSketch, kalp: typeof heartSketch === 'function' && heartSketch, kapi: typeof doorSketch === 'function' && doorSketch, kart: typeof cardSketch === 'function' && cardSketch })[S.sketch] || sproutSketch)(sk, 0, Math.max(60, -170 + lines.length * 82 + 60), 1.1);
     // tüy kalem: yazarken harfi, çizerken filizi takip eder
     const writing = lt > wStart && lt < wEnd + 1.3;
     if (writing) {
