@@ -78,6 +78,7 @@
       chest: [{ x: -148, y: -272, hand: 'relax' }, { x: 34, y: -492, hand: 'relax' }],
     },
   };
+  if (EP.kazimRest) Object.assign(GEST.kazim.rest, EP.kazimRest); // bölüme özel: boştaki el gövdeye yakın (Demir'e uzanmış gibi durmasın)
   function stateAt(who, t, key, def) {
     let prev = def, cur = def, t0 = -9;
     for (const l of L) if (l.who === who && l.start <= t) { const v = key(l); if (v !== cur) { prev = cur; cur = v; t0 = l.start; } }

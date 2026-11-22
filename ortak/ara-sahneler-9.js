@@ -146,7 +146,7 @@ PLACES.cay_bahcesi = {
 
 // ---------- SOFRA: uzun masa, Demir ortada. 'acilis' | 'bos' | 'son' (Kâzım oturur); anı için SCENES.sofra_dolu ----------
 const SF = { Y: 1085, SC: .58, TB: 878, TF: 932, X0: -60, X1: 780 };
-const SEAT = { L: 130, M: 360, R: 590 };
+const SEAT = { L: 105, M: 360, R: 615 };
 function sofraMasa(t, o = {}) {
   const { TB, TF, X0, X1 } = SF, N = 28;
   // masa örtüsü (kareli), üst yüzey hafif perspektifli
@@ -225,10 +225,10 @@ SCENES.sofra = S => {
 // ANI: altın akşam, masa dolu; Tilki ve Demir bardak kaldırır, Ayı kahkahayla masaya vurur
 SCENES.sofra_dolu = S => {
   const t = S.t, k = S.k, sc = SF.SC;
-  cam(360, lerp(780, 770, k), lerp(1.12, 1.2, ease(k)));
+  cam(352, lerp(780, 770, k), lerp(1.0, 1.06, ease(k)));
   cayBahcesi(t, { base: 840, mem: true, bulbs: 1, tables: [[-190, 900, .55, 2], [905, 905, .58, 2]] });
   const lift = .5 + .5 * Math.sin(t * 2.4), slap = Math.abs(Math.sin(t * 5.5));
-  const tR = { x: 190 + 6 * lift, y: -690 - 20 * lift, hand: 'relax' }, dR = { x: 196, y: -700 - 18 * Math.sin(t * 2.4 + 1), hand: 'relax' };
+  const tR = { x: 150 + 6 * lift, y: -742 - 16 * lift, hand: 'relax' }, dR = { x: 150, y: -748 - 14 * Math.sin(t * 2.4 + 1), hand: 'relax' };
   const pt = gangPose('tilki', { t, laugh: .6 + .3 * lift, lookX: .6, lookY: .1, tilt: .05, L: toSeat(SEAT.L, .55, 96, 912), R: tR });
   const pa = gangPose('ayi', { t, laugh: .95, lookX: -.5, tilt: -.06 + Math.sin(t * 9) * .03, bob: -slap * 6, L: toSeat(SEAT.R, .52, 548, 912), R: toSeat(SEAT.R, .52, 640, lerp(905, 845, slap)) });
   const pd = demirPose('happy', { t, talk: .25 + .25 * Math.abs(Math.sin(t * 9)), lookX: -.35, lookY: -.05, blink: 0, lid: .28, tilt: -.04, mouth: 24, L: toSeat(SEAT.M, sc, 318, 912), R: dR });
@@ -248,13 +248,13 @@ SCENES.sofra_dolu = S => {
 // SON: Kâzım boş sandalyeye oturmuş, fener masada; iki bardak çay buğulanıyor
 function sofraSon(S) {
   const t = S.t, k = S.k, sc = SF.SC, KS = .5;
-  cam(lerp(270, 255, k), lerp(770, 790, k), lerp(1.32, 1.42, ease(k)));
+  cam(lerp(250, 236, k), lerp(770, 790, k), lerp(1.28, 1.38, ease(k)));
   cayBahcesi(t, { base: 840, bulbs: .3, flick: 11, tables: [[-190, 900, .55, 1], [905, 905, .58, 2]] });
-  const pk = kazimPose('warm', { t, talk: S.talk.kazim, lookX: .5, lookY: .2, blink: blinkAt(t, 1.3), tilt: -.03, L: toSeat(SEAT.L, KS, 92, 914), R: toSeat(SEAT.L, KS, 176, 914), lantern: null });
+  const KX = 100, pk = kazimPose('warm', { t, talk: S.talk.kazim, lookX: .5, lookY: .2, blink: blinkAt(t, 1.3), tilt: -.03, L: toSeat(KX, KS, 60, 914), R: toSeat(KX, KS, 142, 914), lantern: null });
   const pd = demirPose('hope', { t, talk: 0, lookX: -.55, lookY: .15, blink: blinkAt(t, 3.7), lid: .1, tilt: -.05, mouth: 14, L: toSeat(SEAT.M, sc, 318, 912), R: toSeat(SEAT.M, sc, 402, 912) });
-  seated([{ x: SEAT.L, kind: 'kazim', sc: KS, p: pk, dy: 6 }, { x: SEAT.M, kind: 'demir', sc, p: pd }, { x: SEAT.R, chairRot: .08 }], t, {
-    items: () => { teaGlass(SEAT.L + 4, 908, .58, .85, 1, t); teaGlass(SEAT.M, 908, .6, .85, 1, t); teaGlass(SEAT.R - 20, 896, .56, .15, 0, t); },
-    over: () => { drawLantern(258, 880 - 166 * .52, 1, t, .52); } });
+  seated([{ x: KX, kind: 'kazim', sc: KS, p: pk, dy: 6 }, { x: SEAT.M, kind: 'demir', sc, p: pd }, { x: SEAT.R, chairRot: .08 }], t, {
+    items: () => { teaGlass(KX + 2, 908, .58, .85, 1, t); teaGlass(SEAT.M, 908, .6, .85, 1, t); teaGlass(SEAT.R - 20, 896, .56, .15, 0, t); },
+    over: () => { drawLantern(232, 880 - 166 * .52, 1, t, .52); } });
   rainScr(t, 1, .7);
 }
 
@@ -333,18 +333,39 @@ function whisperScene(t, o) {
   laughPose(o.lis, lisPose, lf, t);
   c.save(); c.translate(LX, Y); c.rotate(-.04 * wh); c.scale(SC, SC); drawWho(o.lis, lisPose); c.restore();
   // konuşan (sol): eğilir, sağ patisini ağzının yanına siper eder; işaret ederken sol kol geriyi gösterir
-  const R = { x: lerp(150, 140, wh), y: lerp(-290, -640, ease(wh)), hand: 'relax' }, Lt = { x: lerp(-150, -300, ease(pt)), y: lerp(-290, -690, ease(pt)), hand: pt > .4 ? 'point' : 'relax' };
+  const R = { x: 150, y: -290, hand: 'relax' }, Lt = { x: lerp(-150, -380, ease(pt)), y: lerp(-290, -615, ease(pt)), hand: pt > .4 ? 'point' : 'relax' };
   const spkPose = o.spk === 'demir'
-    ? demirPose('calm', { t, talk: wh > .5 ? .25 * Math.abs(Math.sin(t * 13)) : 0, lookX: .6, lookY: .15, blink: 0, tilt: .12 * wh, mouth: 6, lid: .1, L: { x: -148, y: -272, hand: 'relax' }, R })
-    : gangPose(o.spk, { t, lookX: .7, lookY: .15, tilt: .12 * wh, L: Lt, R });
+    ? demirPose('calm', { t, talk: wh > .5 ? .25 * Math.abs(Math.sin(t * 13)) : 0, lookX: .6, lookY: .15, blink: 0, tilt: .12 * wh, mouth: 6, lid: .1, L: { x: -148, y: -272, hand: 'relax' }, R, hideR: true })
+    : gangPose(o.spk, { t, lookX: .7, lookY: .15, tilt: .12 * wh, L: Lt, R, hideR: true });
   laughPose(o.spk, spkPose, lf * .8, t);
   c.save(); c.translate(SX, Y); c.rotate(.07 * wh); c.scale(SC, SC); drawWho(o.spk, spkPose);
-  armOver(o.spk, 1, R, spkPose); if (pt > 0 && o.spk !== 'demir') armOver(o.spk, -1, Lt, spkPose);
+  whisperArm(o.spk, ease(wh)); if (pt > 0 && o.spk !== 'demir') armOver(o.spk, -1, Lt, spkPose);
   c.restore();
   // fısıltı halkaları
   if (wh > .3 && lf < .5) { const a = ss(.3, .8, wh) * (1 - lf * 2), mx = SX + 120, my = Y - 650 * SC, ex = LX - 130, ey = Y - 790 * SC;
     for (let i = 0; i < 3; i++) { const u = (t * 1.4 + i / 3) % 1, x = lerp(mx, ex, u), y = lerp(my, ey, u) - Math.sin(u * PI) * 20; c.save(); c.globalAlpha = a * Math.sin(u * PI); c.beginPath(); c.arc(x, y, 12 + u * 10, -.8, .8); c.lineWidth = 4; c.strokeStyle = '#f2e6c8'; c.stroke(); c.restore(); }
     c.save(); c.globalAlpha = a * .85; c.font = 'italic 700 26px Georgia,serif'; c.textAlign = 'center'; c.fillStyle = '#f2e6c8'; c.fillText('psst…', (mx + ex) / 2, Math.min(my, ey) - 40 + Math.sin(t * 3) * 4); c.restore(); }
+}
+// Fısıltı kolu: dirsek yanda aşağıda, ön kol dik; pati ağzın yanında siper (avuç dinleyene dönük). k: 0 kol aşağıda … 1 ağızda
+function whisperArm(kind, k) {
+  const wolf = kind === 'demir', G = wolf ? null : GANG[kind];
+  const S = wolf ? WOLF.SR : [G.sw * .95, -548], l1 = wolf ? WOLF.l1 : 150, l2 = wolf ? WOLF.l2 : 140;
+  // boşta: eklem çözümüyle sarkan kol; fısıltıda: dirsek omzun altında hafif dışarıda, bilek ağız hizasının altında (ön kol bize doğru kısalır)
+  const rest = wolf ? [148, -272] : [G.sw + 20, -272], r = ik(S[0], S[1], rest[0], rest[1], l1, l2, 1);
+  const E1 = [S[0] + 38, S[1] + 96], W1 = [S[0] - 8, S[1] - 50];
+  const j = { ex: lerp(r.ex, E1[0], k), ey: lerp(r.ey, E1[1], k), wx: lerp(r.wx, W1[0], k), wy: lerp(r.wy, W1[1], k) }, fa = Math.atan2(j.wy - j.ey, j.wx - j.ex);
+  const sleeve = wolf ? WOLF_C.sleeve : G.sleeve, cuff = wolf ? WOLF_C.cuff : G.trim, paw = wolf ? WOLF_C.paw : G.paw, w = wolf ? 58 : (kind === 'ayi' ? 70 : 58);
+  const cf = [lerp(j.ex, j.wx, .84), lerp(j.ey, j.wy, .84)];
+  capsule([S[0], S[1], j.ex, j.ey, cf[0], cf[1]], w, sleeve, 6);
+  if (wolf) for (const q of [.5, .62]) { const a = [lerp(j.ex, j.wx, q), lerp(j.ey, j.wy, q)], b = [lerp(j.ex, j.wx, q + .05), lerp(j.ey, j.wy, q + .05)]; c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.lineWidth = 56; c.strokeStyle = WOLF_C.jacket; c.stroke(); }
+  capsule([cf[0], cf[1], j.wx, j.wy], w - 10, cuff, 5);
+  c.save(); c.translate(j.wx, j.wy); c.rotate(fa - PI / 2);
+  if (k > .55) { // siper pati: avuç + üstte kıvrık üç parmak (dinleyene doğru), başparmak yüz tarafında
+    ell(0, 26, 24, 30, paw, OL, 5);
+    for (const [fx, fy] of [[-10, 54], [3, 58], [15, 52]]) ell(fx + 4, fy, 9, 12, paw, OL, 4);
+    capsule([-20, 22, -28, 40], 12, paw, 4);
+  } else { ell(0, 22, 26, 26, paw, OL, 5); for (const q of [-11, 0, 11]) curve([q - 4, 36, q, 45, q + 4, 36], 'rgba(0,0,0,.45)', 3); }
+  c.restore();
 }
 SCENES.fisilti = S => {
   const t = S.t, L = S.line, lt = S.lt;

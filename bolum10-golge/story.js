@@ -12,7 +12,8 @@ const EPISODE = {
   place: 'cay_bahcesi',
   music: '../muzik/floating_in_reverie_slowed.m4a',
   musicVolume: 0.32, rainVolume: 0.03,
-  cast: { kazim: { x: 235, y: 985, s: .6 }, demir: { x: 490, y: 990, s: .56 } },
+  cast: { kazim: { x: 222, y: 985, s: .6 }, demir: { x: 512, y: 990, s: .56 } },
+  kazimRest: { x: 160, y: -306 },   // Kâzım'ın boştaki eli gövdesinin yanında; Demir'e uzanmaz, omzuna dokunmaz
   story: [
     { who: 'demir', mood: 'sad', gesture: 'rest', shot: [['sofra_dolu', 0, null, true], ['sofra', .5, 'bos']], pause: 1.2, text: 'Abi, işlerim iyiyken sofram hep doluydu. Bir kez düştüm; sandalyelerin hepsi boştu.' },
     { who: 'kazim', mood: 'calm', gesture: 'rest', shot: [['wide', 0], ['golge', .2]], pause: 1.6, text: 'Güneşli günde gölgen bile seninle yürür evlat. Ama karanlık çökünce, o bile kaybolur.' },
