@@ -35,7 +35,7 @@ function gangBody(kind, p) {
   }
   c.save(); c.translate(0, p.bob || 0);
   const J = [-sw * .44, -592, -sw, -566, -sw * 1.14, -520, -sw * 1.06, -400, -sw * .98, -300, -sw, -262, 0, -258, sw, -262, sw * .98, -300, sw * 1.06, -400, sw * 1.14, -520, sw, -566, sw * .44, -592];
-  const arms = () => { gangArm(G, -1, p.L || { x: -sw - 20, y: -272, hand: 'relax' }, sw); gangArm(G, 1, p.R || { x: sw + 20, y: -272, hand: 'relax' }, sw); };
+  const arms = () => { gangArm(G, -1, p.L || { x: -sw - 20, y: -272, hand: 'relax' }, sw); if (!p.hideR) gangArm(G, 1, p.R || { x: sw + 20, y: -272, hand: 'relax' }, sw); };
   if (p.back) arms();
   c.beginPath(); smoothPath(J); c.fillStyle = lg(-sw * 1.2, 0, sw * 1.2, 0, [[0, G.jacketD], [.3, G.jacket], [.7, G.jacket], [1, G.jacketD]]); c.fill(); c.lineWidth = 6; c.strokeStyle = OL; c.stroke();
   if (!p.back) {

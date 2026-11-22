@@ -31,9 +31,9 @@
   const SHOTS = [];
   L.forEach((l, i) => {
     const list = Array.isArray(l.shot) ? l.shot : [[l.shot || 'close-' + l.who, 0, l.phase]];
-    list.forEach(([name, f, phase], j) => {
+    list.forEach(([name, f, phase, fl], j) => {
       const s = i === 0 && j === 0 && !EP.openShot && !EP.openShots ? 0 : l.start + (l.end - l.start) * (f || 0);
-      SHOTS.push({ name, phase: phase ?? l.phase, start: s, line: l, flash: l.flash });
+      SHOTS.push({ name, phase: phase ?? l.phase, start: s, line: l, flash: fl ?? l.flash });
     });
   });
   if (EP.openShot) SHOTS.unshift({ name: EP.openShot, phase: EP.openPhase, start: 0, line: L[0], flash: EP.openFlash });
@@ -181,7 +181,7 @@
     const fn = SCENES[shot.name]; if (!fn) return;
     const pt = t - shot.start, pd = shot.end - shot.start;
     dst.setTransform(BASE, 0, 0, BASE, 0, 0); dst.save();
-    fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title, sketch: EP.sketch, cta: EP.cta, sig: EP.sig,
+    fn({ t, lt: t - shot.sceneStart, pt, pd, k: cl(pt / pd, 0, 1), phase: shot.phase, quote: EP.quote, number: EP.number, title: EP.title, sketch: EP.sketch, cta: EP.cta, sig: EP.sig, line: shot.line, lines: L,
       talk: new Proxy({}, { get: (_, w) => talkOf(String(w), t) }) });
     dst.restore(); lightsOn(dst);
   }
