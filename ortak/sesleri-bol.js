@@ -92,12 +92,38 @@ for (const who of WHO) {
 let t = EP.intro ?? .5; const ins = [];
 STORY.forEach((l, i) => {
   const p = parts[i], start = t, end = t + p.len;
-  // kelime zamanları: konuşulan kısımları (zarf > eşik) harf sayısına göre paylaştır
-  const ws = l.text.split(/\s+/), voiced = p.env.map(v => v > .12), vt = voiced.reduce((a, b) => a + b, 0) || 1;
-  const weights = ws.map(w => w.replace(/[^\p{L}\p{N}]/gu, '').length + 1), wt = weights.reduce((a, b) => a + b, 0);
-  const words = []; let acc = 0, k = 0, cnt = 0;
-  const timeOfVoiced = target => { while (k < voiced.length && cnt < target) { if (voiced[k]) cnt++; k++; } return k / RATE; };
-  ws.forEach((w, j) => { const a = timeOfVoiced(acc / wt * vt); acc += weights[j]; const b = timeOfVoiced(acc / wt * vt); words.push([w, +(start + a).toFixed(3), +(start + Math.max(b, a + .12)).toFixed(3)]); });
+  // kelime zamanları: önce noktalama (. , ; ?) satır içi duraklamalara oturtulur (dinamik programlama), sonra her öbekteki kelimeler
+  // öbeğin konuşulan kısmına harf sayısıyla paylaştırılır. (Yalnızca orantı kullanınca nefes/yankı yüzünden 1 sn'ye varan kayma oluyordu.)
+  const ws = l.text.split(/\s+/), weights = ws.map(w => w.replace(/[^\p{L}\p{N}]/gu, '').length + 1), env = p.env, F = env.length;
+  let f0 = 0; while (f0 < F && env[f0] < .06) f0++; let f1 = F - 1; while (f1 > f0 && env[f1] < .06) f1--;
+  const pauses = []; for (let q = f0, r0 = -1; q <= f1; q++) { const lo = env[q] < .05; if (lo && r0 < 0) r0 = q; if ((!lo || q === f1) && r0 >= 0) { if (q - r0 >= 9) pauses.push([r0, q]); r0 = -1; } }
+  const groups = [[]]; ws.forEach((w, j) => { groups[groups.length - 1].push(j); if (/[.,;:!?…]$/.test(w) && j < ws.length - 1) groups.push([]); });
+  const gw = groups.map(g => g.reduce((x, j) => x + weights[j], 0)), GT = gw.reduce((x, y) => x + y, 0), Bn = groups.length - 1, P = pauses.length;
+  const pv = pauses.reduce((x, [a0, b0]) => x + b0 - a0, 0), speech = Math.max(1, f1 - f0 - pv);
+  const strong = j => /[.;:!?…]$/.test(ws[groups[j][groups[j].length - 1]]);
+  // beklenen sınır anı: konuşulan süre harflerle orantılı, önceki sınırlara oturan duraklamalar eklenerek (yaklaşık: tüm duraklamaların orantılı payı)
+  const expAt = i => f0 + gw.slice(0, i + 1).reduce((x, y) => x + y, 0) / GT * (f1 - f0);
+  const cost = (i, q) => { const m = (pauses[q][0] + pauses[q][1]) / 2; return 14 * ((m - expAt(i)) / (f1 - f0)) ** 2 - .5 * Math.min(1, (pauses[q][1] - pauses[q][0]) / 30) * (strong(i) ? 1.4 : 1); };
+  const skip = i => strong(i) ? .5 : .15;
+  // dp[i][q]: ilk i sınır, son kullanılan duraklama < q
+  const memo = new Map(), solve = (i, q) => { if (i === Bn) return [0, []]; const key = i * 1000 + q; if (memo.has(key)) return memo.get(key);
+    let best = solve(i + 1, q); best = [best[0] + skip(i), [-1, ...best[1]]];
+    for (let r = q; r < P; r++) { const nx = solve(i + 1, r + 1), v = nx[0] + cost(i, r); if (v < best[0]) best = [v, [r, ...nx[1]]]; }
+    memo.set(key, best); return best; };
+  const asg = solve(0, 0)[1];
+  // öbek sınırları (kare): duraklamaya oturan sınırlar sabit; aradaki öbekler harf oranıyla paylaşılır
+  const gs = [], ge = []; let runStart = f0, run = [];
+  for (let i = 0; i <= Bn; i++) {
+    run.push(i);
+    if (i === Bn || asg[i] >= 0) {
+      const runEnd = i === Bn ? f1 : pauses[asg[i]][0], tot = run.reduce((x, j) => x + gw[j], 0); let acc0 = runStart;
+      for (const j of run) { gs[j] = acc0; acc0 += gw[j] / tot * (runEnd - runStart); ge[j] = acc0; }
+      runStart = i === Bn ? f1 : pauses[asg[i]][1]; run = [];
+    }
+  }
+  const words = [];
+  groups.forEach((g, i) => { const a0 = gs[i], b0 = ge[i], tw = g.reduce((x, j) => x + weights[j], 0); let acc1 = 0;
+    for (const j of g) { const wa = a0 + acc1 / tw * (b0 - a0); acc1 += weights[j]; const wb = a0 + acc1 / tw * (b0 - a0); words.push([ws[j], +(start + wa / RATE).toFixed(3), +(start + Math.max(wb, wa + 6) / RATE).toFixed(3)]); } });
   timeline.push({ start: +start.toFixed(3), end: +end.toFixed(3), words, env: p.env, envRate: RATE });
   ins.push({ f: p.wav, ms: Math.round(start * 1000) });
   t = end + (l.pause ?? GAP);

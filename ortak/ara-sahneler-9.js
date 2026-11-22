@@ -514,9 +514,9 @@ SCENES.fener_ol = S => {
   const LXw = X + j.wx * sc, LYw = Y + (j.wy + 14 + 90 * .95) * sc;
   c.restore();
   // karanlık: fener yanınca ışık çemberi büyür
-  const r1 = lerp(60, 760, ease(lit)), dark = lerp(.97, .9, lit);
+  const r1 = lerp(230, 760, ease(lit)), dark = lerp(.9, .88, lit);
   c.fillStyle = rg(LXw, LYw, r1 * .15, r1, [[0, 'rgba(0,0,0,0)'], [.55, `rgba(4,4,10,${dark * .45})`], [1, `rgba(3,3,8,${dark})`]]); c.fillRect(-1000, -400, 2720, 2000);
-  if (lit < .3) { c.save(); c.globalAlpha = (1 - lit / .3) * .25; c.globalCompositeOperation = 'lighter'; ell(X - 60, Y - 520, 120, 240, rg(X - 60, Y - 520, 0, 240, [[0, 'rgba(120,150,220,.35)'], [1, 'rgba(0,0,0,0)']]), null); c.restore(); } // soğuk ay ışığı
+  if (lit < .3) { c.save(); c.globalAlpha = (1 - lit / .3) * .5; c.globalCompositeOperation = 'lighter'; ell(X - 60, Y - 520, 120, 240, rg(X - 60, Y - 520, 0, 240, [[0, 'rgba(120,150,220,.35)'], [1, 'rgba(0,0,0,0)']]), null); c.restore(); } // soğuk ay ışığı
   if (lit > 0) { c.save(); c.globalCompositeOperation = 'lighter'; ell(LXw, 1165, 220 * lit, 26 * lit, rg(LXw, 1165, 0, 220, [[0, `rgba(255,180,90,${.35 * lit})`], [1, 'rgba(0,0,0,0)']]), null); c.restore(); }
   if (t > tIg - .25 && t < tIg + .15) { const sp = 1 - Math.abs(t - tIg + .05) / .2; addLight(LXw, LYw - 20, 90 * sp, `rgba(255,240,200,${.9 * sp})`); }
   dustMotes(t, Math.round(26 * lit), LXw - 260, LYw - 420, 520, 600, .55 * lit);

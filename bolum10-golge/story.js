@@ -22,7 +22,7 @@ const EPISODE = {
     { who: 'demir', mood: 'sad', gesture: 'rest', shot: [['close-demir', 0], ['grup', .1]], pause: 2.2, text: 'Kim çağırsa koştum abi, bir kez bile durmadım. Ama ben çağırınca, kimseyi bulamadım.' },
     { who: 'kazim', mood: 'calm', gesture: 'rest', shot: [['close-kazim', 0], ['two', .55]], pause: 1.4, text: 'Kolay ulaşılan, kolay vazgeçilir evlat. Ne kadar çok koşarsan, o kadar az beklenir.' },
     { who: 'demir', mood: 'worry', gesture: 'chest', shot: 'close-demir', pause: 1.0, text: 'Peki ben de onlar gibi mi olayım abi? Kapımı herkese kapatayım mı?' },
-    { who: 'kazim', mood: 'warm', gesture: 'open', raise: true, shot: [['close-kazim', 0], ['lantern', .24], ['fener_ol', .5]], pause: 2.0, text: 'Hayır evlat. Sen gölge olma, fener ol. Gölge karanlıkta kaybolur; fener ise karanlıkta belli olur.' },
+    { who: 'kazim', mood: 'warm', gesture: 'rest', raise: true, shot: [['close-kazim', 0], ['lantern', .24], ['fener_ol', .5]], pause: 2.0, text: 'Hayır evlat. Sen gölge olma, fener ol. Gölge karanlıkta kaybolur; fener ise karanlıkta belli olur.' },
     { who: 'demir', mood: 'hope', gesture: 'chest', shot: [['close-demir', 0], ['two', .5]], pause: 1.2, text: 'Herkes gitti abi, kimse dönüp bakmadı. Ama sen, bu yağmurda bile beni bırakmadın.' },
     { who: 'kazim', mood: 'warm', gesture: 'rest', raise: false, shot: [['close-kazim', 0], ['sofra', .42, 'son']], pause: 2.6, text: 'Kalabalık güneşte toplanır evlat; dost ise, karanlıkta bilinir.' },
     { who: 'kazim', mood: 'warm', gesture: 'rest', shot: 'kapanis', noSub: true, text: 'İzle, öğren, beğen ve takip et. Ben, Baykuş Kâzım.' },
