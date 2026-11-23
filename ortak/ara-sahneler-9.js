@@ -1,6 +1,6 @@
 // Ara sahneler (9): "Gölge" (dostluk). Yağmurlu çay bahçesi, boş sandalyeler, anı sofrası, güneşle kaybolan gölge,
 // fısıltı zinciri, grup sohbeti ("Görüldü"), karanlıkta yanan fener, son sofra (Kâzım oturur).
-// ara-sahneler-2..8.js'ten SONRA yüklenir (blurredStreet, phoneFrame, bubble, pawFinger, demirPose, kf, scrText, letterbox, typeText).
+// ara-sahneler-2..8.js'ten SONRA yüklenir (blurredStreet, phoneFrame, bubble, demirPose, kf, scrText, letterbox, typeText).
 
 // ---------- yardımcılar ----------
 // Satırdaki kelimenin başlangıç zamanı (seslendirme zamanlamasıyla senkron); nth: kaçıncı geçiş
@@ -333,7 +333,7 @@ function whisperScene(t, o) {
   laughPose(o.lis, lisPose, lf, t);
   c.save(); c.translate(LX, Y); c.rotate(-.04 * wh); c.scale(SC, SC); drawWho(o.lis, lisPose); c.restore();
   // konuşan (sol): eğilir, sağ patisini ağzının yanına siper eder; işaret ederken sol kol geriyi gösterir
-  const R = { x: 150, y: -290, hand: 'relax' }, Lt = { x: lerp(-150, -380, ease(pt)), y: lerp(-290, -615, ease(pt)), hand: pt > .4 ? 'point' : 'relax' };
+  const R = { x: 150, y: -290, hand: 'relax' }, Lt = { x: lerp(-150, -380, ease(pt)), y: lerp(-290, -615, ease(pt)), hand: 'relax' };   // gösterirken de tek parmak yok: açık pati (yanlış anlaşılmasın)
   const spkPose = o.spk === 'demir'
     ? demirPose('calm', { t, talk: wh > .5 ? .25 * Math.abs(Math.sin(t * 13)) : 0, lookX: .6, lookY: .15, blink: 0, tilt: .12 * wh, mouth: 6, lid: .1, L: { x: -148, y: -272, hand: 'relax' }, R, hideR: true })
     : gangPose(o.spk, { t, lookX: .7, lookY: .15, tilt: .12 * wh, L: Lt, R, hideR: true });
@@ -382,17 +382,6 @@ SCENES.fisilti = S => {
     const fl = 1 - ss(0, .18, t - tSimdi); if (fl > 0) scrFade(fl * .8, '255,255,255');
   }
 };
-// "Şşş": dirsek aşağıda, ön kol dik, işaret parmağı dudakta (up 0..1: koldan kalkış)
-function shhArm(kind, up) {
-  const G = GANG[kind], S = [G.sw * .95, -548], tx = lerp(150, 26, up), ty = lerp(-290, -548, up), j = ik(S[0], S[1], tx, ty, 150, 140, 1, true);
-  const fa = Math.atan2(j.wy - j.ey, j.wx - j.ex);
-  capsule([S[0], S[1], j.ex, j.ey, j.wx - Math.cos(fa) * 14, j.wy - Math.sin(fa) * 14], 58, G.sleeve, 6);
-  capsule([j.wx - Math.cos(fa) * 26, j.wy - Math.sin(fa) * 26, j.wx - Math.cos(fa) * 10, j.wy - Math.sin(fa) * 10], 54, G.trim, 5);
-  c.save(); c.translate(j.wx, j.wy); c.rotate(fa - PI / 2);
-  if (up > .6) { capsule([2, 30, 2, 96], 17, G.paw, 5); ell(0, 24, 27, 25, G.paw, OL, 5); capsule([-20, 14, -26, 34], 13, G.paw, 4); }
-  else { ell(0, 22, 27, 26, G.paw, OL, 5); }
-  c.restore();
-}
 // İkiye bölünmüş ekran: üstte Tilki Demir'e Ayı'yı çekiştirir, altta Ayı'ya Demir'i anlatır. "Sır"da Tilki yakın planda "şşş" yapar
 function fisiltiZincir(S) {
   const t = S.t, L = S.line, lt = S.lt;
@@ -413,7 +402,7 @@ function fisiltiZincir(S) {
   if (out > 0) { // Tilki yakın plan: parmağı dudağında, sinsi bakış
     c.save(); c.globalAlpha = out; const z = lerp(1.0, 1.06, ss(tSir, tSir + 4, t)); cam(360, 640, z);
     alleyBg(t); const up = ease(ss(tSir + .1, tSir + .6, t)), p = gangPose('tilki', { t, lookX: .25, lookY: -.1, tilt: -.06, laugh: 0, L: { x: -150, y: -300, hand: 'relax' }, hideR: true });
-    c.translate(360, 1330); c.scale(1.05, 1.05); gangBody('tilki', p); shhArm('tilki', up); c.restore();
+    c.translate(360, 1330); c.scale(1.05, 1.05); gangBody('tilki', p); whisperArm('tilki', up); c.restore();
   }
 }
 
@@ -424,6 +413,14 @@ function grupHeader(w, status, typing) {
   ell(80, 82, 28, 28, '#3a4250', null); c.font = `28px ${EMOJI}`; c.textAlign = 'center'; c.fillText('🔥', 80, 92); c.textAlign = 'left';
   c.fillStyle = UI.text; c.font = '700 26px Inter,Arial'; c.fillText('EKİP', 124, 76);
   c.fillStyle = typing ? '#5fd08f' : UI.dim; c.font = '500 18px Inter,Arial'; c.fillText(status, 124, 102);
+}
+// Kurt baş parmağı: avuç kenarından (bx,by) uca (tx,ty); iki boğum, eklem dışa doğru, ucunda küçük açık renk tırnak
+function pawThumb(bx, by, tx, ty) {
+  const dx = tx - bx, dy = ty - by, L = Math.hypot(dx, dy) || 1; let nx = -dy / L, ny = dx / L; if (ny < 0) { nx = -nx; ny = -ny; }
+  const mx = bx + dx * .5 + nx * 16, my = by + dy * .5 + ny * 16, ux = (tx - mx) / Math.hypot(tx - mx, ty - my), uy = (ty - my) / Math.hypot(tx - mx, ty - my);
+  capsule([bx, by, mx, my], 54, WOLF_C.paw, 5); capsule([mx, my, tx - ux * 6, ty - uy * 6], 44, WOLF_C.paw, 5);
+  c.save(); c.globalAlpha = .35; capsule([mx - ux * 4, my - uy * 4, tx - ux * 18, ty - uy * 18], 10, '#b9c1ca', 0); c.restore();          // üstte ışık
+  poly([tx - uy * 7 - ux * 4, ty + ux * 7 - uy * 4, tx + ux * 13, ty + uy * 13, tx + uy * 7 - ux * 4, ty - ux * 7 - uy * 4], '#efe6d6', OL, 2.5); // tırnak
 }
 SCENES.grup = S => {
   const t = S.t, L = S.line, k = S.k, s0 = S.t - S.pt;
@@ -448,10 +445,14 @@ SCENES.grup = S => {
   const tilt = Math.sin(t * .8) * .012, PX = 160, PY = 230, KB = 540, IY = KB - 84, AV = IY - 150;
   const ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'], keyAt = (r, i) => { const n = ROWS[r].length, kw = 36, x0 = (400 - n * kw) / 2 + (r === 2 ? -20 : 0); return [x0 + i * kw + kw / 2, KB + 22 + r * 54 + 20]; };
   let tip = null;
-  if (typingNow) { const n = Math.floor(t * 9), r = Math.floor(hash(n) * 3), kk = keyAt(r, Math.floor(hash(n * 3 + 1) * ROWS[r].length)); tip = [kk[0], kk[1] + 4 - Math.abs(Math.sin(t * 28)) * 6]; }
-  else if (sending) tip = [400 - 46, IY + 34];
+  const RET = [352, KB + 22 + 3 * 54 + 20];   // klavyenin sağ altındaki gönder tuşu
+  if (typingNow) { // orta sütunlardaki tuşlar: baş parmaklar hep çapraz kalır (dik "kalkık parmak" görüntüsü olmaz)
+    const n = Math.floor(t * 9), r = Math.floor(hash(n) * 3), ok = ROWS[r].split('').map((_, i) => i).filter(i => { const x = keyAt(r, i)[0]; return x > 95 && x < 305; });
+    const kk = keyAt(r, ok[Math.floor(hash(n * 3 + 1) * ok.length)]); tip = [kk[0], kk[1] + 4 - Math.abs(Math.sin(t * 28)) * 6]; }
+  else if (sending) tip = [RET[0], RET[1] + 2 - Math.abs(Math.sin(t * 20)) * 5];
   c.save(); c.translate(360, 620); c.rotate(tilt); c.translate(-360, -620);
-  capsule([-90, 1470, 150, 1090], 150, WOLF_C.sleeve, 7); capsule([132, 1112, 168, 1060], 138, '#6a1822', 6); ell(215, 990, 104, 84, WOLF_C.paw, OL, 6);
+  // iki pati telefonu alt yanlarından kavrar (avuçlar telefonun arkasında); baş parmaklar ekranın üstünde
+  for (const sd of [-1, 1]) { const px = 360 + sd * 215; capsule([360 + sd * 470, 1520, px + sd * 20, 1130], 150, WOLF_C.sleeve, 7); capsule([px + sd * 30, 1150, px + sd * 14, 1090], 140, '#6a1822', 6); ell(px, 1030, 86, 96, WOLF_C.paw, OL, 6); }
   phoneFrame(360, 620, 400, 780, (w, h) => {
     const dotsA = ss(d0, d0 + .15, t) * (1 - ss(d1 - .15, d1, t));
     grupHeader(w, dotsA > .5 ? 'Tilki yazıyor…' : 'Tilki, Ayı, Kedi, Sen', dotsA > .5);
@@ -481,14 +482,14 @@ SCENES.grup = S => {
     ell(w - 46, IY + 32, 30, 30, shown ? UI.me : '#2a3038', null); c.fillStyle = '#fff'; c.font = '700 26px Inter,Arial'; c.textAlign = 'center'; c.fillText('➤', w - 44, IY + 42);
     c.fillStyle = '#1a1f26'; c.fillRect(0, KB, w, h - KB); c.font = '600 17px Inter,Arial';
     ROWS.forEach((row, r) => { for (let q = 0; q < row.length; q++) { const [kx, ky] = keyAt(r, q), on = tip && typingNow && Math.abs(tip[0] - kx) < 10 && Math.abs(tip[1] - ky) < 14; rr(kx - 16, ky - 22, 32, 44, 7, on ? '#4a5563' : '#2c333d', null); c.fillStyle = '#d8dee6'; c.fillText(row[q], kx, ky + 6); } });
-    rr(90, KB + 22 + 3 * 54, 220, 40, 7, '#2c333d', null); c.font = '600 15px Inter,Arial'; c.fillStyle = '#8d98a5'; c.fillText('boşluk', 200, KB + 22 + 3 * 54 + 26); c.textAlign = 'left';
+    rr(90, KB + 22 + 3 * 54, 220, 40, 7, '#2c333d', null); c.font = '600 15px Inter,Arial'; c.fillStyle = '#8d98a5'; c.fillText('boşluk', 200, KB + 22 + 3 * 54 + 26);
+    rr(RET[0] - 30, RET[1] - 20, 60, 40, 7, sending ? '#2f8a5e' : '#1f6b4c', null); c.fillStyle = '#fff'; c.font = '700 20px Inter,Arial'; c.fillText('➤', RET[0] + 1, RET[1] + 7); c.textAlign = 'left';
     const dim = ss(d1, d1 + .8, t) * .55; if (dim > 0) { c.fillStyle = `rgba(0,0,0,${dim})`; c.fillRect(0, 0, w, h); }
   });
-  for (const fy of [880, 935, 990]) rr(552, fy - 16, 36, 32, 16, WOLF_C.paw, OL, 4);
-  c.save(); c.translate(168, 1010); c.rotate(-.8); rr(-16, -50, 32, 74, 16, WOLF_C.paw, OL, 4.5); c.restore();
-  const rest = [470, 1150], tw = tip ? [PX + tip[0], PY + tip[1]] : rest;
-  capsule([860, 1480, tw[0] + 120, tw[1] + 250], 130, WOLF_C.sleeve, 7); capsule([tw[0] + 108, tw[1] + 226, tw[0] + 88, tw[1] + 186], 132, '#6a1822', 6);
-  pawFinger(tw[0], tw[1], -.42, WOLF_C.paw, 1.1);
+  // baş parmakla yazma: ekranın sol yarısındaki tuşlara sol, sağ yarısına ve gönder tuşuna sağ baş parmak
+  const useR = tip && (tip[0] >= 200 || sending);
+  for (const sd of [-1, 1]) { const base = [360 + sd * 205, 1036], act = tip && (sd > 0) === useR, rest = [360 + sd * 112, 985];
+    const tp = act ? [PX + tip[0], PY + tip[1]] : [rest[0] + Math.sin(t * 1.3 + sd) * 3, rest[1]]; pawThumb(base[0], base[1], tp[0], tp[1]); }
   c.restore();
   const ay = ss(tSplit - .05, tSplit + .3, t) * (1 - ss(tSplit + 1.8, tSplit + 2.3, t));
   scrText('3 AY SONRA', 360, 178, '700 30px Cinzel,Georgia,serif', '#f2d08a', ay, 8, 'rgba(0,0,0,.9)');
